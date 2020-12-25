@@ -1,0 +1,15 @@
+
+# 目标名字
+target = "base_test"
+mode = ""
+
+sources = [
+    { table_name = "base_test.xlsx",    sheet_name = "Sheet1" },
+]
+
+
+fields = [
+    { active = false,   sname = "id" ,      tname = "id" ,      type = "int" ,  key = 1,    desc = "主id"},
+    { active = false,   sname = "name" ,    tname = "name" ,    type = "string" ,  key = 0,    desc = "名字"},
+    { active = false,   sname = "age" ,     tname = "age" ,     type = "int" ,  key = 0,    desc = "年龄"},
+]
