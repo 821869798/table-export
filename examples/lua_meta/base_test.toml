@@ -2,9 +2,10 @@
 # 目标名字
 target = "base_test"
 mode = ""
+source_type = "excel"
 
 sources = [
-    { table_name = "base_test.xlsx",    sheet_name = "Sheet1" },
+    { file_name = "base_test.xlsx",    sheet_name = "Sheet1" },
 ]
 
 

@@ -6,9 +6,9 @@ import (
 )
 
 type RawGlobalConfig struct {
-	Table  *RawTableConfig  `toml:"table"`
-	Meta   *RawMetaConfig   `toml:"meta"`
-	Plugin *RawPluginConfig `toml:"plugin"`
+	Table  *RawExcelTableConfig `toml:"table"`
+	Meta   *RawMetaConfig       `toml:"meta"`
+	Plugin *RawPluginConfig     `toml:"plugin"`
 }
 
 type RawMetaConfig struct {
@@ -21,7 +21,7 @@ type RawMetaRuleConfig struct {
 	ConfigDir  string `toml:"config_dir"`
 }
 
-type RawTableConfig struct {
+type RawExcelTableConfig struct {
 	SrcDir     string `toml:"src_dir"`
 	Name       int    `toml:"name"`
 	Desc       int    `toml:"desc"`

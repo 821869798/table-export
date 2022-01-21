@@ -1,8 +1,10 @@
 package lua
 
 import (
+	log "github.com/sirupsen/logrus"
 	"sync"
 	"table-export/constant"
+	"table-export/data"
 	"table-export/export/api"
 	"table-export/meta"
 )
@@ -32,6 +34,12 @@ func (e *ExportLua) Export() {
 			continue
 		}
 		go func(tableMeta *meta.RawTableMeta) {
+
+			dataModel, err := data.GetDataModelByType(tableMeta)
+			if err != nil {
+				log.Fatal(err)
+			}
+			_ = dataModel
 
 			wg.Done()
 		}(tableMeta)

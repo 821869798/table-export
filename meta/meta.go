@@ -11,14 +11,15 @@ import (
 )
 
 type RawTableMeta struct {
-	Target       string
-	Mode         string
-	ExcelSources []*RawTableSource `toml:"sources"`
-	Fields       []*RawTableField  `toml:"fields"`
+	Target     string
+	Mode       string
+	SourceType string            `toml:"source_type"`
+	Sources    []*RawTableSource `toml:"sources"`
+	Fields     []*RawTableField  `toml:"fields"`
 }
 
 type RawTableSource struct {
-	Table string `toml:"table_name"`
+	Table string `toml:"file_name"`
 	Sheet string `toml:"sheet_name"`
 }
 
@@ -82,14 +83,15 @@ func (rtm *RawTableMeta) SaveTableMetaByDir(filePath string) error {
 
 func (rtm *RawTableMeta) SaveTableMetaTemplateByDir(filePath string) error {
 	tmpl, err := template.New("lua").Parse(`target = "{{.Target}}"
-mode = ""
+mode = "{{.Mode}}"
+source_type= "{{.SourceType}}"
 
 sources = [
-{{range $i, $v := .ExcelSources }}	{ table_name = "{{$v.Table}}",    sheet_name = "{{$v.Sheet}}" },
+{{range $i, $v := .Sources }}	{ file_name = "{{$v.Table}}",    sheet_name = "{{$v.Sheet}}" },
 {{end}}]
 
 fields = [
-{{range $i, $v := .Fields }}	{ active = {{$v.Active}},   sname = "{{$v.Source}}" ,      tname = "{{$v.Target}}" ,      type = "{{$v.Type}}" ,  key = {{$v.Key}},    desc = "{{$v.Desc}}" },
+{{range $i, $v := .Fields }}	{ active = {{$v.Active}},   sname = "{{$v.SourceType}}" ,      tname = "{{$v.Target}}" ,      type = "{{$v.Type}}" ,  key = {{$v.Key}},    desc = "{{$v.Desc}}" },
 {{end}}]
 `)
 	if err != nil {

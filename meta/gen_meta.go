@@ -62,7 +62,8 @@ func (g *GenMeta) Run() {
 	rtm := NewRawTableMeta()
 	rtm.Target = targetName
 	rtm.Mode = ""
-	rtm.ExcelSources = []*RawTableSource{
+	rtm.SourceType = "excel"
+	rtm.Sources = []*RawTableSource{
 		&RawTableSource{
 			Table: fileName,
 			Sheet: sheetName,
