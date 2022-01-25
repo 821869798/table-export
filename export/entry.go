@@ -1,7 +1,6 @@
 package export
 
 import (
-	_ "github.com/360EntSecGroup-Skylar/excelize/v2"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"table-export/config"
@@ -45,9 +44,7 @@ func (e *Entry) Run() {
 			}).Debug("start run export")
 
 			export := creatorFunc(tableMetas)
-			go func() {
-				export.Export()
-			}()
+			export.Export()
 		} else {
 			log.Fatalf("export mode can't support:%v", metaRule.ExportType)
 		}

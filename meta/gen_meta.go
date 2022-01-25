@@ -85,7 +85,10 @@ func (g *GenMeta) Run() {
 			}).Fatal("excel source field name repeated!")
 		}
 		fieldSet[cellStr] = true
-		descCellStr := descCols[index]
+		descCellStr := ""
+		if index < len(descCols) {
+			descCellStr = descCols[index]
+		}
 		rtf := NewRawTableField(cellStr, descCellStr)
 		rtm.Fields = append(rtm.Fields, rtf)
 	}

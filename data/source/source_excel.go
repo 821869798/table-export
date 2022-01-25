@@ -1,4 +1,4 @@
-package excel
+package source
 
 import (
 	"errors"
@@ -19,9 +19,14 @@ func NewDataSourceExcel() api.DataSource {
 	return d
 }
 
-func (d *DataSourceExcel) LoadDataModel(tableMetal *meta.RawTableMeta) (*model.DataModel, error) {
-	//for k := range tableMetal.Sources
-	dataModel := model.NewDataModel()
+func (d *DataSourceExcel) LoadDataModel(tableMetal *meta.TableMeta) (*model.TableModel, error) {
+	//检测数量
+	if len(tableMetal.Sources) == 0 {
+		return nil, errors.New(fmt.Sprintf("table meta config[%v] sources count must >= 0", tableMetal.Target))
+	}
+
+	//读取excel数据到自定义结构体中
+	dataModel := model.NewTableModel(tableMetal)
 	for _, tableSource := range tableMetal.Sources {
 		filePath := filepath.Join(config.GlobalConfig.Table.SrcDir, tableSource.Table)
 		excelFile, err := excelize.OpenFile(filePath)
@@ -39,13 +44,4 @@ func (d *DataSourceExcel) LoadDataModel(tableMetal *meta.RawTableMeta) (*model.D
 		}
 	}
 	return dataModel, nil
-}
-
-func createOrAddDataModel(tableSource *meta.RawTableSource, dataModel *model.DataModel, rowData [][]string) error {
-	//数据行数不够
-	if len(rowData) < config.GlobalConfig.Table.DataStart {
-		return errors.New(fmt.Sprintf("excel source file[%v] sheet[%v] row count must >= %v\n", tableSource.Table, tableSource.Sheet, config.GlobalConfig.Table.DataStart))
-	}
-
-	return nil
 }

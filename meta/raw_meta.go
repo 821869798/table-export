@@ -24,12 +24,12 @@ type RawTableSource struct {
 }
 
 type RawTableField struct {
-	Active bool
-	Source string
-	Target string
-	Type   string
-	Key    int
-	Desc   string
+	Active bool   `toml:"active"`
+	Source string `toml:"sname"`
+	Target string `toml:"tname"`
+	Type   string `toml:"type"`
+	Key    int    `toml:"key"`
+	Desc   string `toml:"desc"`
 }
 
 func NewRawTableMeta() *RawTableMeta {
@@ -91,7 +91,7 @@ sources = [
 {{end}}]
 
 fields = [
-{{range $i, $v := .Fields }}	{ active = {{$v.Active}},   sname = "{{$v.SourceType}}" ,      tname = "{{$v.Target}}" ,      type = "{{$v.Type}}" ,  key = {{$v.Key}},    desc = "{{$v.Desc}}" },
+{{range $i, $v := .Fields }}	{ active = {{$v.Active}},   sname = "{{$v.Source}}" ,      tname = "{{$v.Target}}" ,      type = "{{$v.Type}}" ,  key = {{$v.Key}},    desc = "{{$v.Desc}}" },
 {{end}}]
 `)
 	if err != nil {

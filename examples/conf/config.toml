@@ -2,32 +2,29 @@
 # 全局的一些配置
 # 处理excel的配置
 [table]
-    # Excel策划配置表目录
-    src_dir = "./excels"
-    # 表格字段名行号
-    name = 0
-    # 表格描述行号
-    desc = 4
-    # 表格数据起始行号，由空号结束
-    data_start = 5
-    # 配置数组的分隔符
-    array_split = "_"
-    # 配置map的分隔符
-    map_split1 = "|"
-    map_split2 = "="
+# Excel策划配置表目录
+src_dir = "./excels"
+# 表格字段名行号
+name = 0
+# 表格描述行号
+desc = 4
+# 表格数据起始行号，由空号结束
+data_start = 5
+# 配置数组的分隔符
+array_split = "_"
+# 配置map的分隔符
+map_split1 = "|"
+map_split2 = "="
 
 # 控制导表的元配置
 [meta]
 # 生成出来的表meta配置临时目录
 gen_dir = "./temp_meta"
-    # 所有类型的配置目录
-    [meta.rule]
-    # 生成lua的toml配置目录
-    lua = { type = "lua", config_dir = "./lua_meta", }
-    json = { type = "json ", config_dir = "./json_meta", }
-    cs_proto = { type = "cs_proto", config_dir = "./cs_meta", }
 
-
-# 供导出的插件使用的配置
-[plugin]
+# 所有类型的配置目录
+[meta.rule]
+# 生成lua的toml配置目录
+lua = { type = "lua", config_dir = "./lua_meta", temp_dir = "./temp_lua",}
+json = { type = "json ", config_dir = "./json_meta", }
+cs_proto = { type = "cs_proto", config_dir = "./cs_meta", }
 

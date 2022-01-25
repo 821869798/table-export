@@ -6,9 +6,8 @@ import (
 )
 
 type RawGlobalConfig struct {
-	Table  *RawExcelTableConfig `toml:"table"`
-	Meta   *RawMetaConfig       `toml:"meta"`
-	Plugin *RawPluginConfig     `toml:"plugin"`
+	Table *RawExcelTableConfig `toml:"table"`
+	Meta  *RawMetaConfig       `toml:"meta"`
 }
 
 type RawMetaConfig struct {
@@ -19,6 +18,7 @@ type RawMetaConfig struct {
 type RawMetaRuleConfig struct {
 	ExportType string `toml:"type"`
 	ConfigDir  string `toml:"config_dir"`
+	TempDir    string `toml:"temp_dir"`
 }
 
 type RawExcelTableConfig struct {
@@ -29,9 +29,6 @@ type RawExcelTableConfig struct {
 	ArraySplit string `toml:"array_split"`
 	MapSplit1  string `toml:"map_split1"`
 	MapSplit2  string `toml:"map_split2"`
-}
-
-type RawPluginConfig struct {
 }
 
 var GlobalConfig *RawGlobalConfig
