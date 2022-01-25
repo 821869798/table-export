@@ -21,10 +21,15 @@ map_split2 = "="
 # 生成出来的表meta配置临时目录
 gen_dir = "./temp_meta"
 
-# 所有类型的配置目录
-[meta.rule]
-# 生成lua的toml配置目录
-lua = { type = "lua", config_dir = "./lua_meta", temp_dir = "./temp_lua",}
-json = { type = "json ", config_dir = "./json_meta", }
-cs_proto = { type = "cs_proto", config_dir = "./cs_meta", }
+[meta.rule_lua]
+config_dir = "./lua_meta"
+temp_dir = "./temp_lua"
 
+[meta.rule_json]
+config_dir = "./json_meta"
+output_dir = "./temp_output_json"
+
+[meta.rule_cs_proto]
+config_dir = "./cs_meta"
+proto_dir = "./temp_output_cs_proto"
+bytes_dir = "./temp_output_cs_bytes"

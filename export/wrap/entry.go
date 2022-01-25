@@ -3,12 +3,12 @@ package wrap
 import (
 	"errors"
 	"fmt"
-	"table-export/export/common"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type ValueWarp interface {
-	OutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error)
+	OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error)
 }
 
 var valueWrapMap map[meta.FieldType]ValueWarp
@@ -23,7 +23,7 @@ func init() {
 	valueWrapMap[meta.FieldType_Map] = &mapWrap{}
 }
 
-func GetOutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
+func GetOutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
 		return nil, errors.New(fmt.Sprintf("no support field type[%v]", filedType.Type))

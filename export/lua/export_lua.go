@@ -8,7 +8,6 @@ import (
 	"table-export/data/model"
 	"table-export/export/api"
 	"table-export/export/common"
-	"table-export/export/wrap"
 	"table-export/meta"
 	"table-export/util"
 	"text/template"
@@ -18,7 +17,7 @@ type ExportLua struct {
 	tableMetas []*meta.RawTableMeta
 }
 
-func NewExportLua(tableMetas []*meta.RawTableMeta) api.IExport {
+func NewExportLua(tableMetas []*meta.RawTableMeta, extraArg map[string]string) api.IExport {
 	e := &ExportLua{
 		tableMetas: tableMetas,
 	}
@@ -31,20 +30,10 @@ func (e *ExportLua) TableMetas() []*meta.RawTableMeta {
 
 func (e *ExportLua) Export() {
 
-	luaRule, ok := config.GlobalConfig.Meta.Rule[common.ExportType_Lua.ExportTypeToString()]
-	if !ok {
-		log.Fatal("global config not find lua config")
-	}
+	luaRule := config.GlobalConfig.Meta.RuleLua
 
 	//清空目录
-	if util.ExistPath(luaRule.TempDir) {
-		err := os.RemoveAll(luaRule.TempDir)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	err := os.MkdirAll(luaRule.TempDir, os.ModePerm)
-	if err != nil {
+	if err := util.ClearDirAndCreateNew(luaRule.TempDir); err != nil {
 		log.Fatal(err)
 	}
 
@@ -61,60 +50,7 @@ type luaWriteContent struct {
 }
 
 func exportLuaFile(dataModel *model.TableModel, outputPath string) {
-	writeContent := make(map[string]interface{})
-	rowDataOffset := config.GlobalConfig.Table.DataStart + 1
-	for rowIndex, rowData := range dataModel.RawData {
-		//数据表中一行数据的字符串
-		recordString := ""
-		keys := make([]string, len(dataModel.Meta.Keys))
-		for _, tf := range dataModel.Meta.Fields {
-			rawIndex := dataModel.NameIndexMapping[tf.Target]
-			var rawStr string
-			if rawIndex < len(rowData) {
-				rawStr = rowData[rawIndex]
-			}
-			output, err := wrap.GetOutputValue(common.ExportType_Lua, tf.Type, rawStr)
-			if err != nil {
-				log.Fatalf("export lua file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
-			}
-			outputStr, ok := output.(string)
-			if !ok {
-				log.Fatalf("export lua file[%v] RowCount[%v] filedName[%v] convert to string error", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
-			}
-			recordString += tf.Target + "=" + outputStr + ","
-
-			//存储key
-			if tf.Key > 0 {
-				if outputStr == "" {
-					log.Fatalf("export lua file[%v] RowCount[%v] filedName[%v] key content is null", dataModel.Meta.Target, rowIndex+rowDataOffset)
-				}
-				keys[tf.Key-1] = outputStr
-			}
-		}
-		//写入key和数据
-		dataMap := writeContent
-		for i := 0; i < len(keys)-1; i++ {
-			keyStr := keys[i]
-			tmpInterface, ok := dataMap[keyStr]
-			var tmpMap map[string]interface{}
-			if !ok {
-				tmpMap = make(map[string]interface{})
-				dataMap[keyStr] = tmpMap
-			} else {
-				tmpMap = tmpInterface.(map[string]interface{})
-			}
-			dataMap = tmpMap
-		}
-
-		//判断唯一key是否重复
-		lastKey := keys[len(keys)-1]
-		_, ok := dataMap[lastKey]
-		if ok {
-			log.Fatalf("export lua file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
-		}
-		dataMap[lastKey] = recordString
-
-	}
+	writeContent := common.CommonGetWriteContentMap(dataModel)
 
 	//创建,绑定全局函数,并且解析
 	tmpl, err := template.New("export_lua").Funcs(template.FuncMap{

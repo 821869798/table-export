@@ -3,22 +3,12 @@ package config
 import (
 	"github.com/BurntSushi/toml"
 	log "github.com/sirupsen/logrus"
+	"table-export/define"
 )
 
 type RawGlobalConfig struct {
 	Table *RawExcelTableConfig `toml:"table"`
 	Meta  *RawMetaConfig       `toml:"meta"`
-}
-
-type RawMetaConfig struct {
-	GenDir string                        `toml:"gen_dir"`
-	Rule   map[string]*RawMetaRuleConfig `toml:"rule"`
-}
-
-type RawMetaRuleConfig struct {
-	ExportType string `toml:"type"`
-	ConfigDir  string `toml:"config_dir"`
-	TempDir    string `toml:"temp_dir"`
 }
 
 type RawExcelTableConfig struct {
@@ -29,6 +19,45 @@ type RawExcelTableConfig struct {
 	ArraySplit string `toml:"array_split"`
 	MapSplit1  string `toml:"map_split1"`
 	MapSplit2  string `toml:"map_split2"`
+}
+
+type RawMetaConfig struct {
+	GenDir      string              `toml:"gen_dir"`
+	RuleLua     *RawMetaRuleLua     `toml:"rule_lua"`
+	RuleJson    *RawMetaRuleJson    `toml:"rule_json"`
+	RuleCSProto *RawMetaRuleCSProto `toml:"rule_cs_proto"`
+}
+
+func (m *RawMetaConfig) GetRawMetaBaseConfig(exportType define.ExportType) *RawMetaRuleBase {
+	switch exportType {
+	case define.ExportType_Lua:
+		return m.RuleLua.RawMetaRuleBase
+	case define.ExportType_Json:
+		return m.RuleJson.RawMetaRuleBase
+	case define.ExportType_CS_Proto:
+		return m.RuleCSProto.RawMetaRuleBase
+	}
+	return nil
+}
+
+type RawMetaRuleBase struct {
+	ConfigDir string `toml:"config_dir"`
+}
+
+type RawMetaRuleLua struct {
+	*RawMetaRuleBase
+	TempDir string `toml:"temp_dir"`
+}
+
+type RawMetaRuleJson struct {
+	*RawMetaRuleBase
+	OutputDir string `toml:"output_dir"`
+}
+
+type RawMetaRuleCSProto struct {
+	*RawMetaRuleBase
+	ProtoDir string `toml:"proto_dir"`
+	BytesDir string `toml:"bytes_dir"`
 }
 
 var GlobalConfig *RawGlobalConfig

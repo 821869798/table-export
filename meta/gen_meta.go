@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"table-export/config"
-	"table-export/constant"
+	"table-export/define"
 	"table-export/util"
 )
 
@@ -36,7 +36,7 @@ func (g *GenMeta) Run() {
 	srcFileName := sourceSlice[1]
 	sheetName := sourceSlice[2]
 
-	fileName := srcFileName + constant.ExcelFileSuffix
+	fileName := srcFileName + define.ExcelFileSuffix
 	filePath := filepath.Join(config.GlobalConfig.Table.SrcDir, fileName)
 
 	if !util.ExistFile(filePath) {
@@ -93,7 +93,7 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := filepath.Join(config.GlobalConfig.Meta.GenDir, targetName+constant.MetaFileSuffix)
+	genFilePath := filepath.Join(config.GlobalConfig.Meta.GenDir, targetName+define.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		log.Fatal(err)

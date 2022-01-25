@@ -4,15 +4,15 @@ import (
 	"errors"
 	"strings"
 	"table-export/config"
-	"table-export/export/common"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type mapWrap struct{}
 
-func (b *mapWrap) OutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
+func (b *mapWrap) OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	switch exportType {
-	case common.ExportType_Lua:
+	case define.ExportType_Lua:
 		strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
 		result := "{"
 		//用来判断是否有key重复的情况

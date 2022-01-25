@@ -1,4 +1,4 @@
-package constant
+package define
 
 import (
 	log "github.com/sirupsen/logrus"

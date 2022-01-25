@@ -2,15 +2,15 @@ package wrap
 
 import (
 	"strconv"
-	"table-export/export/common"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type boolWrap struct{}
 
-func (b *boolWrap) OutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
+func (b *boolWrap) OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	switch exportType {
-	case common.ExportType_Lua:
+	case define.ExportType_Lua:
 		if origin == "" {
 			return strconv.FormatBool(false), nil
 		}

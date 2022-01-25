@@ -4,15 +4,15 @@ import (
 	"errors"
 	"strings"
 	"table-export/config"
-	"table-export/export/common"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type sliceWrap struct{}
 
-func (b *sliceWrap) OutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
+func (b *sliceWrap) OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	switch exportType {
-	case common.ExportType_Lua:
+	case define.ExportType_Lua:
 		strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
 		result := "{"
 		if origin != "" {

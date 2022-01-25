@@ -4,7 +4,7 @@ import (
 	"flag"
 	log "github.com/sirupsen/logrus"
 	"table-export/config"
-	"table-export/constant"
+	"table-export/define"
 	"table-export/export"
 	"table-export/meta"
 )
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if params.version {
-		constant.PrintBuild()
+		define.PrintBuild()
 	}
 
 	config.ParseConfig(params.confFile)
@@ -36,7 +36,7 @@ func main() {
 	}
 
 	if params.mode != "" {
-		entry := export.NewEntry(params.mode)
+		entry := export.NewEntry(params.mode, params.extra)
 		entry.Run()
 	}
 

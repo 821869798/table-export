@@ -1,4 +1,4 @@
-package constant
+package define
 
 //全局静态配置
 const (

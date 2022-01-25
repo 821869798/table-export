@@ -4,30 +4,42 @@ import (
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"table-export/config"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type Entry struct {
-	mode string
+	mode  string //转换模式
+	extra string //额外参数
 }
 
-func NewEntry(mode string) *Entry {
+func NewEntry(mode, extra string) *Entry {
 	e := &Entry{
-		mode: mode,
+		mode:  mode,
+		extra: extra,
 	}
 	return e
 }
 
 func (e *Entry) Run() {
-	modeSlice := strings.Split(e.mode, ",")
-	for _, mode := range modeSlice {
-		metaRule, ok := config.GlobalConfig.Meta.Rule[mode]
-		if !ok {
-			log.WithFields(log.Fields{
-				"mode": mode,
-			}).Error("find meta rule failed")
+	extraArg := make(map[string]string)
+	strMap1 := strings.Split(e.extra, "|")
+	for _, v := range strMap1 {
+		if v == "" {
 			continue
 		}
+		kvStr := strings.Split(v, "=")
+		if len(kvStr) == 2 {
+			extraArg[kvStr[0]] = kvStr[1]
+		}
+	}
+	modeSlice := strings.Split(e.mode, ",")
+	for _, mode := range modeSlice {
+		exportType, ok := define.GetExportTypeFromString(mode)
+		if !ok {
+			log.Fatalf("export mode can't support:%v", mode)
+		}
+		metaRule := config.GlobalConfig.Meta.GetRawMetaBaseConfig(exportType)
 
 		tableMetas, err := meta.LoadTableMetasByDir(metaRule.ConfigDir)
 		if err != nil {
@@ -37,16 +49,16 @@ func (e *Entry) Run() {
 			}).Fatal("load table meta toml config failed")
 		}
 
-		if creatorFunc, ok := exportCreators[metaRule.ExportType]; ok {
+		if creatorFunc, ok := exportCreators[exportType]; ok {
 
 			log.WithFields(log.Fields{
 				"mode": mode,
 			}).Debug("start run export")
 
-			export := creatorFunc(tableMetas)
+			export := creatorFunc(tableMetas, extraArg)
 			export.Export()
 		} else {
-			log.Fatalf("export mode can't support:%v", metaRule.ExportType)
+			log.Fatalf("export mode can't support:%v", exportType)
 		}
 	}
 }

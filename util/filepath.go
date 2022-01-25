@@ -49,3 +49,14 @@ func GetFileListByExt(dir string, ext string) ([]string, error) {
 	})
 	return fileLists, err
 }
+
+func ClearDirAndCreateNew(path string) error {
+	if ExistPath(path) {
+		err := os.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	err := os.MkdirAll(path, os.ModePerm)
+	return err
+}

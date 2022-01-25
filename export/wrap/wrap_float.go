@@ -2,15 +2,15 @@ package wrap
 
 import (
 	"strconv"
-	"table-export/export/common"
+	"table-export/define"
 	"table-export/meta"
 )
 
 type floatWrap struct{}
 
-func (b *floatWrap) OutputValue(exportType common.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
+func (b *floatWrap) OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	switch exportType {
-	case common.ExportType_Lua:
+	case define.ExportType_Lua:
 		if origin == "" {
 			return "0", nil
 		}
