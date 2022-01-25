@@ -1,6 +1,7 @@
 package wrap
 
 import (
+	"errors"
 	"strconv"
 	"table-export/define"
 	"table-export/meta"
@@ -19,6 +20,22 @@ func (b *intWrap) OutputValue(exportType define.ExportType, filedType *meta.Tabl
 			return nil, err
 		}
 		return origin, nil
+	default:
+		if origin == "" {
+			return 0, nil
+		}
+		value, err := strconv.Atoi(origin)
+		if err != nil {
+			return nil, err
+		}
+		return value, nil
 	}
-	return nil, nil
+}
+
+func (b *intWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	if value, ok := origin.(int); ok {
+		result := strconv.Itoa(value)
+		return result, nil
+	}
+	return "", errors.New("origin content not a int type")
 }

@@ -1,6 +1,7 @@
 package wrap
 
 import (
+	"errors"
 	"strings"
 	"table-export/define"
 	"table-export/meta"
@@ -15,6 +16,14 @@ func (b *stringWrap) OutputValue(exportType define.ExportType, filedType *meta.T
 		newValue = strings.Replace(newValue, "\"", "\\\"", -1)
 		newValue = "\"" + newValue + "\""
 		return newValue, nil
+	default:
+		return origin, nil
 	}
-	return nil, nil
+}
+
+func (b *stringWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	if value, ok := origin.(string); ok {
+		return value, nil
+	}
+	return "", errors.New("origin content not a string type")
 }

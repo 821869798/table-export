@@ -9,6 +9,7 @@ import (
 
 type ValueWarp interface {
 	OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error)
+	FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error)
 }
 
 var valueWrapMap map[meta.FieldType]ValueWarp
@@ -26,8 +27,17 @@ func init() {
 func GetOutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("no support field type[%v]", filedType.Type))
+		return nil, errors.New(fmt.Sprintf("GetOutputValue no support field type[%v]", filedType.Type))
 	}
 	result, err := wrap.OutputValue(exportType, filedType, origin)
+	return result, err
+}
+
+func GetFormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	wrap, ok := valueWrapMap[filedType.Type]
+	if !ok {
+		return "", errors.New(fmt.Sprintf("GetFormatValue no support field type[%v]", filedType.Type))
+	}
+	result, err := wrap.FormatValue(exportType, filedType, origin)
 	return result, err
 }

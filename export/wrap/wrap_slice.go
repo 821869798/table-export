@@ -30,6 +30,22 @@ func (b *sliceWrap) OutputValue(exportType define.ExportType, filedType *meta.Ta
 		}
 		result += "}"
 		return result, nil
+	default:
+		strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
+		result := make([]interface{}, 0, len(strSlice))
+		if origin != "" {
+			for _, v := range strSlice {
+				content, err := GetOutputValue(exportType, filedType.Value, v)
+				if err != nil {
+					return nil, err
+				}
+				result = append(result, content)
+			}
+		}
+		return result, nil
 	}
-	return nil, nil
+}
+
+func (b *sliceWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	return "", errors.New("slice no support FormatValue")
 }

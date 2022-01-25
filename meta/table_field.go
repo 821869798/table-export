@@ -64,6 +64,8 @@ func getFieldTypeFromString(origin string) (*TableFiledType, error) {
 	switch origin {
 	case "int":
 		tft.Type = FieldType_Int
+	case "uint":
+		tft.Type = FieldType_UInt
 	case "bool":
 		tft.Type = FieldType_Bool
 	case "float":

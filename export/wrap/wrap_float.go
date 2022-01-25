@@ -1,6 +1,7 @@
 package wrap
 
 import (
+	"errors"
 	"strconv"
 	"table-export/define"
 	"table-export/meta"
@@ -19,6 +20,22 @@ func (b *floatWrap) OutputValue(exportType define.ExportType, filedType *meta.Ta
 			return nil, err
 		}
 		return origin, nil
+	default:
+		if origin == "" {
+			return float64(0), nil
+		}
+		value, err := strconv.ParseFloat(origin, 64)
+		if err != nil {
+			return nil, err
+		}
+		return value, nil
 	}
-	return nil, nil
+}
+
+func (b *floatWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	if value, ok := origin.(float64); ok {
+		result := strconv.FormatFloat(value, 'f', -1, 64)
+		return result, nil
+	}
+	return "", errors.New("origin content not a float type")
 }

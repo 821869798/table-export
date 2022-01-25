@@ -1,6 +1,7 @@
 package wrap
 
 import (
+	"errors"
 	"strconv"
 	"table-export/define"
 	"table-export/meta"
@@ -19,6 +20,22 @@ func (b *boolWrap) OutputValue(exportType define.ExportType, filedType *meta.Tab
 			return nil, err
 		}
 		return strconv.FormatBool(value), nil
+	default:
+		if origin == "" {
+			return false, nil
+		}
+		value, err := strconv.ParseBool(origin)
+		if err != nil {
+			return nil, err
+		}
+		return value, nil
 	}
-	return nil, nil
+}
+
+func (b *boolWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
+	if value, ok := origin.(bool); ok {
+		result := strconv.FormatBool(value)
+		return result, nil
+	}
+	return "", errors.New("origin content not a bool type")
 }
