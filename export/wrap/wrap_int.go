@@ -33,8 +33,8 @@ func (b *intWrap) OutputValue(exportType define.ExportType, filedType *meta.Tabl
 }
 
 func (b *intWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
-	if value, ok := origin.(int); ok {
-		result := strconv.Itoa(value)
+	if value, ok := origin.(int32); ok {
+		result := strconv.Itoa(int(value))
 		return result, nil
 	}
 	return "", errors.New("origin content not a int type")

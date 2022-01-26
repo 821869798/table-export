@@ -37,7 +37,7 @@ func (b *uintWrap) OutputValue(exportType define.ExportType, filedType *meta.Tab
 }
 
 func (b *uintWrap) FormatValue(exportType define.ExportType, filedType *meta.TableFiledType, origin interface{}) (string, error) {
-	if value, ok := origin.(uint); ok {
+	if value, ok := origin.(uint32); ok {
 		result := strconv.FormatUint(uint64(value), 10)
 		return result, nil
 	}
