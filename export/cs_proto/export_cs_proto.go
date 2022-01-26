@@ -39,7 +39,7 @@ func (e *ExportCsProto) Export() {
 	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.BytesDir), `^.*?\.bytes$`); err != nil {
 		log.Fatal(err)
 	}
-	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.ProtoCSdir), `^.*?\.cs$`); err != nil {
+	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.ProtoCSDir), `^.*?\.cs$`); err != nil {
 		log.Fatal(err)
 	}
 
@@ -56,7 +56,7 @@ func (e *ExportCsProto) Export() {
 
 	//创建.cs文件
 	if len(targetFiles) > 0 {
-		args := []string{"--csharp_out=" + config.AbsExeDir(csRule.ProtoCSdir),
+		args := []string{"--csharp_out=" + config.AbsExeDir(csRule.ProtoCSDir),
 			"--proto_path=" + config.AbsExeDir(csRule.ProtoTempDir)}
 		args = append(args, targetFiles...)
 		var execPath string

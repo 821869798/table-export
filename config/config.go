@@ -65,7 +65,7 @@ type RawMetaRuleCSProto struct {
 	ProtoPackage string `toml:"proto_package"`
 	ProtoTempDir string `toml:"proto_temp_dir"`
 	BytesDir     string `toml:"bytes_dir"`
-	ProtoCSdir   string `toml:"proto_cs_dir"`
+	ProtoCSDir   string `toml:"proto_cs_dir"`
 	ProtoCWinDir string `toml:"protoc_win_dir"`
 	ProtoCMacDir string `toml:"protoc_mac_dir"`
 }

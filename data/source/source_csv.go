@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"table-export/config"
 	"table-export/data/api"
 	"table-export/data/model"
@@ -45,6 +46,12 @@ func (d *DataSourceCsv) LoadDataModel(tableMetal *meta.TableMeta) (*model.TableM
 		err = csvFile.Close()
 		if err != nil {
 			return nil, err
+		}
+
+		//去除utf-8的bom
+		if len(rowData) > 0 && len(rowData[0]) > 0 {
+			firstData := rowData[0][0]
+			rowData[0][0] = strings.TrimPrefix(firstData, "\uFEFF")
 		}
 
 		// 创建或者添加数据
