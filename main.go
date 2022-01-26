@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"table-export/config"
 	"table-export/define"
 	"table-export/export"
@@ -17,6 +18,9 @@ func main() {
 		DisableColors:   true,
 		TimestampFormat: "2006-01-02 15:03:04",
 	})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.InfoLevel)
+
 	flag.Parse()
 
 	if params.help {

@@ -84,7 +84,7 @@ func (rtm *RawTableMeta) SaveTableMetaByDir(filePath string) error {
 func (rtm *RawTableMeta) SaveTableMetaTemplateByDir(filePath string) error {
 	tmpl, err := template.New("lua").Parse(`target = "{{.Target}}"
 mode = "{{.Mode}}"
-source_type= "{{.SourceType}}"
+source_type = "{{.SourceType}}"
 
 sources = [
 {{range $i, $v := .Sources }}	{ file_name = "{{$v.Table}}",    sheet_name = "{{$v.Sheet}}" },

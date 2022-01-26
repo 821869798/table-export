@@ -13,6 +13,7 @@ import (
 	"table-export/export/wrap"
 	"table-export/meta"
 	"table-export/util"
+	"time"
 )
 
 type ExportJson struct {
@@ -37,6 +38,8 @@ func (e *ExportJson) Export() {
 	if err := util.ClearDirAndCreateNew(jsonRule.OutputDir); err != nil {
 		log.Fatal(err)
 	}
+
+	defer util.TimeCost(time.Now(), "export json time cost = %v\n")
 
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {

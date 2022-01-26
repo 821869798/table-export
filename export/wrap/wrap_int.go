@@ -22,13 +22,13 @@ func (b *intWrap) OutputValue(exportType define.ExportType, filedType *meta.Tabl
 		return origin, nil
 	default:
 		if origin == "" {
-			return 0, nil
+			return int32(0), nil
 		}
 		value, err := strconv.Atoi(origin)
 		if err != nil {
 			return nil, err
 		}
-		return value, nil
+		return int32(value), nil
 	}
 }
 

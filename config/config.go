@@ -56,6 +56,7 @@ type RawMetaRuleJson struct {
 
 type RawMetaRuleCSProto struct {
 	*RawMetaRuleBase
+	ProtoPackage string `toml:"proto_package"`
 	ProtoTempDir string `toml:"proto_temp_dir"`
 	BytesDir     string `toml:"bytes_dir"`
 	ProtoCSdir   string `toml:"proto_cs_dir"`

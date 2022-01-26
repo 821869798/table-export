@@ -1,6 +1,6 @@
 target = "complex_test"
 mode = ""
-source_type= "excel"
+source_type = "excel"
 
 sources = [
 	{ file_name = "complex_test.xlsx",    sheet_name = "Sheet1" },

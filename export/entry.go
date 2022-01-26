@@ -3,6 +3,7 @@ package export
 import (
 	log "github.com/sirupsen/logrus"
 	"strings"
+	"sync"
 	"table-export/config"
 	"table-export/define"
 	"table-export/meta"
@@ -33,7 +34,10 @@ func (e *Entry) Run() {
 			extraArg[kvStr[0]] = kvStr[1]
 		}
 	}
-	modeSlice := strings.Split(e.mode, ",")
+
+	wg := sync.WaitGroup{}
+
+	modeSlice := strings.Split(e.mode, "|")
 	for _, mode := range modeSlice {
 		exportType, ok := define.GetExportTypeFromString(mode)
 		if !ok {
@@ -56,9 +60,16 @@ func (e *Entry) Run() {
 			}).Debug("start run export")
 
 			export := creatorFunc(tableMetas, extraArg)
-			export.Export()
+			wg.Add(1)
+			go func() {
+				export.Export()
+				wg.Done()
+			}()
+
 		} else {
 			log.Fatalf("export mode can't support:%v", exportType)
 		}
 	}
+
+	wg.Wait()
 }

@@ -26,7 +26,7 @@ var params *parameters
 func init() {
 
 	params = new(parameters)
-	flag.StringVar(&params.mode, "m", "", `export data by source config <lua,json,cs_proto>, example [ -m=lua ] or [ -m=lua,json ] `)
+	flag.StringVar(&params.mode, "m", "", `export data by source config <lua|json|cs_proto>, example [ -m=lua ] or [ -m=lua|json ] `)
 	flag.StringVar(&params.extra, "e", "", `export data extra arg example <arg1=value1|arg2=value2>`)
 	flag.StringVar(&params.genSource, "g", "", `generator source template <target_name,excel_name,sheet_name>, example [ -g=base_test,base_test,Sheet1 ]`)
 	flag.BoolVar(&params.help, "help", false, "this help")

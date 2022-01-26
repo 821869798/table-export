@@ -23,7 +23,7 @@ func (b *uintWrap) OutputValue(exportType define.ExportType, filedType *meta.Tab
 		return origin, nil
 	default:
 		if origin == "" {
-			return uint(0), nil
+			return uint32(0), nil
 		}
 		value, err := strconv.ParseUint(origin, 10, 32)
 		if err != nil {

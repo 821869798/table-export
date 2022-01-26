@@ -13,6 +13,7 @@ import (
 	"table-export/meta"
 	"table-export/util"
 	"text/template"
+	"time"
 )
 
 type ExportLua struct {
@@ -38,6 +39,8 @@ func (e *ExportLua) Export() {
 	if err := util.ClearDirAndCreateNew(luaRule.TempDir); err != nil {
 		log.Fatal(err)
 	}
+
+	defer util.TimeCost(time.Now(), "export lua time cost = %v\n")
 
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {

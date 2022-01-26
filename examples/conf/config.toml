@@ -31,6 +31,7 @@ output_dir = "./temp_output_json"
 
 [meta.rule_cs_proto]
 config_dir = "./cs_meta"
+proto_package = "table"
 proto_temp_dir = "./temp_proto"
 proto_cs_dir = "./temp_output_proto_cs"
 bytes_dir = "./temp_output_cs_bytes"
