@@ -6,30 +6,25 @@ import (
 	"path/filepath"
 )
 
-type GlobalPath struct {
-	exeDir       string
-	configFile   string
-	templatePath string
+func ExeDir() string {
+	return gpath.exeDir
 }
 
-func (g *GlobalPath) ExeDir() string {
-	return g.exeDir
-}
-
-func (g *GlobalPath) AbsExeDir(paths ...string) string {
-	paths = append([]string{g.ExeDir()}, paths...)
+func AbsExeDir(paths ...string) string {
+	paths = append([]string{ExeDir()}, paths...)
 	return filepath.Join(paths...)
 }
 
-func (g *GlobalPath) Config() string {
-	return g.configFile
+func ConfigDir() string {
+	return gpath.configFile
 }
 
-func (g *GlobalPath) TemplatePath() string {
-	return g.templatePath
+type GlobalPath struct {
+	exeDir     string
+	configFile string
 }
 
-var GPath *GlobalPath
+var gpath *GlobalPath
 
 func initPath(configFile string) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -40,10 +35,8 @@ func initPath(configFile string) {
 		//如果参数为空，使用默认路径
 		configFile = filepath.Join(dir, "conf/config.toml")
 	}
-	templatePath := filepath.Join(dir, "tpl")
-	GPath = &GlobalPath{
-		exeDir:       dir,
-		configFile:   configFile,
-		templatePath: templatePath,
+	gpath = &GlobalPath{
+		exeDir:     dir,
+		configFile: configFile,
 	}
 }

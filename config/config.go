@@ -46,7 +46,13 @@ type RawMetaRuleBase struct {
 
 type RawMetaRuleLua struct {
 	*RawMetaRuleBase
-	TempDir string `toml:"temp_dir"`
+	OutputDir      string `toml:"output_dir"`
+	TempDir        string `toml:"temp_dir"`
+	EnableProcess  bool   `toml:"post_process"` //允许后处理
+	PostProcessLua string `toml:"post_process_lua"`
+	PostWorkDir    string `toml:"post_work_dir"`
+	LuaWinDir      string `toml:"lua_win_dir"`
+	LuaMacDir      string `toml:"lua_mac_dir"`
 }
 
 type RawMetaRuleJson struct {
@@ -69,7 +75,7 @@ var GlobalConfig *RawGlobalConfig
 func ParseConfig(configFile string) {
 	initPath(configFile)
 	GlobalConfig = new(RawGlobalConfig)
-	if _, err := toml.DecodeFile(GPath.Config(), GlobalConfig); err != nil {
+	if _, err := toml.DecodeFile(ConfigDir(), GlobalConfig); err != nil {
 		log.Fatalf("load global config error:%v", err)
 	}
 	log.Debug("load global config success!")

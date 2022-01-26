@@ -1,9 +1,9 @@
 package util
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 // 路径是否存在
@@ -32,17 +32,17 @@ func ExistDir(path string) bool {
 	return f.IsDir()
 }
 
-// 获取某个目录下ext扩展名的所有文件
+// GetFileListByExt 获取某个目录下ext扩展名的所有文件
 func GetFileListByExt(dir string, ext string) ([]string, error) {
 	var fileLists []string
 	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
 		if f == nil {
-			log.Fatalln(err)
+			return err
 		}
 		if f.IsDir() {
 			return nil
 		}
-		if filepath.Ext(path) == ".toml" {
+		if filepath.Ext(path) == ext {
 			fileLists = append(fileLists, path)
 		}
 		return nil
@@ -58,5 +58,22 @@ func ClearDirAndCreateNew(path string) error {
 		}
 	}
 	err := os.MkdirAll(path, os.ModePerm)
+	return err
+}
+
+func InitDirAndClearFile(path string, removePattern string) error {
+	if !ExistPath(path) {
+		err := os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+	err := filepath.Walk(path, func(fileName string, f os.FileInfo, err error) error {
+		if ok, _ := regexp.MatchString(removePattern, fileName); !ok {
+			return nil
+		}
+		err = os.Remove(fileName)
+		return err
+	})
 	return err
 }

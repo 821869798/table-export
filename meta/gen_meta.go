@@ -3,7 +3,6 @@ package meta
 import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	log "github.com/sirupsen/logrus"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"table-export/config"
@@ -37,7 +36,7 @@ func (g *GenMeta) Run() {
 	sheetName := sourceSlice[2]
 
 	fileName := srcFileName + define.ExcelFileSuffix
-	filePath := filepath.Join(config.GlobalConfig.Table.SrcDir, fileName)
+	filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, fileName)
 
 	if !util.ExistFile(filePath) {
 		log.WithFields(log.Fields{
@@ -93,7 +92,7 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := filepath.Join(config.GlobalConfig.Meta.GenDir, targetName+define.MetaFileSuffix)
+	genFilePath := config.AbsExeDir(config.GlobalConfig.Meta.GenDir, targetName+define.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		log.Fatal(err)

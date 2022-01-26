@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
-	"path/filepath"
 	"table-export/config"
 	"table-export/data/api"
 	"table-export/data/model"
@@ -28,7 +27,7 @@ func (d *DataSourceExcel) LoadDataModel(tableMetal *meta.TableMeta) (*model.Tabl
 	//读取excel数据到自定义结构体中
 	dataModel := model.NewTableModel(tableMetal)
 	for _, tableSource := range tableMetal.Sources {
-		filePath := filepath.Join(config.GlobalConfig.Table.SrcDir, tableSource.Table)
+		filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, tableSource.Table)
 		excelFile, err := excelize.OpenFile(filePath)
 		if err != nil {
 			return nil, err

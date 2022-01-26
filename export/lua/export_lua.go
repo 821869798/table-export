@@ -2,8 +2,11 @@ package lua
 
 import (
 	log "github.com/sirupsen/logrus"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"table-export/config"
 	"table-export/data/model"
 	"table-export/define"
@@ -36,17 +39,87 @@ func (e *ExportLua) Export() {
 	luaRule := config.GlobalConfig.Meta.RuleLua
 
 	//清空目录
-	if err := util.ClearDirAndCreateNew(luaRule.TempDir); err != nil {
+	if luaRule.EnableProcess {
+		if err := util.ClearDirAndCreateNew(config.AbsExeDir(luaRule.TempDir)); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := util.InitDirAndClearFile(config.AbsExeDir(luaRule.OutputDir), `^.*?\.(lua|meta)$`); err != nil {
 		log.Fatal(err)
 	}
 
 	defer util.TimeCost(time.Now(), "export lua time cost = %v\n")
 
+	var outputPath string
+	if luaRule.EnableProcess {
+		outputPath = config.AbsExeDir(luaRule.TempDir)
+	} else {
+		outputPath = config.AbsExeDir(luaRule.OutputDir)
+	}
+
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
-		exportLuaFile(dataModel, luaRule.TempDir)
+		exportLuaFile(dataModel, outputPath)
 	})
 
+	if luaRule.EnableProcess {
+		luaTablePostProcess(luaRule)
+		_ = os.RemoveAll(config.AbsExeDir(luaRule.TempDir))
+	}
+
+}
+
+//lua打表后处理，例如做优化，提前做一些表结构变化等
+func luaTablePostProcess(luaRule *config.RawMetaRuleLua) {
+	//做lua导出后的预处理
+	var execPath string
+	if runtime.GOOS == "windows" {
+		execPath = config.AbsExeDir(luaRule.LuaWinDir)
+	} else {
+		execPath = config.AbsExeDir(luaRule.LuaMacDir)
+	}
+
+	luaTempDir := config.AbsExeDir(luaRule.TempDir)
+	outputDir := config.AbsExeDir(luaRule.OutputDir)
+
+	postProcessExec := exec.Command(
+		execPath,
+		config.AbsExeDir(luaRule.PostProcessLua),
+		config.AbsExeDir(luaRule.PostWorkDir),
+		luaTempDir,
+		runtime.GOOS,
+	)
+
+	if output, err := postProcessExec.CombinedOutput(); nil != err {
+		log.Fatalf("output:%s\nerr:%v", output, err)
+	}
+	fileList, err := util.GetFileListByExt(luaTempDir, ".lua")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//拷贝到目标去
+	for _, file := range fileList {
+		src, err := os.Open(file)
+		if nil != err {
+			log.Fatal(err)
+		}
+
+		dst, err := os.Create(filepath.Join(outputDir, filepath.Base(file)))
+		if err != nil {
+			_ = src.Close()
+			log.Fatal(err)
+		}
+		_, err = io.Copy(dst, src)
+
+		_ = src.Close()
+		_ = dst.Close()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
 
 type luaWriteContent struct {

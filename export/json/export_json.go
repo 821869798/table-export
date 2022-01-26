@@ -34,8 +34,9 @@ func (e *ExportJson) TableMetas() []*meta.RawTableMeta {
 func (e *ExportJson) Export() {
 	jsonRule := config.GlobalConfig.Meta.RuleJson
 
+	outputPath := config.AbsExeDir(jsonRule.OutputDir)
 	//清空目录
-	if err := util.ClearDirAndCreateNew(jsonRule.OutputDir); err != nil {
+	if err := util.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
 		log.Fatal(err)
 	}
 
@@ -43,7 +44,7 @@ func (e *ExportJson) Export() {
 
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
-		exportJsonFile(dataModel, jsonRule.OutputDir)
+		exportJsonFile(dataModel, outputPath)
 	})
 
 }

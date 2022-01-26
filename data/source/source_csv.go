@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"table-export/config"
 	"table-export/data/api"
 	"table-export/data/model"
@@ -29,7 +28,7 @@ func (d *DataSourceCsv) LoadDataModel(tableMetal *meta.TableMeta) (*model.TableM
 	//读取excel数据到自定义结构体中
 	dataModel := model.NewTableModel(tableMetal)
 	for _, tableSource := range tableMetal.Sources {
-		filePath := filepath.Join(config.GlobalConfig.Table.SrcDir, tableSource.Table)
+		filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, tableSource.Table)
 
 		csvFile, err := os.Open(filePath)
 		if err != nil {

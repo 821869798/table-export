@@ -6,7 +6,6 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	log "github.com/sirupsen/logrus"
 	"os"
-	"path/filepath"
 	"table-export/config"
 	"table-export/data/model"
 	"table-export/define"
@@ -49,7 +48,7 @@ func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMet
 		log.Fatalf("export cs_proto target file[%v] error:%v", dataModel.Meta.Target, err)
 	}
 
-	filePath := filepath.Join(ruleCSProto.BytesDir, dataModel.Meta.Target+".bytes")
+	filePath := config.AbsExeDir(ruleCSProto.BytesDir, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
 		log.Fatalf("export .proto bytes file create file error:%v", err)

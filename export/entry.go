@@ -45,7 +45,7 @@ func (e *Entry) Run() {
 		}
 		metaRule := config.GlobalConfig.Meta.GetRawMetaBaseConfig(exportType)
 
-		tableMetas, err := meta.LoadTableMetasByDir(metaRule.ConfigDir)
+		tableMetas, err := meta.LoadTableMetasByDir(config.AbsExeDir(metaRule.ConfigDir))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"mode": mode,

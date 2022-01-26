@@ -5,7 +5,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
-	"table-export/config"
 	"table-export/util"
 	"text/template"
 )
@@ -49,8 +48,7 @@ func NewRawTableField(source, desc string) *RawTableField {
 	return rtf
 }
 
-func LoadTableMetasByDir(dir string) ([]*RawTableMeta, error) {
-	fullPath := config.GPath.AbsExeDir(dir)
+func LoadTableMetasByDir(fullPath string) ([]*RawTableMeta, error) {
 	fileLists, err := util.GetFileListByExt(fullPath, ".toml")
 	if err != nil {
 		return nil, err

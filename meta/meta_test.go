@@ -3,6 +3,7 @@ package meta
 import (
 	"bytes"
 	"regexp"
+	"table-export/util"
 	"testing"
 	"text/template"
 )
@@ -24,4 +25,8 @@ func TestTemplate(t *testing.T) {
 	bb := &bytes.Buffer{}
 	_ = tmpl.Execute(bb, "hello world")
 	t.Log(bb.String())
+}
+
+func TestUtil(t *testing.T) {
+	util.InitDirAndClearFile(`E:\program\gopath\src\table-export\examples\temp_lua`, `^.*?\.(lua|meta)$`)
 }

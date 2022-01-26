@@ -8,7 +8,6 @@ import (
 	"github.com/jhump/protoreflect/desc/builder"
 	"github.com/jhump/protoreflect/desc/protoprint"
 	"os"
-	"path/filepath"
 	"table-export/config"
 	"table-export/data/model"
 	"table-export/meta"
@@ -49,7 +48,7 @@ func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRule
 		return nil, errors.New(fmt.Sprintf("export .proto define file print error:%v", err))
 	}
 
-	filePath := filepath.Join(ruleCSProto.ProtoTempDir, tableMeta.Target+".proto")
+	filePath := config.AbsExeDir(ruleCSProto.ProtoTempDir, tableMeta.Target+".proto")
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("export .proto define file create file error:%v", err))

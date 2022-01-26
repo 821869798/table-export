@@ -4,7 +4,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"table-export/config"
 	"table-export/data/model"
@@ -34,13 +33,13 @@ func (e *ExportCsProto) Export() {
 	csRule := config.GlobalConfig.Meta.RuleCSProto
 
 	//清空目录
-	if err := util.ClearDirAndCreateNew(csRule.ProtoTempDir); err != nil {
+	if err := util.ClearDirAndCreateNew(config.AbsExeDir(csRule.ProtoTempDir)); err != nil {
 		log.Fatal(err)
 	}
-	if err := util.ClearDirAndCreateNew(csRule.BytesDir); err != nil {
+	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.BytesDir), `^.*?\.bytes$`); err != nil {
 		log.Fatal(err)
 	}
-	if err := util.ClearDirAndCreateNew(csRule.ProtoCSdir); err != nil {
+	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.ProtoCSdir), `^.*?\.cs$`); err != nil {
 		log.Fatal(err)
 	}
 
@@ -57,14 +56,14 @@ func (e *ExportCsProto) Export() {
 
 	//创建.cs文件
 	if len(targetFiles) > 0 {
-		args := []string{"--csharp_out=" + filepath.Join(config.GPath.AbsExeDir(csRule.ProtoCSdir)),
-			"--proto_path=" + filepath.Join(config.GPath.AbsExeDir(csRule.ProtoTempDir))}
+		args := []string{"--csharp_out=" + config.AbsExeDir(csRule.ProtoCSdir),
+			"--proto_path=" + config.AbsExeDir(csRule.ProtoTempDir)}
 		args = append(args, targetFiles...)
 		var execPath string
 		if runtime.GOOS == "windows" {
-			execPath = filepath.Join(config.GPath.AbsExeDir(csRule.ProtoCWinDir))
+			execPath = config.AbsExeDir(csRule.ProtoCWinDir)
 		} else {
-			execPath = filepath.Join(config.GPath.AbsExeDir(csRule.ProtoCMacDir))
+			execPath = config.AbsExeDir(csRule.ProtoCMacDir)
 		}
 		protoc := exec.Command(execPath, args...)
 		protoc.Stdout = os.Stdout
@@ -75,6 +74,7 @@ func (e *ExportCsProto) Export() {
 
 	}
 
+	_ = os.RemoveAll(config.AbsExeDir(csRule.ProtoTempDir))
 }
 
 func exportCSProtoFile(dataModel *model.TableModel, csRule *config.RawMetaRuleCSProto) {
