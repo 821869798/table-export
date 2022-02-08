@@ -50,7 +50,7 @@ func (e *ExportCsProto) Export() {
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
 		exportCSProtoFile(dataModel, csRule)
-		filePath := dataModel.Meta.Target + ".proto"
+		filePath := getOutputProtoFileName(dataModel.Meta.Target)
 		targetFiles = append(targetFiles, filePath)
 	})
 

@@ -48,7 +48,7 @@ func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRule
 		return nil, errors.New(fmt.Sprintf("export .proto define file print error:%v", err))
 	}
 
-	filePath := config.AbsExeDir(ruleCSProto.ProtoTempDir, tableMeta.Target+".proto")
+	filePath := config.AbsExeDir(ruleCSProto.ProtoTempDir, getOutputProtoFileName(tableMeta.Target))
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("export .proto define file create file error:%v", err))
@@ -59,6 +59,11 @@ func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRule
 	}
 
 	return pfd, nil
+}
+
+func getOutputProtoFileName(target string) string {
+	outputName := util.FormatPascalString(target)
+	return outputName + "CfgTable.proto"
 }
 
 func getProtoFieldBuilder(fieldName string, tft *meta.TableFiledType, complexMap map[string]interface{}) *builder.FieldBuilder {
