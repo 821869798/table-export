@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/shiena/ansicolor"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"table-export/config"
@@ -13,12 +14,8 @@ import (
 func main() {
 
 	log.SetReportCaller(true)
-	log.SetFormatter(&log.TextFormatter{
-		//以下设置只是为了使输出更美观
-		DisableColors:   true,
-		TimestampFormat: "2006-01-02 15:03:04",
-	})
-	log.SetOutput(os.Stdout)
+	log.SetFormatter(&Formatter{})
+	log.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
 	log.SetLevel(log.InfoLevel)
 
 	flag.Parse()
