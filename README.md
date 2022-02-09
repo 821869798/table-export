@@ -7,6 +7,8 @@ table-export 是一个游戏导表工具，目前支持源数据excel和csv，�
 
 **工具的配置文件目录为./conf/config.toml**
 
+**测试时可以把build出来的执行文件放在examples目录下**
+
 **导出表meta配置文件**
 
 table_export -g="目标名字,excel(.xlsx)文件名字不带后缀,Sheet名"
