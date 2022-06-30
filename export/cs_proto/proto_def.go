@@ -120,9 +120,15 @@ func getProtoFieldType(tft *meta.TableFiledType, complexMap map[string]interface
 		ft = builder.FieldTypeInt32()
 	case meta.FieldType_UInt:
 		ft = builder.FieldTypeUInt32()
+	case meta.FieldType_Long:
+		ft = builder.FieldTypeInt64()
+	case meta.FieldType_ULong:
+		ft = builder.FieldTypeUInt64()
 	case meta.FieldType_Bool:
 		ft = builder.FieldTypeBool()
 	case meta.FiledType_Float:
+		ft = builder.FieldTypeFloat()
+	case meta.FiledType_Double:
 		ft = builder.FieldTypeDouble()
 	case meta.FieldType_String:
 		ft = builder.FieldTypeString()

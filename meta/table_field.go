@@ -66,10 +66,16 @@ func getFieldTypeFromString(origin string) (*TableFiledType, error) {
 		tft.Type = FieldType_Int
 	case "uint":
 		tft.Type = FieldType_UInt
+	case "long":
+		tft.Type = FieldType_Long
+	case "ulong":
+		tft.Type = FieldType_ULong
 	case "bool":
 		tft.Type = FieldType_Bool
 	case "float":
 		tft.Type = FiledType_Float
+	case "double":
+		tft.Type = FiledType_Double
 	case "string":
 		tft.Type = FieldType_String
 	default:

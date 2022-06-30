@@ -17,8 +17,12 @@ var valueWrapMap map[meta.FieldType]ValueWarp
 func init() {
 	valueWrapMap = make(map[meta.FieldType]ValueWarp)
 	valueWrapMap[meta.FieldType_Int] = &intWrap{}
+	valueWrapMap[meta.FieldType_UInt] = &uintWrap{}
+	valueWrapMap[meta.FieldType_Long] = &longWrap{}
+	valueWrapMap[meta.FieldType_ULong] = &ulongWrap{}
 	valueWrapMap[meta.FieldType_Bool] = &boolWrap{}
 	valueWrapMap[meta.FiledType_Float] = &floatWrap{}
+	valueWrapMap[meta.FiledType_Double] = &doubleWrap{}
 	valueWrapMap[meta.FieldType_String] = &stringWrap{}
 	valueWrapMap[meta.FieldType_Slice] = &sliceWrap{}
 	valueWrapMap[meta.FieldType_Map] = &mapWrap{}
