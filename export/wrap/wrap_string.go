@@ -12,7 +12,8 @@ type stringWrap struct{}
 func (b *stringWrap) OutputValue(exportType define.ExportType, filedType *meta.TableFiledType, origin string) (interface{}, error) {
 	switch exportType {
 	case define.ExportType_Lua:
-		newValue := strings.Replace(origin, "\n", "\\n", -1)
+		newValue := strings.Replace(origin, "\\", "\\\\", -1)
+		newValue = strings.Replace(newValue, "\n", "\\n", -1)
 		newValue = strings.Replace(newValue, "\"", "\\\"", -1)
 		newValue = "\"" + newValue + "\""
 		return newValue, nil
