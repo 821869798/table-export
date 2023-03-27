@@ -14,7 +14,7 @@ import (
 	"table-export/util"
 )
 
-func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRuleCSProto) (*desc.FileDescriptor, error) {
+func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRuleUnitCSProto) (*desc.FileDescriptor, error) {
 	tableMeta := dataModel.Meta
 	protoBuilder := builder.NewFile(tableMeta.Target).SetPackageName(ruleCSProto.ProtoPackage).SetProto3(true)
 	complexMap := make(map[string]interface{})
@@ -24,7 +24,7 @@ func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRule
 	for _, tf := range tableMeta.Fields {
 		fieldBuilder := getProtoFieldBuilder(tf.Target, tf.Type, complexMap)
 		if fieldBuilder == nil {
-			return nil, errors.New(fmt.Sprintf("export .proto define file field[%v] error", tf.Target))
+			return nil, errors.New(fmt.Sprintf("export .proto consts file field[%v] error", tf.Target))
 		}
 		recordMsg.AddField(fieldBuilder)
 	}
@@ -39,23 +39,23 @@ func buildProtoFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRule
 
 	pfd, err := protoBuilder.Build()
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("export .proto define file build error:%v", err))
+		return nil, errors.New(fmt.Sprintf("export .proto consts file build error:%v", err))
 	}
 	pr := &protoprint.Printer{}
 	var buf bytes.Buffer
 	err = pr.PrintProtoFile(pfd, &buf)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("export .proto define file print error:%v", err))
+		return nil, errors.New(fmt.Sprintf("export .proto consts file printer error:%v", err))
 	}
 
 	filePath := config.AbsExeDir(ruleCSProto.ProtoTempDir, getOutputProtoFileName(tableMeta.Target))
 	file, err := os.Create(filePath)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("export .proto define file create file error:%v", err))
+		return nil, errors.New(fmt.Sprintf("export .proto consts file create file error:%v", err))
 	}
 	_, err = file.Write(buf.Bytes())
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("export .proto define file write error:%v", err))
+		return nil, errors.New(fmt.Sprintf("export .proto consts file write error:%v", err))
 	}
 
 	return pfd, nil
@@ -66,7 +66,7 @@ func getOutputProtoFileName(target string) string {
 	return outputName + "CfgTable.proto"
 }
 
-func getProtoFieldBuilder(fieldName string, tft *meta.TableFiledType, complexMap map[string]interface{}) *builder.FieldBuilder {
+func getProtoFieldBuilder(fieldName string, tft *meta.TableFieldType, complexMap map[string]interface{}) *builder.FieldBuilder {
 	var field *builder.FieldBuilder = nil
 	if tft.IsBaseType() {
 		ft := getProtoFieldType(tft, complexMap)
@@ -113,7 +113,7 @@ func getProtoFieldBuilder(fieldName string, tft *meta.TableFiledType, complexMap
 	return field
 }
 
-func getProtoFieldType(tft *meta.TableFiledType, complexMap map[string]interface{}) *builder.FieldType {
+func getProtoFieldType(tft *meta.TableFieldType, complexMap map[string]interface{}) *builder.FieldType {
 	var ft *builder.FieldType = nil
 	switch tft.Type {
 	case meta.FieldType_Int:

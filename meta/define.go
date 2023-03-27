@@ -1,9 +1,9 @@
 package meta
 
-type FieldType int
+type EFieldType int
 
 const (
-	FieldType_None FieldType = iota
+	FieldType_None EFieldType = iota
 	FieldType_Int
 	FieldType_UInt
 	FieldType_Long
@@ -16,13 +16,13 @@ const (
 	FieldType_Map
 )
 
-var baseFiledType = map[FieldType]*TableFiledType{
-	FieldType_Int:    &TableFiledType{Type: FieldType_Int},
-	FieldType_UInt:   &TableFiledType{Type: FieldType_UInt},
-	FieldType_Long:   &TableFiledType{Type: FieldType_Long},
-	FieldType_ULong:  &TableFiledType{Type: FieldType_ULong},
-	FieldType_Bool:   &TableFiledType{Type: FieldType_Bool},
-	FiledType_Float:  &TableFiledType{Type: FiledType_Float},
-	FiledType_Double: &TableFiledType{Type: FiledType_Double},
-	FieldType_String: &TableFiledType{Type: FieldType_String},
+var baseFiledType = map[EFieldType]*TableFieldType{
+	FieldType_Int:    newTableFieldType(FieldType_Int),
+	FieldType_UInt:   newTableFieldType(FieldType_UInt),
+	FieldType_Long:   newTableFieldType(FieldType_Long),
+	FieldType_ULong:  newTableFieldType(FieldType_ULong),
+	FieldType_Bool:   newTableFieldType(FieldType_Bool),
+	FiledType_Float:  newTableFieldType(FiledType_Float),
+	FiledType_Double: newTableFieldType(FiledType_Double),
+	FieldType_String: newTableFieldType(FieldType_String),
 }

@@ -1,12 +1,14 @@
 package meta
 
 import (
+	"encoding/csv"
 	log "github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
+	"os"
 	"strconv"
 	"strings"
 	"table-export/config"
-	"table-export/define"
+	"table-export/consts"
 	"table-export/util"
 )
 
@@ -25,7 +27,15 @@ func (g *GenMeta) Run() {
 
 	sourceSlice := strings.Split(g.genSource, ",")
 
-	if len(sourceSlice) != 3 {
+	inputOk := false
+	if len(sourceSlice) == 2 && strings.HasSuffix(sourceSlice[1], ".csv") {
+		inputOk = true
+	}
+	if len(sourceSlice) == 3 && !strings.HasSuffix(sourceSlice[1], ".csv") {
+		inputOk = true
+	}
+
+	if !inputOk {
 		log.WithFields(log.Fields{
 			"GenSrouce": g.genSource,
 		}).Fatal("generator source arg error!")
@@ -33,10 +43,8 @@ func (g *GenMeta) Run() {
 
 	targetName := sourceSlice[0]
 	srcFileName := sourceSlice[1]
-	sheetName := sourceSlice[2]
 
-	fileName := srcFileName + define.ExcelFileSuffix
-	filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, fileName)
+	filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, srcFileName)
 
 	if !util.ExistFile(filePath) {
 		log.WithFields(log.Fields{
@@ -44,12 +52,16 @@ func (g *GenMeta) Run() {
 		}).Fatal("generator source source file path not exist!")
 	}
 
-	f, err := excelize.OpenFile(filePath)
-	if err != nil {
-		log.Fatal(err)
+	sheetName := ""
+	var rows [][]string
+	var err error
+	if len(sourceSlice) == 3 {
+		sheetName = sourceSlice[2]
+		rows, err = readExcelFile(filePath, sheetName)
+	} else {
+		rows, err = readCsvFile(filePath)
 	}
 
-	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,7 +76,7 @@ func (g *GenMeta) Run() {
 	rtm.SourceType = "excel"
 	rtm.Sources = []*RawTableSource{
 		&RawTableSource{
-			Table: fileName,
+			Table: srcFileName,
 			Sheet: sheetName,
 		},
 	}
@@ -92,9 +104,28 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := config.AbsExeDir(config.GlobalConfig.Meta.GenDir, targetName+define.MetaFileSuffix)
+	genFilePath := config.AbsExeDir(config.GlobalConfig.Meta.GenDir, targetName+consts.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func readExcelFile(filePath string, sheetName string) ([][]string, error) {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return f.GetRows(sheetName)
+}
+
+func readCsvFile(filePath string) ([][]string, error) {
+	csvFile, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	csvReader := csv.NewReader(csvFile) //创建一个新的写入文件流
+	csvReader.LazyQuotes = true
+	return csvReader.ReadAll()
 }

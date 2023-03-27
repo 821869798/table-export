@@ -6,11 +6,10 @@ import (
 	"os"
 	"path/filepath"
 	"table-export/config"
+	"table-export/convert/wrap"
 	"table-export/data/model"
-	"table-export/define"
 	"table-export/export/api"
 	"table-export/export/common"
-	"table-export/export/wrap"
 	"table-export/meta"
 	"table-export/util"
 	"time"
@@ -31,10 +30,14 @@ func (e *ExportJson) TableMetas() []*meta.RawTableMeta {
 	return e.tableMetas
 }
 
-func (e *ExportJson) Export() {
-	jsonRule := config.GlobalConfig.Meta.RuleJson
+func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 
-	outputPath := config.AbsExeDir(jsonRule.OutputDir)
+	jsonRule, ok := ru.(*config.RawMetaRuleUnitJson)
+	if !ok {
+		log.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
+	}
+
+	outputPath := config.AbsExeDir(jsonRule.JsonOutputDir)
 	//清空目录
 	if err := util.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
 		log.Fatal(err)
@@ -44,14 +47,37 @@ func (e *ExportJson) Export() {
 
 	//实际开始转换
 	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
-		exportJsonFile(dataModel, outputPath)
+		ExportJsonFile(dataModel, outputPath)
 	})
 
 }
 
-func exportJsonFile(dataModel *model.TableModel, outputPath string) {
+func ExportJsonFile(dataModel *model.TableModel, outputPath string) {
+
+	writeContent, _ := generateJsonData(dataModel, false)
+
+	exportJson(dataModel, outputPath, writeContent)
+}
+
+func ExportListJsonFile(dataModel *model.TableModel, outputPath string) {
+	writeContent, writeList := generateJsonData(dataModel, true)
+
+	writeRoot := map[string]interface{}{
+		"dataMap":  writeContent,
+		"dataList": writeList,
+	}
+
+	exportJson(dataModel, outputPath, writeRoot)
+}
+
+func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]interface{}, []interface{}) {
 	//创建存储的数据结构
 	writeContent := make(map[string]interface{})
+	var dataList []interface{} = nil
+	// 导出的是列表模式
+	if exportList {
+		dataList = make([]interface{}, 0)
+	}
 	rowDataOffset := config.GlobalConfig.Table.DataStart + 1
 	for rowIndex, rowData := range dataModel.RawData {
 		//数据表中一行数据的字符串
@@ -63,7 +89,7 @@ func exportJsonFile(dataModel *model.TableModel, outputPath string) {
 			if rawIndex < len(rowData) {
 				rawStr = rowData[rawIndex]
 			}
-			output, err := wrap.GetOutputValue(define.ExportType_Json, tf.Type, rawStr)
+			output, err := wrap.GetOutputValue(config.ExportType_Json, tf.Type, rawStr)
 			if err != nil {
 				log.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}
@@ -72,7 +98,7 @@ func exportJsonFile(dataModel *model.TableModel, outputPath string) {
 
 			//存储key
 			if tf.Key > 0 {
-				formatKey, err := wrap.GetFormatValue(define.ExportType_Json, tf.Type, output)
+				formatKey, err := wrap.GetOutputStringValue(config.ExportType_Json, tf.Type, output)
 				if err != nil {
 					log.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] format key error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 				}
@@ -101,9 +127,18 @@ func exportJsonFile(dataModel *model.TableModel, outputPath string) {
 		if ok {
 			log.Fatalf("export json target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
 		}
-		dataMap[lastKey] = recordMap
-	}
 
+		if exportList {
+			dataMap[lastKey] = len(dataList)
+			dataList = append(dataList, recordMap)
+		} else {
+			dataMap[lastKey] = recordMap
+		}
+	}
+	return writeContent, dataList
+}
+
+func exportJson(dataModel *model.TableModel, outputPath string, writeContent any) {
 	b, err := json.MarshalIndent(writeContent, "", "    ")
 	if err != nil {
 		log.Fatalf("export json error:%v", err)

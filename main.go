@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"table-export/config"
-	"table-export/define"
+	"table-export/consts"
 	"table-export/export"
 	"table-export/meta"
 )
@@ -26,7 +26,7 @@ func main() {
 	}
 
 	if params.version {
-		define.PrintBuild()
+		consts.PrintBuild()
 	}
 
 	config.ParseConfig(params.confFile)

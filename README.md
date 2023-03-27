@@ -22,3 +22,7 @@ table_export -g="目标名字,excel(.xlsx)文件名字不带后缀,Sheet名"
 table_export.exe -m="模式1|模式2|..."
 
 例如 :  table_export.exe -m="lua|cs_proto"
+
+## Credits
+- [LuaTableOptimizer](https://github.com/lujian101/LuaTableOptimizer)
+- [luban](https://github.com/focus-creative-games/luban)

@@ -1,8 +1,11 @@
 package api
 
-import "table-export/meta"
+import (
+	"table-export/config"
+	"table-export/meta"
+)
 
 type IExport interface {
-	Export()
+	Export(config.MetaRuleUnit)
 	TableMetas() []*meta.RawTableMeta
 }

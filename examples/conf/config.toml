@@ -21,26 +21,50 @@ map_split2 = "="
 # 生成出来的表meta配置临时目录
 gen_dir = "./temp_meta"
 
-[meta.rule_lua]
-config_dir = "./lua_meta"
-output_dir = "./output/lua"
-temp_dir = "./temp_lua"
-post_process = true     #导出配置的后处理开关
-post_process_lua = "./tools/DataTableOptimizer.lua"
-post_work_dir = "./"
-lua_win_dir = "./tools/lua5.3/lua53.exe"
-lua_mac_dir = "./tools/lua5.3/lua53"
+[[meta.rules]]
+    rule_name = "json"
+    config_dir = "./json_meta"
+    [meta.rules.json]
+        json_out = "./output/json"
+
+[[meta.rules]]
+    rule_name = "lua"
+    config_dir = "./lua_meta"
+    [meta.rules.lua]
+        lua_out = "./output/lua"
+        post_process = true     #导出配置的后处理开关
+        temp_dir = "./temp_work/temp_lua"
+        post_process_lua = "./tools/DataTableOptimizer.lua"
+        post_work_dir = "./"
+        lua_win_dir = "./tools/lua5.3/lua53.exe"
+        lua_mac_dir = "./tools/lua5.3/lua53"
+
+[[meta.rules]]
+    rule_name = "cs_proto"
+    config_dir = "./cs_proto_meta"
+    [meta.rules.cs_proto]
+        proto_package = "table"
+        proto_temp_dir = "./temp_work/temp_proto"
+        proto_cs_dir = "./output/proto_cs"
+        bytes_dir = "./output/proto_bytes"
+        protoc_win_dir = "./tools/protoc.exe"
+        protoc_mac_dir = "./tools/protoc"
+
+[[meta.rules]]
+    rule_name = "cs_bin"
+    config_dir = "./cs_bin_meta"
+    [meta.rules.cs_bin]
+        code_temp_dir = "./temp_work/temp_cs_bin_code"
+        data_temp_dir = "./temp_work/temp_cs_bin_data"
+        gen_code_dir = "./projects/proj_cs_bin/src/gen"
+        data_bin_dir = "./projects/proj_cs_bin/table_bytes"
+        #toml支持多行文本
+        gen_code_head = """using Serialization;
+        """
+        code_namespace = "CfgTable"
+        # 以下是生成的优化相关数据
+        gen_optimize = true
+        optimize_threshold = 0.2
 
 
-[meta.rule_json]
-config_dir = "./json_meta"
-output_dir = "./output/json"
 
-[meta.rule_cs_proto]
-config_dir = "./cs_meta"
-proto_package = "table"
-proto_temp_dir = "./temp_proto"
-proto_cs_dir = "./output/proto_cs"
-bytes_dir = "./output/proto_bytes"
-protoc_win_dir = "./tools/protoc.exe"
-protoc_mac_dir = "./tools/protoc"

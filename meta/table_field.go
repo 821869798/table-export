@@ -9,16 +9,10 @@ import (
 type TableField struct {
 	Source     string
 	Target     string
-	Type       *TableFiledType
+	Type       *TableFieldType
 	TypeString string
 	Desc       string
 	Key        int
-}
-
-type TableFiledType struct {
-	Type  FieldType       //类型
-	Key   FieldType       //key的类型
-	Value *TableFiledType //Value的类型
 }
 
 func newTableField(rtf *RawTableField) (*TableField, error) {
@@ -26,6 +20,7 @@ func newTableField(rtf *RawTableField) (*TableField, error) {
 		Source:     rtf.Source,
 		Target:     rtf.Target,
 		TypeString: rtf.Type,
+		Desc:       rtf.Desc,
 		Key:        rtf.Key,
 	}
 	tft, err := getFieldTypeFromString(tf.TypeString)
@@ -36,13 +31,48 @@ func newTableField(rtf *RawTableField) (*TableField, error) {
 	return tf, nil
 }
 
-//是否可以作为map的key
-func (tft *TableFiledType) IsBaseType() bool {
+type TableFieldType struct {
+	Type  EFieldType      //类型
+	Key   EFieldType      //key的类型
+	Value *TableFieldType //Value的类型
+}
+
+var TableFieldTypeNone = newTableFieldType(FieldType_None)
+
+func newTableFieldType(fieldType EFieldType) *TableFieldType {
+	tft := &TableFieldType{
+		Type:  fieldType,
+		Key:   FieldType_None,
+		Value: nil,
+	}
+	return tft
+}
+
+func newTableFieldArrayType(value *TableFieldType) *TableFieldType {
+	tft := &TableFieldType{
+		Type:  FieldType_Slice,
+		Key:   FieldType_None,
+		Value: value,
+	}
+	return tft
+}
+
+func newTableFieldMapType(key EFieldType, value *TableFieldType) *TableFieldType {
+	tft := &TableFieldType{
+		Type:  FieldType_Map,
+		Key:   key,
+		Value: value,
+	}
+	return tft
+}
+
+// 是否可以作为map的key
+func (tft *TableFieldType) IsBaseType() bool {
 	_, ok := baseFiledType[tft.Type]
 	return ok
 }
 
-func (tft *TableFiledType) IsComplexType() bool {
+func (tft *TableFieldType) IsComplexType() bool {
 	switch tft.Type {
 	case FieldType_Slice, FieldType_Map:
 		return true
@@ -50,17 +80,30 @@ func (tft *TableFiledType) IsComplexType() bool {
 	return false
 }
 
-func (tft *TableFiledType) GetKeyFieldType() (*TableFiledType, bool) {
+func (tft *TableFieldType) IsReferenceType() bool {
+	if tft.IsComplexType() {
+		return true
+	}
+	switch tft.Type {
+	case FieldType_String:
+		return true
+	}
+	return false
+}
+
+func (tft *TableFieldType) GetKeyFieldType() (*TableFieldType, bool) {
 	result, ok := baseFiledType[tft.Key]
 	return result, ok
 }
 
-func getFieldTypeFromString(origin string) (*TableFiledType, error) {
+func (tft *TableFieldType) CreateArrayFieldType() *TableFieldType {
+	var fieldType = newTableFieldArrayType(tft)
+	return fieldType
+}
 
-	tft := &TableFiledType{
-		Key:   FieldType_None,
-		Value: nil,
-	}
+func getFieldTypeFromString(origin string) (*TableFieldType, error) {
+
+	tft := newTableFieldType(FieldType_None)
 	switch origin {
 	case "int":
 		tft.Type = FieldType_Int

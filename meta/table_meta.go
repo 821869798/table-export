@@ -101,3 +101,20 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 
 	return t, nil
 }
+
+func (tm *TableMeta) NotKeyFieldCount() int {
+	return len(tm.Fields) - len(tm.Keys)
+}
+
+func (tm *TableMeta) GetKeyDefType(finalType EFieldType) *TableFieldType {
+	return tm.GetKeyDefTypeOffset(finalType, 0)
+}
+
+func (tm *TableMeta) GetKeyDefTypeOffset(finalType EFieldType, offset int) *TableFieldType {
+	value := newTableFieldType(finalType)
+	for i := len(tm.Keys) - 1; i >= offset; i-- {
+		key := tm.Keys[i]
+		value = newTableFieldMapType(key.Type.Type, value)
+	}
+	return value
+}

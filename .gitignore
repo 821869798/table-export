@@ -14,3 +14,9 @@
 
 examples/temp_*
 examples/output/
+examples/projects/proj_cs_json2bin/.vs
+examples/projects/proj_cs_json2bin/obj
+examples/projects/proj_cs_json2bin/bin
+examples/projects/proj_cs_bin/obj
+examples/projects/proj_cs_bin/bin
+examples/projects/proj_cs_bin/.vs

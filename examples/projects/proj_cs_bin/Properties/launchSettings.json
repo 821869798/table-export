@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "proj_cs_bin": {
+      "commandName": "Project",
+      "workingDirectory": "./"
+    }
+  }
+}

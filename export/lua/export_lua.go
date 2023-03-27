@@ -8,11 +8,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"table-export/config"
+	"table-export/convert/wrap"
 	"table-export/data/model"
-	"table-export/define"
 	"table-export/export/api"
 	"table-export/export/common"
-	"table-export/export/wrap"
 	"table-export/meta"
 	"table-export/util"
 	"text/template"
@@ -34,9 +33,12 @@ func (e *ExportLua) TableMetas() []*meta.RawTableMeta {
 	return e.tableMetas
 }
 
-func (e *ExportLua) Export() {
+func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
-	luaRule := config.GlobalConfig.Meta.RuleLua
+	luaRule, ok := ru.(*config.RawMetaRuleUnitLua)
+	if !ok {
+		log.Fatal("Export Lua expect *RawMetaRuleUnitLua Rule Unit")
+	}
 
 	//清空目录
 	if luaRule.EnableProcess {
@@ -45,7 +47,7 @@ func (e *ExportLua) Export() {
 		}
 	}
 
-	if err := util.InitDirAndClearFile(config.AbsExeDir(luaRule.OutputDir), `^.*?\.(lua|meta)$`); err != nil {
+	if err := util.InitDirAndClearFile(config.AbsExeDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
 		log.Fatal(err)
 	}
 
@@ -55,7 +57,7 @@ func (e *ExportLua) Export() {
 	if luaRule.EnableProcess {
 		outputPath = config.AbsExeDir(luaRule.TempDir)
 	} else {
-		outputPath = config.AbsExeDir(luaRule.OutputDir)
+		outputPath = config.AbsExeDir(luaRule.LuaOutputDir)
 	}
 
 	//实际开始转换
@@ -70,8 +72,8 @@ func (e *ExportLua) Export() {
 
 }
 
-//lua打表后处理，例如做优化，提前做一些表结构变化等
-func luaTablePostProcess(luaRule *config.RawMetaRuleLua) {
+// lua打表后处理，例如做优化，提前做一些表结构变化等
+func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 	//做lua导出后的预处理
 	var execPath string
 	if runtime.GOOS == "windows" {
@@ -81,7 +83,7 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleLua) {
 	}
 
 	luaTempDir := config.AbsExeDir(luaRule.TempDir)
-	outputDir := config.AbsExeDir(luaRule.OutputDir)
+	outputDir := config.AbsExeDir(luaRule.LuaOutputDir)
 
 	postProcessExec := exec.Command(
 		execPath,
@@ -141,7 +143,7 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 			if rawIndex < len(rowData) {
 				rawStr = rowData[rawIndex]
 			}
-			output, err := wrap.GetOutputValue(define.ExportType_Lua, tf.Type, rawStr)
+			output, err := wrap.GetOutputValue(config.ExportType_Lua, tf.Type, rawStr)
 			if err != nil {
 				log.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}

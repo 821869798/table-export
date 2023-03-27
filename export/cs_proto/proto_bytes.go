@@ -7,13 +7,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"table-export/config"
+	"table-export/convert/wrap"
 	"table-export/data/model"
-	"table-export/define"
-	"table-export/export/wrap"
 	"table-export/util"
 )
 
-func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRuleCSProto, pfd *desc.FileDescriptor) {
+func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMetaRuleUnitCSProto, pfd *desc.FileDescriptor) {
 	outputName := util.FormatPascalString(dataModel.Meta.Target)
 	//存储数据表的List结构的Message
 	rootMsg := pfd.FindMessage(fmt.Sprintf("%s.%sCfgTable", ruleCSProto.ProtoPackage, outputName))
@@ -32,7 +31,7 @@ func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMet
 			if rawIndex < len(rowData) {
 				rawStr = rowData[rawIndex]
 			}
-			output, err := wrap.GetOutputValue(define.ExportType_CS_Proto, tf.Type, rawStr)
+			output, err := wrap.GetOutputValue(config.ExportType_CS_Proto, tf.Type, rawStr)
 			if err != nil {
 				log.Fatalf("export cs_proto target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}

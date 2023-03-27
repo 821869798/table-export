@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 	"table-export/config"
-	"table-export/define"
 	"table-export/meta"
 )
 
@@ -32,6 +31,8 @@ func (e *Entry) Run() {
 		kvStr := strings.Split(v, "=")
 		if len(kvStr) == 2 {
 			extraArg[kvStr[0]] = kvStr[1]
+		} else if len(kvStr) == 1 {
+			extraArg[kvStr[0]] = ""
 		}
 	}
 
@@ -39,11 +40,10 @@ func (e *Entry) Run() {
 
 	modeSlice := strings.Split(e.mode, "|")
 	for _, mode := range modeSlice {
-		exportType, ok := define.GetExportTypeFromString(mode)
-		if !ok {
-			log.Fatalf("export mode can't support:%v", mode)
+		metaRule := config.GetMetaRuleConfigByName(mode)
+		if metaRule == nil {
+			log.Fatalf("export mode can't not find in config:%v", mode)
 		}
-		metaRule := config.GlobalConfig.Meta.GetRawMetaBaseConfig(exportType)
 
 		tableMetas, err := meta.LoadTableMetasByDir(config.AbsExeDir(metaRule.ConfigDir))
 		if err != nil {
@@ -53,22 +53,23 @@ func (e *Entry) Run() {
 			}).Fatal("load table meta toml config failed")
 		}
 
-		if creatorFunc, ok := exportCreators[exportType]; ok {
+		for _, rule := range metaRule.RuleUnits {
+			if creatorFunc, ok := exportCreators[rule.RuleExportType()]; ok {
+				log.WithFields(log.Fields{
+					"mode": mode,
+				}).Debug("start run export")
 
-			log.WithFields(log.Fields{
-				"mode": mode,
-			}).Debug("start run export")
-
-			export := creatorFunc(tableMetas, extraArg)
-			wg.Add(1)
-			go func() {
-				export.Export()
-				wg.Done()
-			}()
-
-		} else {
-			log.Fatalf("export mode can't support:%v", exportType)
+				export := creatorFunc(tableMetas, extraArg)
+				wg.Add(1)
+				go func() {
+					export.Export(rule)
+					wg.Done()
+				}()
+			} else {
+				log.Fatalf("export mode can't support:%v", rule.RuleExportType())
+			}
 		}
+
 	}
 
 	wg.Wait()

@@ -29,8 +29,11 @@ func (e *ExportCsProto) TableMetas() []*meta.RawTableMeta {
 	return e.tableMetas
 }
 
-func (e *ExportCsProto) Export() {
-	csRule := config.GlobalConfig.Meta.RuleCSProto
+func (e *ExportCsProto) Export(ru config.MetaRuleUnit) {
+	csRule, ok := ru.(*config.RawMetaRuleUnitCSProto)
+	if !ok {
+		log.Fatal("Export CsProto expect *RawMetaRuleUnitCSProto Rule Unit")
+	}
 
 	//清空目录
 	if err := util.ClearDirAndCreateNew(config.AbsExeDir(csRule.ProtoTempDir)); err != nil {
@@ -77,7 +80,7 @@ func (e *ExportCsProto) Export() {
 	_ = os.RemoveAll(config.AbsExeDir(csRule.ProtoTempDir))
 }
 
-func exportCSProtoFile(dataModel *model.TableModel, csRule *config.RawMetaRuleCSProto) {
+func exportCSProtoFile(dataModel *model.TableModel, csRule *config.RawMetaRuleUnitCSProto) {
 	pfd, err := buildProtoFile(dataModel, csRule)
 	if err != nil {
 		log.Fatal(err)

@@ -1,0 +1,17 @@
+
+# 目标名字
+target = "base_test"
+mode = ""
+source_type = "excel"
+
+sources = [
+    { file_name = "base_test.xlsx",    sheet_name = "Sheet1" },
+]
+
+
+fields = [
+    { active = true,   sname = "id" ,      tname = "id" ,      type = "int" ,  		key = 1,    desc = "主id"},
+    { active = true,   sname = "name" ,    tname = "name" ,    type = "string",  	key = 0,    desc = "名字"},
+    { active = true,   sname = "age" ,     tname = "age" ,     type = "int" ,  		key = 0,    desc = "年龄"},
+	{ active = true,   sname = "course" ,  tname = "course" ,  type = "[]int" ,  		key = 0,    desc = "学科"},
+]

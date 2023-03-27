@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-//转换成帕斯卡命名法，每个单词首字母大写
+// FormatPascalString 转换成帕斯卡命名法，每个单词首字母大写
 func FormatPascalString(name string) string {
 	result := ""
 	strs := strings.Split(name, "_")
@@ -35,4 +35,13 @@ func Capitalize(str string) string {
 		}
 	}
 	return upperStr
+}
+
+// ReplaceLast 从后往替换
+func ReplaceLast(source string, strToReplace string, strWithReplace string) string {
+	index := strings.LastIndex(source, strToReplace)
+	if index == -1 {
+		return source
+	}
+	return source[:index] + strWithReplace + source[index+len(strToReplace):]
 }
