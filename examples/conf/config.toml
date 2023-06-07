@@ -35,7 +35,7 @@ gen_dir = "./temp_meta"
         post_process = true     #导出配置的后处理开关
         temp_dir = "./temp_work/temp_lua"
         post_process_lua = "./tools/DataTableOptimizer.lua"
-        post_work_dir = "./"
+        post_work_dir = "./tools"
         lua_win_dir = "./tools/lua5.3/lua53.exe"
         lua_mac_dir = "./tools/lua5.3/lua53"
 
