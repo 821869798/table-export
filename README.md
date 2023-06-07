@@ -12,10 +12,8 @@ table-export 是一个高性能游戏导表工具，使用golang编写，目前�
 
 ### 准备环境
 
-1. 安装golang
-
-2. 编译可执行文件放到examples目录下。
-
+1. 安装golang，编译可执行文件。或者从release里下载可执行文件
+2. 把可执行文件放到examples目录下
 3. 工具的配置文件目录为可执行文件的相对路径的./conf/config.toml，examples里已经有一份示例配置
 4. 先在config.toml里面配置好导出规则的配置，例如c# binary
 
