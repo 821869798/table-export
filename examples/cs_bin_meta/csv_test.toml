@@ -1,0 +1,13 @@
+target = "csv_test"
+mode = ""
+source_type = "csv"
+
+sources = [
+	{ file_name = "csv_test.csv",    sheet_name = "" },
+]
+
+fields = [
+	{ active = true,   sname = "id" ,      tname = "id" ,      type = "int" ,  key = 1,    desc = "id" },
+	{ active = true,   sname = "name" ,      tname = "name" ,      type = "string" ,  key = 0,    desc = "名字" },
+	{ active = true,   sname = "age" ,      tname = "age" ,      type = "int" ,  key = 0,    desc = "年龄" },
+]

@@ -28,8 +28,10 @@ func (g *GenMeta) Run() {
 	sourceSlice := strings.Split(g.genSource, ",")
 
 	inputOk := false
+	isCsv := false
 	if len(sourceSlice) == 2 && strings.HasSuffix(sourceSlice[1], ".csv") {
 		inputOk = true
+		isCsv = true
 	}
 	if len(sourceSlice) == 3 && !strings.HasSuffix(sourceSlice[1], ".csv") {
 		inputOk = true
@@ -55,7 +57,7 @@ func (g *GenMeta) Run() {
 	sheetName := ""
 	var rows [][]string
 	var err error
-	if len(sourceSlice) == 3 {
+	if !isCsv {
 		sheetName = sourceSlice[2]
 		rows, err = readExcelFile(filePath, sheetName)
 	} else {
@@ -73,7 +75,12 @@ func (g *GenMeta) Run() {
 	rtm := NewRawTableMeta()
 	rtm.Target = targetName
 	rtm.Mode = ""
-	rtm.SourceType = "excel"
+	if isCsv {
+		rtm.SourceType = "csv"
+	} else {
+		rtm.SourceType = "excel"
+	}
+
 	rtm.Sources = []*RawTableSource{
 		&RawTableSource{
 			Table: srcFileName,
@@ -127,5 +134,14 @@ func readCsvFile(filePath string) ([][]string, error) {
 	}
 	csvReader := csv.NewReader(csvFile) //创建一个新的写入文件流
 	csvReader.LazyQuotes = true
-	return csvReader.ReadAll()
+	rowData, err := csvReader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	//去除utf-8的bom
+	if len(rowData) > 0 && len(rowData[0]) > 0 {
+		firstData := rowData[0][0]
+		rowData[0][0] = strings.TrimPrefix(firstData, "\uFEFF")
+	}
+	return rowData, nil
 }

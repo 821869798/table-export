@@ -1,0 +1,15 @@
+target = "big_data"
+mode = ""
+source_type = "excel"
+
+sources = [
+	{ file_name = "big_data.xlsx",    sheet_name = "Sheet1" },
+]
+
+fields = [
+	{ active = true,   sname = "id" ,      tname = "id" ,      type = "int" ,  key = 1,    desc = "id" },
+	{ active = true,   sname = "name" ,      tname = "name" ,      type = "string" ,  key = 0,    desc = "名字" },
+	{ active = true,   sname = "age" ,      tname = "age" ,      type = "int" ,  key = 0,    desc = "年龄" },
+	{ active = true,   sname = "course" ,      tname = "course" ,      type = "[]int" ,  key = 0,    desc = "学科id" },
+	{ active = true,   sname = "score" ,      tname = "score" ,      type = "map[int]int" ,  key = 0,    desc = "成绩组" },
+]
