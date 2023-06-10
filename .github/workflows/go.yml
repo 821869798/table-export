@@ -24,17 +24,7 @@ jobs:
     - run: go build -o bin/table-export_linux_amd64 . 
     - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/table-export_amd64.exe .
     - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/table-export_darwin_amd64 .
-      
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.event.inputs.tag_name }}
-        release_name: Tag:${{ github.event.inputs.tag_name }}
-        draft: false
-        prerelease: false
+    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o bin/table-export_darwin_arm64 .
     
     - name: Release
       uses: softprops/action-gh-release@v1
