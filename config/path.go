@@ -1,7 +1,7 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
 )
@@ -29,7 +29,7 @@ var gpath *GlobalPath
 func initPath(configFile string) {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
-		log.Fatal("init const path error:", err)
+		slog.Fatalf("init const path error:%v", err)
 	}
 	if configFile == "" {
 		//如果参数为空，使用默认路径

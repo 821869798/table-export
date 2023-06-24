@@ -1,7 +1,7 @@
 package visitor
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"table-export/config"
 	"table-export/convert/adapter"
 	"table-export/convert/api"
@@ -30,7 +30,7 @@ func (b BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 			for _, origin := range tableOptimizeField.OriginDatas {
 				err := wrap.GetDataVisitorValue(b, tableOptimizeField.Field.Type, origin)
 				if err != nil {
-					log.Fatalf("export binary target file[%v] optimize error:%v", dataModel.Meta.Target, err.Error())
+					slog.Fatalf("export binary target file[%v] optimize error:%v", dataModel.Meta.Target, err.Error())
 				}
 			}
 		}
@@ -58,7 +58,7 @@ func (b BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 			}
 			err := wrap.GetDataVisitorValue(b, tf.Type, rawStr)
 			if err != nil {
-				log.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}
 		}
 	}
@@ -105,7 +105,7 @@ func (b BinaryVisitor) AcceptArray(r *adapter.Array) {
 	for _, origin := range r.Datas {
 		err := wrap.GetDataVisitorValue(b, r.ValueType, origin)
 		if err != nil {
-			log.Fatalf("export binary AcceptArray failed: %s", err.Error())
+			slog.Fatalf("export binary AcceptArray failed: %v", err)
 		}
 	}
 }
@@ -115,11 +115,11 @@ func (b BinaryVisitor) AcceptMap(r *adapter.Map) {
 	for key, value := range r.Datas {
 		err := wrap.GetDataVisitorValue(b, r.KeyType, key)
 		if err != nil {
-			log.Fatalf("export binary AcceptMap failed: %s", err.Error())
+			slog.Fatalf("export binary AcceptMap failed: %v", err)
 		}
 		err = wrap.GetDataVisitorValue(b, r.ValueType, value)
 		if err != nil {
-			log.Fatalf("export binary AcceptMap failed: %s", err.Error())
+			slog.Fatalf("export binary AcceptMap failed: %v", err)
 		}
 	}
 }

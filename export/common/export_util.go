@@ -1,7 +1,7 @@
 package common
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"sync"
 	"table-export/consts"
 	"table-export/data"
@@ -25,12 +25,12 @@ func CommonMutilExport(tableMetas []*meta.RawTableMeta, exportFunc func(*model.T
 		go func(tableMeta *meta.RawTableMeta) {
 			tm, err := meta.NewTableMeta(tableMeta)
 			if err != nil {
-				log.Fatal(err)
+				slog.Fatal(err)
 			}
 
 			dataModel, err := data.GetDataModelByType(tm)
 			if err != nil {
-				log.Fatal(err)
+				slog.Fatal(err)
 			}
 
 			//执行函数

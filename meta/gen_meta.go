@@ -2,7 +2,7 @@ package meta
 
 import (
 	"encoding/csv"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"github.com/xuri/excelize/v2"
 	"os"
 	"strconv"
@@ -38,9 +38,7 @@ func (g *GenMeta) Run() {
 	}
 
 	if !inputOk {
-		log.WithFields(log.Fields{
-			"GenSrouce": g.genSource,
-		}).Fatal("generator source arg error!")
+		slog.Fatalf("generator source arg error! GenSource:%s", g.genSource)
 	}
 
 	targetName := sourceSlice[0]
@@ -49,9 +47,7 @@ func (g *GenMeta) Run() {
 	filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, srcFileName)
 
 	if !util.ExistFile(filePath) {
-		log.WithFields(log.Fields{
-			"FilePath": filePath,
-		}).Fatal("generator source source file path not exist!")
+		slog.Fatalf("generator source source file path not exist! FilePath:%s", filePath)
 	}
 
 	sheetName := ""
@@ -65,11 +61,11 @@ func (g *GenMeta) Run() {
 	}
 
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	if len(rows) < config.GlobalConfig.Table.DataStart {
-		log.Fatal("excel source row count must >= " + strconv.Itoa(config.GlobalConfig.Table.DataStart))
+		slog.Fatal("excel source row count must >= " + strconv.Itoa(config.GlobalConfig.Table.DataStart))
 	}
 
 	rtm := NewRawTableMeta()
@@ -98,9 +94,7 @@ func (g *GenMeta) Run() {
 		//判断是否重复
 		_, ok := fieldSet[cellStr]
 		if ok {
-			log.WithFields(log.Fields{
-				"Name:": cellStr,
-			}).Fatal("excel source field name repeated!")
+			slog.Fatalf("excel source field name[%s] repeated!", cellStr)
 		}
 		fieldSet[cellStr] = true
 		descCellStr := ""
@@ -114,7 +108,7 @@ func (g *GenMeta) Run() {
 	genFilePath := config.AbsExeDir(config.GlobalConfig.Meta.GenDir, targetName+consts.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 }
 

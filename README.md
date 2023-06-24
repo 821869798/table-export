@@ -5,6 +5,8 @@ table-export 是一个高性能游戏导表工具，使用golang编写，目前�
 
 C# binary （推荐），lua （推荐），c# proto，json，可以根据自己的需求自己修改扩展。
 
+## [B站介绍视频](https://www.bilibili.com/video/BV1ru411871G/)
+
 ## 核心特性
 
 - 高性能，方便扩展

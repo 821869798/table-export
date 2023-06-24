@@ -1,7 +1,7 @@
 package cs_bin
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"sync"
 	"table-export/config"
@@ -37,16 +37,16 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 
 	csBinRule, ok := ru.(*config.RawMetaRuleUnitCSBin)
 	if !ok {
-		log.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
+		slog.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
 	}
 
 	//清空目录
 	if err := util.InitDirAndClearFile(config.AbsExeDir(csBinRule.DataTempDir), `^.*?\.bytes$`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	if err := util.InitDirAndClearFile(config.AbsExeDir(csBinRule.CodeTempDir), `^.*?\.cs`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	defer util.TimeCost(time.Now(), "export c# bin time cost = %v\n")
@@ -75,11 +75,11 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	// 拷贝到最终的目录去
 	err := util.CopyDir(csBinRule.DataTempDir, csBinRule.DataBinDir)
 	if err != nil {
-		log.Fatal("Copy files error:" + err.Error())
+		slog.Fatal("Copy files error:" + err.Error())
 	}
 	err = util.CopyDir(csBinRule.CodeTempDir, csBinRule.GenCodeDir)
 	if err != nil {
-		log.Fatal("Copy files error:" + err.Error())
+		slog.Fatal("Copy files error:" + err.Error())
 	}
 }
 
@@ -91,10 +91,10 @@ func GenCSBinData(dataModel *model.TableModel, ouputPath string) {
 	filePath := config.AbsExeDir(ouputPath, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatalf("export cs_bin bytes file create file error:%v", err)
+		slog.Fatalf("export cs_bin bytes file create file error:%v", err)
 	}
 	_, err = file.Write(bytes)
 	if err != nil {
-		log.Fatalf("export cs_bin bytes file write error:%v", err)
+		slog.Fatalf("export cs_bin bytes file write error:%v", err)
 	}
 }

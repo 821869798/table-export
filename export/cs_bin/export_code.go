@@ -2,7 +2,7 @@ package cs_bin
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -38,7 +38,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 	for _, field := range dataModel.Meta.Fields {
 		typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, collectionReadonly)
 		if err != nil {
-			log.Fatalf("gen cs code error:%v", typeDef)
+			slog.Fatalf("gen cs code error:%v", typeDef)
 		}
 
 		writeField := &CSCodeWriteField{
@@ -64,7 +64,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 	filePath := filepath.Join(outputPath, templateRoot.TableClassName+".cs")
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	//创建模板,绑定全局函数,并且解析
@@ -82,7 +82,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 		"GetOutputDefTypeValue": func(filedType *meta.TableFieldType, collectionReadonly bool) string {
 			typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, filedType, collectionReadonly)
 			if err != nil {
-				log.Fatalf("gen cs code error:%v", typeDef)
+				slog.Fatalf("gen cs code error:%v", typeDef)
 			}
 			return typeDef
 		},
@@ -134,7 +134,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 				}
 				defType, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, false)
 				if err != nil {
-					log.Fatal(err)
+					slog.Fatal(err)
 				}
 				sb.WriteString(fmt.Sprintf("%s %s", defType, keyName))
 			}
@@ -161,12 +161,12 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 	//渲染输出
 	err = tmpl.Execute(file, templateRoot)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	err = file.Close()
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 }
@@ -175,7 +175,7 @@ func getKeyDefTypeMap(dataModel *model.TableModel, recordName string, offset int
 	keyDefType := dataModel.Meta.GetKeyDefTypeOffset(meta.FieldType_Int, offset)
 	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, keyDefType, false)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 	return util.ReplaceLast(keyDef, "int", recordName)
 }

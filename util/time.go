@@ -1,11 +1,11 @@
 package util
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"time"
 )
 
 func TimeCost(start time.Time, formatStr string) {
 	tc := time.Since(start)
-	log.Infof(formatStr, tc)
+	slog.Infof(formatStr, tc)
 }

@@ -1,7 +1,7 @@
 package cs_proto
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"os/exec"
 	"runtime"
@@ -32,18 +32,18 @@ func (e *ExportCsProto) TableMetas() []*meta.RawTableMeta {
 func (e *ExportCsProto) Export(ru config.MetaRuleUnit) {
 	csRule, ok := ru.(*config.RawMetaRuleUnitCSProto)
 	if !ok {
-		log.Fatal("Export CsProto expect *RawMetaRuleUnitCSProto Rule Unit")
+		slog.Fatal("Export CsProto expect *RawMetaRuleUnitCSProto Rule Unit")
 	}
 
 	//清空目录
 	if err := util.ClearDirAndCreateNew(config.AbsExeDir(csRule.ProtoTempDir)); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.BytesDir), `^.*?\.bytes$`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 	if err := util.InitDirAndClearFile(config.AbsExeDir(csRule.ProtoCSDir), `^.*?\.cs$`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	defer util.TimeCost(time.Now(), "export cs_proto time cost = %v\n")
@@ -72,7 +72,7 @@ func (e *ExportCsProto) Export(ru config.MetaRuleUnit) {
 		protoc.Stdout = os.Stdout
 		protoc.Stderr = os.Stderr
 		if err := protoc.Run(); err != nil {
-			log.Fatalf("export cs_proto csharp file error:", err)
+			slog.Fatalf("export cs_proto csharp file error:%v", err)
 		}
 
 	}
@@ -83,7 +83,7 @@ func (e *ExportCsProto) Export(ru config.MetaRuleUnit) {
 func exportCSProtoFile(dataModel *model.TableModel, csRule *config.RawMetaRuleUnitCSProto) {
 	pfd, err := buildProtoFile(dataModel, csRule)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	buildProtoBytesFile(dataModel, csRule, pfd)

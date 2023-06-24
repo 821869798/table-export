@@ -2,7 +2,7 @@ package json
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
 	"table-export/config"
@@ -34,13 +34,13 @@ func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 
 	jsonRule, ok := ru.(*config.RawMetaRuleUnitJson)
 	if !ok {
-		log.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
+		slog.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
 	}
 
 	outputPath := config.AbsExeDir(jsonRule.JsonOutputDir)
 	//清空目录
 	if err := util.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	defer util.TimeCost(time.Now(), "export json time cost = %v\n")
@@ -91,7 +91,7 @@ func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]
 			}
 			output, err := wrap.GetOutputValue(config.ExportType_Json, tf.Type, rawStr)
 			if err != nil {
-				log.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+				slog.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err)
 			}
 
 			recordMap[tf.Target] = output
@@ -100,7 +100,7 @@ func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]
 			if tf.Key > 0 {
 				formatKey, err := wrap.GetOutputStringValue(config.ExportType_Json, tf.Type, output)
 				if err != nil {
-					log.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] format key error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+					slog.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] format key error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err)
 				}
 				keys[tf.Key-1] = formatKey
 			}
@@ -125,7 +125,7 @@ func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]
 		lastKey := keys[len(keys)-1]
 		_, ok := dataMap[lastKey]
 		if ok {
-			log.Fatalf("export json target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
+			slog.Fatalf("export json target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
 		}
 
 		if exportList {
@@ -141,23 +141,23 @@ func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]
 func exportJson(dataModel *model.TableModel, outputPath string, writeContent any) {
 	b, err := json.MarshalIndent(writeContent, "", "    ")
 	if err != nil {
-		log.Fatalf("export json error:%v", err)
+		slog.Fatalf("export json error:%v", err)
 	}
 
 	filePath := filepath.Join(outputPath, dataModel.Meta.Target+".json")
 
 	f, err := os.Create(filePath) //os.OpenFile(destFile, os.O_WRONLY, 0600)
 	if err != nil {
-		log.Fatalf("export json error:%v", err)
+		slog.Fatalf("export json error:%v", err)
 	}
 
 	_, err = f.Write(b)
 	if err != nil {
-		log.Fatalf("export json error:%v", err)
+		slog.Fatalf("export json error:%v", err)
 	}
 
 	err = f.Close()
 	if err != nil {
-		log.Fatalf("export json error:%v", err)
+		slog.Fatalf("export json error:%v", err)
 	}
 }

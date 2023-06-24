@@ -2,7 +2,7 @@ package printer
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"strings"
 	"table-export/config"
 	"table-export/convert/api"
@@ -66,14 +66,14 @@ func (C CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName str
 	collectionReadonly := C.CollectionReadonly
 	valueDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 	_n := fmt.Sprintf("__n%d", depth)
 	_i := fmt.Sprintf("__i%d", depth)
 	_v := fmt.Sprintf("__v%d", depth)
 	_vDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType.Value, false)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	// 添加数组大小
@@ -82,7 +82,7 @@ func (C CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName str
 	if index != -1 {
 		valueDefInit = valueDef[:index+1] + _n + valueDef[index+1:]
 	} else {
-		log.Fatal("Accept Array type error:" + valueDef)
+		slog.Fatal("Accept Array type error:" + valueDef)
 	}
 
 	assignment := wrap.GetCodePrintValue(C, fieldType.Value, _v, reader, depth+1)
@@ -102,11 +102,11 @@ func (C CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName strin
 
 	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, keyType, collectionReadonly)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 	valueDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType.Value, collectionReadonly)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	_n := fmt.Sprintf("__n%d", depth)
@@ -117,7 +117,7 @@ func (C CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName strin
 
 	_fDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	keyAssignment := wrap.GetCodePrintValue(C, keyType, _k, reader, depth+1)

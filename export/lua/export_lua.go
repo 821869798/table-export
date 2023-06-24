@@ -1,7 +1,7 @@
 package lua
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"io"
 	"os"
 	"os/exec"
@@ -37,18 +37,18 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	luaRule, ok := ru.(*config.RawMetaRuleUnitLua)
 	if !ok {
-		log.Fatal("Export Lua expect *RawMetaRuleUnitLua Rule Unit")
+		slog.Fatal("Export Lua expect *RawMetaRuleUnitLua Rule Unit")
 	}
 
 	//清空目录
 	if luaRule.EnableProcess {
 		if err := util.ClearDirAndCreateNew(config.AbsExeDir(luaRule.TempDir)); err != nil {
-			log.Fatal(err)
+			slog.Fatal(err)
 		}
 	}
 
 	if err := util.InitDirAndClearFile(config.AbsExeDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	defer util.TimeCost(time.Now(), "export lua time cost = %v\n")
@@ -94,24 +94,24 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 	)
 
 	if output, err := postProcessExec.CombinedOutput(); nil != err {
-		log.Fatalf("output:%s\nerr:%v", output, err)
+		slog.Fatalf("output:%s\nerr:%v", output, err)
 	}
 	fileList, err := util.GetFileListByExt(luaTempDir, ".lua")
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	//拷贝到目标去
 	for _, file := range fileList {
 		src, err := os.Open(file)
 		if nil != err {
-			log.Fatal(err)
+			slog.Fatal(err)
 		}
 
 		dst, err := os.Create(filepath.Join(outputDir, filepath.Base(file)))
 		if err != nil {
 			_ = src.Close()
-			log.Fatal(err)
+			slog.Fatal(err)
 		}
 		_, err = io.Copy(dst, src)
 
@@ -119,7 +119,7 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 		_ = dst.Close()
 
 		if err != nil {
-			log.Fatal(err)
+			slog.Fatal(err)
 		}
 	}
 }
@@ -145,18 +145,18 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 			}
 			output, err := wrap.GetOutputValue(config.ExportType_Lua, tf.Type, rawStr)
 			if err != nil {
-				log.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+				slog.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}
 			outputStr, ok := output.(string)
 			if !ok {
-				log.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] convert to string error", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
+				slog.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] convert to string error", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
 			}
 			recordString += tf.Target + "=" + outputStr + ","
 
 			//存储key
 			if tf.Key > 0 {
 				if outputStr == "" {
-					log.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] key content is null", dataModel.Meta.Target, rowIndex+rowDataOffset)
+					slog.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] key content is null", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
 				}
 				keys[tf.Key-1] = outputStr
 			}
@@ -181,7 +181,7 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 		lastKey := keys[len(keys)-1]
 		_, ok := dataMap[lastKey]
 		if ok {
-			log.Fatalf("export lua target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
+			slog.Fatalf("export lua target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys)
 		}
 		dataMap[lastKey] = recordString
 	}
@@ -204,7 +204,7 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 	filePath := filepath.Join(outputPath, dataModel.Meta.Target+".lua")
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	//填充数据
@@ -216,12 +216,12 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 	//渲染输出
 	err = tmpl.Execute(file, result)
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 	err = file.Close()
 	if err != nil {
-		log.Fatal(err)
+		slog.Fatal(err)
 	}
 
 }

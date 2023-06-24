@@ -2,7 +2,7 @@ package meta
 
 import (
 	"github.com/BurntSushi/toml"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
 	"table-export/util"
@@ -55,7 +55,7 @@ func LoadTableMetasByDir(fullPath string) ([]*RawTableMeta, error) {
 	}
 	tableMetas := make([]*RawTableMeta, len(fileLists), len(fileLists))
 	for index, file := range fileLists {
-		log.Debug(file)
+		slog.Debug(file)
 		if _, err = toml.DecodeFile(file, &tableMetas[index]); err != nil {
 			return nil, err
 		}

@@ -1,7 +1,7 @@
 package export
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 	"strings"
 	"sync"
 	"table-export/config"
@@ -42,22 +42,17 @@ func (e *Entry) Run() {
 	for _, mode := range modeSlice {
 		metaRule := config.GetMetaRuleConfigByName(mode)
 		if metaRule == nil {
-			log.Fatalf("export mode can't not find in config:%v", mode)
+			slog.Fatalf("export mode can't not find in config:%v", mode)
 		}
 
 		tableMetas, err := meta.LoadTableMetasByDir(config.AbsExeDir(metaRule.ConfigDir))
 		if err != nil {
-			log.WithFields(log.Fields{
-				"mode": mode,
-				"err":  err,
-			}).Fatal("load table meta toml config failed")
+			slog.Fatalf("load table meta toml config failed! mode:%s err:%v", mode, err)
 		}
 
 		for _, rule := range metaRule.RuleUnits {
 			if creatorFunc, ok := exportCreators[rule.RuleExportType()]; ok {
-				log.WithFields(log.Fields{
-					"mode": mode,
-				}).Debug("start run export")
+				slog.Debugf("start run export mode:%s", mode)
 
 				export := creatorFunc(tableMetas, extraArg)
 				wg.Add(1)
@@ -66,7 +61,7 @@ func (e *Entry) Run() {
 					wg.Done()
 				}()
 			} else {
-				log.Fatalf("export mode can't support:%v", rule.RuleExportType())
+				slog.Fatalf("export mode can't support:%v", rule.RuleExportType())
 			}
 		}
 

@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/BurntSushi/toml"
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 )
 
 type RawGlobalConfig struct {
@@ -40,7 +40,7 @@ func ParseConfig(configFile string) {
 	initPath(configFile)
 	GlobalConfig = new(RawGlobalConfig)
 	if _, err := toml.DecodeFile(ConfigDir(), GlobalConfig); err != nil {
-		log.Fatalf("load global config error:%v", err)
+		slog.Fatalf("load global config error:%v", err)
 	}
 
 	//初始化
@@ -50,6 +50,6 @@ func ParseConfig(configFile string) {
 		GlobalConfig.Meta.RuleMap[rule.RuleName] = rule
 	}
 
-	log.Debug("load global config success!")
+	slog.Debug("load global config success!")
 
 }

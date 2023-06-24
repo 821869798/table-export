@@ -2,9 +2,9 @@ package cs_proto
 
 import (
 	"fmt"
+	"github.com/gookit/slog"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"table-export/config"
 	"table-export/convert/wrap"
@@ -33,7 +33,7 @@ func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMet
 			}
 			output, err := wrap.GetOutputValue(config.ExportType_CS_Proto, tf.Type, rawStr)
 			if err != nil {
-				log.Fatalf("export cs_proto target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+				slog.Fatalf("export cs_proto target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}
 			recordDm.SetFieldByNumber(fid+1, output)
 		}
@@ -44,17 +44,17 @@ func buildProtoBytesFile(dataModel *model.TableModel, ruleCSProto *config.RawMet
 	buf, err := rootDm.Marshal()
 
 	if err != nil {
-		log.Fatalf("export cs_proto target file[%v] error:%v", dataModel.Meta.Target, err)
+		slog.Fatalf("export cs_proto target file[%v] error:%v", dataModel.Meta.Target, err)
 	}
 
 	filePath := config.AbsExeDir(ruleCSProto.BytesDir, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
-		log.Fatalf("export .proto bytes file create file error:%v", err)
+		slog.Fatalf("export .proto bytes file create file error:%v", err)
 	}
 	_, err = file.Write(buf)
 	if err != nil {
-		log.Fatalf("export .proto bytes file write error:%v", err)
+		slog.Fatalf("export .proto bytes file write error:%v", err)
 	}
 
 }

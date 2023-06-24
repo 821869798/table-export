@@ -2,9 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/shiena/ansicolor"
-	log "github.com/sirupsen/logrus"
-	"os"
+	"github.com/gookit/slog"
 	"table-export/config"
 	"table-export/consts"
 	"table-export/export"
@@ -13,10 +11,7 @@ import (
 
 func main() {
 
-	log.SetReportCaller(true)
-	log.SetFormatter(&Formatter{})
-	log.SetOutput(ansicolor.NewAnsiColorWriter(os.Stdout))
-	log.SetLevel(log.InfoLevel)
+	slog.SetLogLevel(slog.InfoLevel)
 
 	flag.Parse()
 

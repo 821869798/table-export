@@ -1,7 +1,7 @@
 package consts
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/gookit/slog"
 )
 
 var (
@@ -9,7 +9,5 @@ var (
 )
 
 func PrintBuild() {
-	log.WithFields(log.Fields{
-		"Version": Version,
-	}).Info()
+	slog.Infof("Version:%s", Version)
 }
