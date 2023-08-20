@@ -2,10 +2,10 @@ package wrap
 
 import (
 	"errors"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/meta"
 	"strconv"
-	"table-export/config"
-	"table-export/convert/api"
-	"table-export/meta"
 )
 
 type ulongWrap struct{}
@@ -49,7 +49,7 @@ func (b *ulongWrap) OutputDefTypeValue(exportType config.ExportType, filedType *
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *ulongWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *ulongWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptULong(0)
 		return nil
@@ -62,6 +62,6 @@ func (b *ulongWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.T
 	return nil
 }
 
-func (b *ulongWrap) CodePrintValue(print api.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *ulongWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptULong(fieldType, fieldName, reader, depth)
 }

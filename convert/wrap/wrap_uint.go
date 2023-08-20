@@ -2,11 +2,11 @@ package wrap
 
 import (
 	"errors"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/meta"
 	"math"
 	"strconv"
-	"table-export/config"
-	"table-export/convert/api"
-	"table-export/meta"
 )
 
 type uintWrap struct{}
@@ -53,7 +53,7 @@ func (b *uintWrap) OutputDefTypeValue(exportType config.ExportType, filedType *m
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *uintWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *uintWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptUInt(0)
 		return nil
@@ -66,6 +66,6 @@ func (b *uintWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.Ta
 	return nil
 }
 
-func (b *uintWrap) CodePrintValue(print api.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *uintWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptUInt(fieldType, fieldName, reader, depth)
 }

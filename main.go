@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/consts"
+	"github.com/821869798/table-export/export"
+	"github.com/821869798/table-export/meta"
 	"github.com/gookit/slog"
-	"table-export/config"
-	"table-export/consts"
-	"table-export/export"
-	"table-export/meta"
 )
 
 func main() {

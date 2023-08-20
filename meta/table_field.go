@@ -37,12 +37,12 @@ type TableFieldType struct {
 	Value *TableFieldType //Value的类型
 }
 
-var TableFieldTypeNone = newTableFieldType(FieldType_None)
+var TableFieldTypeNone = newTableFieldType(EFieldType_None)
 
 func newTableFieldType(fieldType EFieldType) *TableFieldType {
 	tft := &TableFieldType{
 		Type:  fieldType,
-		Key:   FieldType_None,
+		Key:   EFieldType_None,
 		Value: nil,
 	}
 	return tft
@@ -50,8 +50,8 @@ func newTableFieldType(fieldType EFieldType) *TableFieldType {
 
 func newTableFieldArrayType(value *TableFieldType) *TableFieldType {
 	tft := &TableFieldType{
-		Type:  FieldType_Slice,
-		Key:   FieldType_None,
+		Type:  EFieldType_Slice,
+		Key:   EFieldType_None,
 		Value: value,
 	}
 	return tft
@@ -59,7 +59,7 @@ func newTableFieldArrayType(value *TableFieldType) *TableFieldType {
 
 func newTableFieldMapType(key EFieldType, value *TableFieldType) *TableFieldType {
 	tft := &TableFieldType{
-		Type:  FieldType_Map,
+		Type:  EFieldType_Map,
 		Key:   key,
 		Value: value,
 	}
@@ -74,7 +74,7 @@ func (tft *TableFieldType) IsBaseType() bool {
 
 func (tft *TableFieldType) IsComplexType() bool {
 	switch tft.Type {
-	case FieldType_Slice, FieldType_Map:
+	case EFieldType_Slice, EFieldType_Map:
 		return true
 	}
 	return false
@@ -85,7 +85,7 @@ func (tft *TableFieldType) IsReferenceType() bool {
 		return true
 	}
 	switch tft.Type {
-	case FieldType_String:
+	case EFieldType_String:
 		return true
 	}
 	return false
@@ -103,29 +103,29 @@ func (tft *TableFieldType) CreateArrayFieldType() *TableFieldType {
 
 func getFieldTypeFromString(origin string) (*TableFieldType, error) {
 
-	tft := newTableFieldType(FieldType_None)
+	tft := newTableFieldType(EFieldType_None)
 	switch origin {
 	case "int":
-		tft.Type = FieldType_Int
+		tft.Type = EFieldType_Int
 	case "uint":
-		tft.Type = FieldType_UInt
+		tft.Type = EFieldType_UInt
 	case "long":
-		tft.Type = FieldType_Long
+		tft.Type = EFieldType_Long
 	case "ulong":
-		tft.Type = FieldType_ULong
+		tft.Type = EFieldType_ULong
 	case "bool":
-		tft.Type = FieldType_Bool
+		tft.Type = EFieldType_Bool
 	case "float":
-		tft.Type = FiledType_Float
+		tft.Type = EFiledType_Float
 	case "double":
-		tft.Type = FiledType_Double
+		tft.Type = EFiledType_Double
 	case "string":
-		tft.Type = FieldType_String
+		tft.Type = EFieldType_String
 	default:
 		reg := regexp.MustCompile(`^\[\](.+)$`)
 		result := reg.FindAllStringSubmatch(origin, -1)
 		if len(result) == 1 && len(result[0]) == 2 {
-			tft.Type = FieldType_Slice
+			tft.Type = EFieldType_Slice
 			subTft, err := getFieldTypeFromString(result[0][1])
 			if err != nil {
 				return nil, err
@@ -138,7 +138,7 @@ func getFieldTypeFromString(origin string) (*TableFieldType, error) {
 		reg = regexp.MustCompile(`^map\[(\w+)\](.+)$`)
 		result = reg.FindAllStringSubmatch(origin, -1)
 		if len(result) == 1 && len(result[0]) == 3 {
-			tft.Type = FieldType_Map
+			tft.Type = EFieldType_Map
 			keyTft, err := getFieldTypeFromString(result[0][1])
 			if err != nil {
 				return nil, err

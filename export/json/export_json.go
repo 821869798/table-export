@@ -2,16 +2,16 @@ package json
 
 import (
 	"encoding/json"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/wrap"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/export/api"
+	"github.com/821869798/table-export/export/common"
+	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
-	"table-export/config"
-	"table-export/convert/wrap"
-	"table-export/data/model"
-	"table-export/export/api"
-	"table-export/export/common"
-	"table-export/meta"
-	"table-export/util"
 	"time"
 )
 
@@ -37,7 +37,7 @@ func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 		slog.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
 	}
 
-	outputPath := config.AbsExeDir(jsonRule.JsonOutputDir)
+	outputPath := util.RelExecuteDir(jsonRule.JsonOutputDir)
 	//清空目录
 	if err := util.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
 		slog.Fatal(err)

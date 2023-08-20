@@ -1,21 +1,21 @@
 package visitor
 
 import (
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/adapter"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/convert/wrap"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/serialization"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
-	"table-export/config"
-	"table-export/convert/adapter"
-	"table-export/convert/api"
-	"table-export/convert/wrap"
-	"table-export/data/model"
-	"table-export/serialization"
-	"table-export/util"
 )
 
 type BinaryVisitor struct {
 	byteBuff *serialization.ByteBuf
 }
 
-func NewBinary(buff *serialization.ByteBuf) api.IDataVisitor {
+func NewBinary(buff *serialization.ByteBuf) apiconvert.IDataVisitor {
 	b := &BinaryVisitor{
 		byteBuff: buff,
 	}

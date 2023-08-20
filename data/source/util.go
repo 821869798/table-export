@@ -3,9 +3,9 @@ package source
 import (
 	"errors"
 	"fmt"
-	"table-export/config"
-	"table-export/data/model"
-	"table-export/meta"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 )
 
 func createOrAddDataModel(tableSource *meta.TableSource, dataModel *model.TableModel, rowData [][]string) error {

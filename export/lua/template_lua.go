@@ -6,7 +6,7 @@ const templateLua string = `local {{.Name}} = {
 
 return {{.Name}}
 
-{{- define "lua" -}}
+{{- consts "lua" -}}
 {{- if IsString . -}}
 {{- ToString . -}}
 {{- else -}}

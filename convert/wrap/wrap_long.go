@@ -2,10 +2,10 @@ package wrap
 
 import (
 	"errors"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/meta"
 	"strconv"
-	"table-export/config"
-	"table-export/convert/api"
-	"table-export/meta"
 )
 
 type longWrap struct{}
@@ -49,7 +49,7 @@ func (b *longWrap) OutputDefTypeValue(exportType config.ExportType, filedType *m
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *longWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *longWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptLong(0)
 		return nil
@@ -62,6 +62,6 @@ func (b *longWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.Ta
 	return nil
 }
 
-func (b *longWrap) CodePrintValue(print api.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *longWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptLong(fieldType, fieldName, reader, depth)
 }

@@ -1,12 +1,11 @@
 package config
 
 type RawMetaRule struct {
-	RuleName  string                  `toml:"rule_name"`
-	ConfigDir string                  `toml:"config_dir"`
-	Json      *RawMetaRuleUnitJson    `toml:"json"`
-	Lua       *RawMetaRuleUnitLua     `toml:"lua"`
-	CSProto   *RawMetaRuleUnitCSProto `toml:"cs_proto"`
-	CSBin     *RawMetaRuleUnitCSBin   `toml:"cs_bin"`
+	RuleName  string                `toml:"rule_name"`
+	ConfigDir string                `toml:"config_dir"`
+	Json      *RawMetaRuleUnitJson  `toml:"json"`
+	Lua       *RawMetaRuleUnitLua   `toml:"lua"`
+	CSBin     *RawMetaRuleUnitCSBin `toml:"cs_bin"`
 	RuleUnits []MetaRuleUnit
 }
 
@@ -16,9 +15,6 @@ func (r *RawMetaRule) initMetaRule() {
 	}
 	if r.Lua != nil {
 		r.RuleUnits = append(r.RuleUnits, r.Lua)
-	}
-	if r.CSProto != nil {
-		r.RuleUnits = append(r.RuleUnits, r.CSProto)
 	}
 	if r.CSBin != nil {
 		r.RuleUnits = append(r.RuleUnits, r.CSBin)
@@ -45,19 +41,6 @@ type RawMetaRuleUnitLua struct {
 
 func (r *RawMetaRuleUnitLua) RuleExportType() ExportType {
 	return ExportType_Lua
-}
-
-type RawMetaRuleUnitCSProto struct {
-	ProtoPackage string `toml:"proto_package"`
-	ProtoTempDir string `toml:"proto_temp_dir"`
-	BytesDir     string `toml:"bytes_dir"`
-	ProtoCSDir   string `toml:"proto_cs_dir"`
-	ProtoCWinDir string `toml:"protoc_win_dir"`
-	ProtoCMacDir string `toml:"protoc_mac_dir"`
-}
-
-func (r *RawMetaRuleUnitCSProto) RuleExportType() ExportType {
-	return ExportType_CS_Proto
 }
 
 type RawMetaRuleUnitCSBin struct {

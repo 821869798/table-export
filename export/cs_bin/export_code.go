@@ -2,17 +2,17 @@ package cs_bin
 
 import (
 	"fmt"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/printer"
+	"github.com/821869798/table-export/convert/wrap"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"table-export/config"
-	"table-export/convert/printer"
-	"table-export/convert/wrap"
-	"table-export/data/model"
-	"table-export/meta"
-	"table-export/util"
 	"text/template"
 )
 
@@ -172,7 +172,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 }
 
 func getKeyDefTypeMap(dataModel *model.TableModel, recordName string, offset int) string {
-	keyDefType := dataModel.Meta.GetKeyDefTypeOffset(meta.FieldType_Int, offset)
+	keyDefType := dataModel.Meta.GetKeyDefTypeOffset(meta.EFieldType_Int, offset)
 	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, keyDefType, false)
 	if err != nil {
 		slog.Fatal(err)

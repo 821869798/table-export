@@ -1,19 +1,56 @@
 package util
 
 import (
+	"github.com/gookit/slog"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
-// 路径是否存在
+var executeDir string
+
+func init() {
+	exePath, err := os.Executable()
+	if err != nil {
+		slog.Panicf("init execute path error:%v", err)
+	}
+	executeDir = filepath.Dir(exePath)
+	//dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	//if err != nil {
+	//	slog.Panicf("init execute path error:%v", err)
+	//}
+	//executeDir = dir
+}
+
+// RelExecuteDir 获取相对可执行文件所在目录
+func RelExecuteDir(paths ...string) string {
+	paths = append([]string{executeDir}, paths...)
+	return filepath.Join(paths...)
+}
+
+// AbsOrRelExecutePath 获取绝对路径或者相对可执行文件所在目录的路径
+func AbsOrRelExecutePath(path string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return RelExecuteDir(path)
+}
+
+// SetWorkDirToExecuteDir 把工作目录设置为exe的目录
+func SetWorkDirToExecuteDir() error {
+	err := os.Chdir(executeDir)
+	return err
+}
+
+// ExistPath 路径是否存在
 func ExistPath(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
 
-// 文件是否存在
+// ExistFile 文件是否存在
 func ExistFile(path string) bool {
 	f, err := os.Stat(path)
 	if err != nil {
@@ -23,7 +60,7 @@ func ExistFile(path string) bool {
 	return !f.IsDir()
 }
 
-// 文件夹是否存在
+// ExistDir 文件夹是否存在
 func ExistDir(path string) bool {
 	f, err := os.Stat(path)
 	if err != nil {
@@ -31,6 +68,14 @@ func ExistDir(path string) bool {
 	}
 
 	return f.IsDir()
+}
+
+// CreateDirIfNoExist 如果目录不存在就创建
+func CreateDirIfNoExist(path string) error {
+	if ExistDir(path) {
+		return nil
+	}
+	return os.MkdirAll(path, os.ModePerm)
 }
 
 // GetFileListByExt 获取某个目录下ext扩展名的所有文件
@@ -51,6 +96,7 @@ func GetFileListByExt(dir string, ext string) ([]string, error) {
 	return fileLists, err
 }
 
+// ClearDirAndCreateNew 清空目录并重新创建
 func ClearDirAndCreateNew(path string) error {
 	if ExistPath(path) {
 		err := os.RemoveAll(path)
@@ -62,6 +108,7 @@ func ClearDirAndCreateNew(path string) error {
 	return err
 }
 
+// InitDirAndClearFile 初始化目录并清空目录下指定文件
 func InitDirAndClearFile(path string, removePattern string) error {
 	if !ExistPath(path) {
 		err := os.MkdirAll(path, os.ModePerm)
@@ -79,12 +126,18 @@ func InitDirAndClearFile(path string, removePattern string) error {
 	return err
 }
 
+// CopyFile 拷贝文件
 func CopyFile(src, dst string) error {
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer srcFile.Close()
+
+	err = CreateDirIfNoExist(filepath.Dir(dst))
+	if err != nil {
+		return err
+	}
 
 	dstFile, err := os.Create(dst)
 	if err != nil {
@@ -99,6 +152,7 @@ func CopyFile(src, dst string) error {
 	return dstFile.Sync()
 }
 
+// CopyDir 拷贝目录
 func CopyDir(srcDir, dstDir string) error {
 	if !ExistPath(dstDir) {
 		err := os.MkdirAll(dstDir, os.ModePerm)
@@ -128,4 +182,10 @@ func CopyDir(srcDir, dstDir string) error {
 		// It's a file, so copy it.
 		return CopyFile(srcPath, dstPath)
 	})
+}
+
+// GetFileNameWithoutExt 获取文件名，不带后缀
+func GetFileNameWithoutExt(pathName string) string {
+	fileName := filepath.Base(pathName)
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }

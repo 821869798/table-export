@@ -3,26 +3,26 @@ package meta
 type EFieldType int
 
 const (
-	FieldType_None EFieldType = iota
-	FieldType_Int
-	FieldType_UInt
-	FieldType_Long
-	FieldType_ULong
-	FieldType_Bool
-	FiledType_Float
-	FiledType_Double
-	FieldType_String
-	FieldType_Slice
-	FieldType_Map
+	EFieldType_None EFieldType = iota
+	EFieldType_Int
+	EFieldType_UInt
+	EFieldType_Long
+	EFieldType_ULong
+	EFieldType_Bool
+	EFiledType_Float
+	EFiledType_Double
+	EFieldType_String
+	EFieldType_Slice
+	EFieldType_Map
 )
 
 var baseFiledType = map[EFieldType]*TableFieldType{
-	FieldType_Int:    newTableFieldType(FieldType_Int),
-	FieldType_UInt:   newTableFieldType(FieldType_UInt),
-	FieldType_Long:   newTableFieldType(FieldType_Long),
-	FieldType_ULong:  newTableFieldType(FieldType_ULong),
-	FieldType_Bool:   newTableFieldType(FieldType_Bool),
-	FiledType_Float:  newTableFieldType(FiledType_Float),
-	FiledType_Double: newTableFieldType(FiledType_Double),
-	FieldType_String: newTableFieldType(FieldType_String),
+	EFieldType_Int:    newTableFieldType(EFieldType_Int),
+	EFieldType_UInt:   newTableFieldType(EFieldType_UInt),
+	EFieldType_Long:   newTableFieldType(EFieldType_Long),
+	EFieldType_ULong:  newTableFieldType(EFieldType_ULong),
+	EFieldType_Bool:   newTableFieldType(EFieldType_Bool),
+	EFiledType_Float:  newTableFieldType(EFiledType_Float),
+	EFiledType_Double: newTableFieldType(EFiledType_Double),
+	EFieldType_String: newTableFieldType(EFieldType_String),
 }

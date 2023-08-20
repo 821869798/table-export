@@ -1,8 +1,8 @@
 package optimize
 
 import (
-	"table-export/data/model"
-	"table-export/meta"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 )
 
 // OptimizeTableDataRepeat 优化重复的数据

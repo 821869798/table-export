@@ -1,14 +1,13 @@
 package data
 
 import (
-	"table-export/data/api"
-	"table-export/data/source"
+	"github.com/821869798/table-export/data/source"
 )
 
-var dataSourceLoads map[string]api.DataSource
+var dataSourceLoads map[string]source.IDataSource
 
 func init() {
-	dataSourceLoads = make(map[string]api.DataSource)
+	dataSourceLoads = make(map[string]source.IDataSource)
 	dataSourceLoads["excel"] = source.NewDataSourceExcel()
 	dataSourceLoads["csv"] = source.NewDataSourceCsv()
 }

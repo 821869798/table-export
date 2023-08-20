@@ -1,8 +1,8 @@
 package api
 
 import (
-	"table-export/config"
-	"table-export/meta"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/meta"
 )
 
 type IExport interface {

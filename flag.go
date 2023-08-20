@@ -31,7 +31,7 @@ func init() {
 	flag.StringVar(&params.genSource, "g", "", `generator source template <target_name,excel_name,sheet_name> or <target_name,csv_name>, example [ -g base_test,base_test.xlsx,Sheet1 ]`)
 	flag.BoolVar(&params.help, "help", false, "this help")
 	flag.BoolVar(&params.version, "version", false, "this version")
-	flag.StringVar(&params.confFile, "conf", "", "use custom config.toml filepath,default is conf/config.toml")
+	flag.StringVar(&params.confFile, "conf", "conf/config.toml", "use custom config.toml filepath,default is conf/config.toml")
 }
 
 func usage() {

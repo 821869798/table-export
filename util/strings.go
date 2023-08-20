@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -49,4 +50,13 @@ func ReplaceLast(source string, strToReplace string, strWithReplace string) stri
 // ReplaceWindowsLineEnd 更换行尾符\r\n为\n
 func ReplaceWindowsLineEnd(source string) string {
 	return strings.ReplaceAll(source, "\r\n", "\n")
+}
+
+func JoinEx[T fmt.Stringer](joinStrings []T, sep string) string {
+	result := make([]string, 0, len(joinStrings))
+	for _, str := range joinStrings {
+		result = append(result, str.String())
+	}
+
+	return strings.Join(result, sep)
 }

@@ -3,11 +3,11 @@ package wrap
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/adapter"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/meta"
 	"strings"
-	"table-export/config"
-	"table-export/convert/adapter"
-	"table-export/convert/api"
-	"table-export/meta"
 )
 
 type sliceWrap struct{}
@@ -71,7 +71,7 @@ func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, filedType *
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *sliceWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptArray(adapter.EmptyArray)
 		return nil
@@ -82,6 +82,6 @@ func (b *sliceWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.T
 	return nil
 }
 
-func (b *sliceWrap) CodePrintValue(print api.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *sliceWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptArray(fieldType, fieldName, reader, depth)
 }

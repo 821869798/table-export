@@ -2,14 +2,14 @@ package meta
 
 import (
 	"encoding/csv"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/consts"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"github.com/xuri/excelize/v2"
 	"os"
 	"strconv"
 	"strings"
-	"table-export/config"
-	"table-export/consts"
-	"table-export/util"
 )
 
 type GenMeta struct {
@@ -44,7 +44,7 @@ func (g *GenMeta) Run() {
 	targetName := sourceSlice[0]
 	srcFileName := sourceSlice[1]
 
-	filePath := config.AbsExeDir(config.GlobalConfig.Table.SrcDir, srcFileName)
+	filePath := util.RelExecuteDir(config.GlobalConfig.Table.SrcDir, srcFileName)
 
 	if !util.ExistFile(filePath) {
 		slog.Fatalf("generator source source file path not exist! FilePath:%s", filePath)
@@ -105,7 +105,7 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := config.AbsExeDir(config.GlobalConfig.Meta.GenDir, targetName+consts.MetaFileSuffix)
+	genFilePath := util.RelExecuteDir(config.GlobalConfig.Meta.GenDir, targetName+consts.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		slog.Fatal(err)

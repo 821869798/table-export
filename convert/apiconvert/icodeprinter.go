@@ -1,6 +1,6 @@
-package api
+package apiconvert
 
-import "table-export/meta"
+import "github.com/821869798/table-export/meta"
 
 type ICodePrinter interface {
 	AcceptField(fieldType *meta.TableFieldType, fieldName string, reader string) string

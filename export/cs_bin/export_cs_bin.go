@@ -1,18 +1,18 @@
 package cs_bin
 
 import (
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/visitor"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/data/optimize"
+	"github.com/821869798/table-export/export/api"
+	"github.com/821869798/table-export/export/common"
+	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/serialization"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"sync"
-	"table-export/config"
-	"table-export/convert/visitor"
-	"table-export/data/model"
-	"table-export/data/optimize"
-	"table-export/export/api"
-	"table-export/export/common"
-	"table-export/meta"
-	"table-export/serialization"
-	"table-export/util"
 	"time"
 )
 
@@ -41,11 +41,11 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	}
 
 	//清空目录
-	if err := util.InitDirAndClearFile(config.AbsExeDir(csBinRule.DataTempDir), `^.*?\.bytes$`); err != nil {
+	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.DataTempDir), `^.*?\.bytes$`); err != nil {
 		slog.Fatal(err)
 	}
 
-	if err := util.InitDirAndClearFile(config.AbsExeDir(csBinRule.CodeTempDir), `^.*?\.cs`); err != nil {
+	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.CodeTempDir), `^.*?\.cs`); err != nil {
 		slog.Fatal(err)
 	}
 
@@ -88,7 +88,7 @@ func GenCSBinData(dataModel *model.TableModel, ouputPath string) {
 	binary := visitor.NewBinary(byteBuff)
 	binary.AcceptTable(dataModel)
 	bytes := byteBuff.GetBytes()
-	filePath := config.AbsExeDir(ouputPath, dataModel.Meta.Target+".bytes")
+	filePath := util.RelExecuteDir(ouputPath, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
 		slog.Fatalf("export cs_bin bytes file create file error:%v", err)

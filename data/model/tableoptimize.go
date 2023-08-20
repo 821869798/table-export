@@ -1,6 +1,6 @@
 package model
 
-import "table-export/meta"
+import "github.com/821869798/table-export/meta"
 
 type TableOptimize struct {
 	OptimizeFields []*TableOptimizeField

@@ -1,15 +1,15 @@
 package common
 
 import (
+	"github.com/821869798/table-export/consts"
+	"github.com/821869798/table-export/data"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 	"github.com/gookit/slog"
 	"sync"
-	"table-export/consts"
-	"table-export/data"
-	"table-export/data/model"
-	"table-export/meta"
 )
 
-// 通用的并行执行的方法a
+// CommonMutilExport 通用的并行执行的方法
 func CommonMutilExport(tableMetas []*meta.RawTableMeta, exportFunc func(*model.TableModel)) []*model.TableModel {
 	wg := sync.WaitGroup{}
 	wg.Add(len(tableMetas))
@@ -47,3 +47,7 @@ func CommonMutilExport(tableMetas []*meta.RawTableMeta, exportFunc func(*model.T
 
 	return allDataModel
 }
+
+//func CommonMutilExportWithDTable(tableMetas []*meta.RawTableMeta, exportFunc func(*model.TableModel)) []*model.TableModel {
+//
+//}

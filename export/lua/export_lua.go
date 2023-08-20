@@ -1,19 +1,19 @@
 package lua
 
 import (
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/wrap"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/export/api"
+	"github.com/821869798/table-export/export/common"
+	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"table-export/config"
-	"table-export/convert/wrap"
-	"table-export/data/model"
-	"table-export/export/api"
-	"table-export/export/common"
-	"table-export/meta"
-	"table-export/util"
 	"text/template"
 	"time"
 )
@@ -42,12 +42,12 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	//清空目录
 	if luaRule.EnableProcess {
-		if err := util.ClearDirAndCreateNew(config.AbsExeDir(luaRule.TempDir)); err != nil {
+		if err := util.ClearDirAndCreateNew(util.RelExecuteDir(luaRule.TempDir)); err != nil {
 			slog.Fatal(err)
 		}
 	}
 
-	if err := util.InitDirAndClearFile(config.AbsExeDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
+	if err := util.InitDirAndClearFile(util.RelExecuteDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
 		slog.Fatal(err)
 	}
 
@@ -55,9 +55,9 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	var outputPath string
 	if luaRule.EnableProcess {
-		outputPath = config.AbsExeDir(luaRule.TempDir)
+		outputPath = util.RelExecuteDir(luaRule.TempDir)
 	} else {
-		outputPath = config.AbsExeDir(luaRule.LuaOutputDir)
+		outputPath = util.RelExecuteDir(luaRule.LuaOutputDir)
 	}
 
 	//实际开始转换
@@ -67,7 +67,7 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	if luaRule.EnableProcess {
 		luaTablePostProcess(luaRule)
-		_ = os.RemoveAll(config.AbsExeDir(luaRule.TempDir))
+		_ = os.RemoveAll(util.RelExecuteDir(luaRule.TempDir))
 	}
 
 }
@@ -77,18 +77,18 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 	//做lua导出后的预处理
 	var execPath string
 	if runtime.GOOS == "windows" {
-		execPath = config.AbsExeDir(luaRule.LuaWinDir)
+		execPath = util.RelExecuteDir(luaRule.LuaWinDir)
 	} else {
-		execPath = config.AbsExeDir(luaRule.LuaMacDir)
+		execPath = util.RelExecuteDir(luaRule.LuaMacDir)
 	}
 
-	luaTempDir := config.AbsExeDir(luaRule.TempDir)
-	outputDir := config.AbsExeDir(luaRule.LuaOutputDir)
+	luaTempDir := util.RelExecuteDir(luaRule.TempDir)
+	outputDir := util.RelExecuteDir(luaRule.LuaOutputDir)
 
 	postProcessExec := exec.Command(
 		execPath,
-		config.AbsExeDir(luaRule.PostProcessLua),
-		config.AbsExeDir(luaRule.PostWorkDir),
+		util.RelExecuteDir(luaRule.PostProcessLua),
+		util.RelExecuteDir(luaRule.PostWorkDir),
 		luaTempDir,
 		runtime.GOOS,
 	)

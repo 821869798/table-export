@@ -3,11 +3,11 @@ package wrap
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/convert/adapter"
+	"github.com/821869798/table-export/convert/apiconvert"
+	"github.com/821869798/table-export/meta"
 	"strings"
-	"table-export/config"
-	"table-export/convert/adapter"
-	"table-export/convert/api"
-	"table-export/meta"
 )
 
 type mapWrap struct{}
@@ -170,7 +170,7 @@ func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, filedType *me
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *mapWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptMap(adapter.EmptyMap)
 		return nil
@@ -202,6 +202,6 @@ func (b *mapWrap) DataVisitorValue(visitor api.IDataVisitor, filedType *meta.Tab
 	return nil
 }
 
-func (b *mapWrap) CodePrintValue(print api.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *mapWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptMap(fieldType, fieldName, reader, depth)
 }

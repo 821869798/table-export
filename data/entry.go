@@ -2,8 +2,8 @@ package data
 
 import (
 	"errors"
-	"table-export/data/model"
-	"table-export/meta"
+	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 )
 
 func GetDataModelByType(tableMetal *meta.TableMeta) (*model.TableModel, error) {

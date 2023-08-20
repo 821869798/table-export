@@ -1,8 +1,8 @@
-package api
+package apiconvert
 
 import (
-	"table-export/convert/adapter"
-	"table-export/data/model"
+	"github.com/821869798/table-export/convert/adapter"
+	"github.com/821869798/table-export/data/model"
 )
 
 type IDataVisitor interface {

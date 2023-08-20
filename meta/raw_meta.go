@@ -1,11 +1,11 @@
 package meta
 
 import (
+	"github.com/821869798/table-export/util"
 	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
-	"table-export/util"
 	"text/template"
 )
 

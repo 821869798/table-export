@@ -1,7 +1,8 @@
 package model
 
 import (
-	"table-export/meta"
+	"github.com/821869798/table-export/data/dtype"
+	"github.com/821869798/table-export/meta"
 )
 
 // 表的数据
@@ -12,6 +13,7 @@ type TableModel struct {
 	RawData          [][]string     //数据
 	Meta             *meta.TableMeta
 	Optimize         *TableOptimize
+	DTable           *dtype.DTableType
 }
 
 func NewTableModel(meta *meta.TableMeta) *TableModel {
