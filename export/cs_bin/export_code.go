@@ -21,8 +21,8 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 	collectionReadonly := false
 
 	templateRoot := &CSCodeWriteContent{
-		NameSpace:          csBinRule.GenCodeNamespace,
-		CodeHead:           csBinRule.GenCodeHead,
+		NameSpace:          util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
+		CodeHead:           util.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
 		TableName:          dataModel.Meta.Target,
 		RecordClassName:    "Cfg" + dataModel.Meta.Target,
 		TableClassName:     "Tbl" + dataModel.Meta.Target,

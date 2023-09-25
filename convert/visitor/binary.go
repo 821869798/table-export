@@ -8,6 +8,7 @@ import (
 	"table-export/convert/wrap"
 	"table-export/data/model"
 	"table-export/serialization"
+	"table-export/util"
 )
 
 type BinaryVisitor struct {
@@ -21,7 +22,7 @@ func NewBinary(buff *serialization.ByteBuf) api.IDataVisitor {
 	return b
 }
 
-func (b BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
+func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 	optimize := dataModel.Optimize
 	if optimize != nil && len(optimize.OptimizeFields) > 0 {
 		b.byteBuff.WriteSize(len(optimize.OptimizeFields))
@@ -64,43 +65,43 @@ func (b BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 	}
 }
 
-func (b BinaryVisitor) AcceptInt(r int32) {
+func (b *BinaryVisitor) AcceptInt(r int32) {
 	b.byteBuff.WriteInt(r)
 }
 
-func (b BinaryVisitor) AcceptUInt(r uint32) {
+func (b *BinaryVisitor) AcceptUInt(r uint32) {
 	b.byteBuff.WriteUint(r)
 }
 
-func (b BinaryVisitor) AcceptLong(r int64) {
+func (b *BinaryVisitor) AcceptLong(r int64) {
 	b.byteBuff.WriteLong(r)
 }
 
-func (b BinaryVisitor) AcceptULong(r uint64) {
+func (b *BinaryVisitor) AcceptULong(r uint64) {
 	b.byteBuff.WriteUlong(r)
 }
 
-func (b BinaryVisitor) AcceptBool(r bool) {
+func (b *BinaryVisitor) AcceptBool(r bool) {
 	b.byteBuff.WriteBool(r)
 }
 
-func (b BinaryVisitor) AcceptFloat(r float32) {
+func (b *BinaryVisitor) AcceptFloat(r float32) {
 	b.byteBuff.WriteFloat(r)
 }
 
-func (b BinaryVisitor) AcceptDouble(r float64) {
+func (b *BinaryVisitor) AcceptDouble(r float64) {
 	b.byteBuff.WriteDouble(r)
 }
 
-func (b BinaryVisitor) AcceptString(r string) {
+func (b *BinaryVisitor) AcceptString(r string) {
 	b.byteBuff.WriteString(r)
 }
 
-func (b BinaryVisitor) AcceptByte(r byte) {
+func (b *BinaryVisitor) AcceptByte(r byte) {
 	b.byteBuff.WriteByte(r)
 }
 
-func (b BinaryVisitor) AcceptArray(r *adapter.Array) {
+func (b *BinaryVisitor) AcceptArray(r *adapter.Array) {
 	b.byteBuff.WriteSize(len(r.Datas))
 	for _, origin := range r.Datas {
 		err := wrap.GetDataVisitorValue(b, r.ValueType, origin)
@@ -110,9 +111,10 @@ func (b BinaryVisitor) AcceptArray(r *adapter.Array) {
 	}
 }
 
-func (b BinaryVisitor) AcceptMap(r *adapter.Map) {
+func (b *BinaryVisitor) AcceptMap(r *adapter.Map) {
 	b.byteBuff.WriteSize(len(r.Datas))
-	for key, value := range r.Datas {
+	for _, key := range util.GetMapSortedKeys(r.Datas) {
+		value := r.Datas[key]
 		err := wrap.GetDataVisitorValue(b, r.KeyType, key)
 		if err != nil {
 			slog.Fatalf("export binary AcceptMap failed: %v", err)

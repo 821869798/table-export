@@ -122,8 +122,8 @@ namespace CfgTable
         internal _TbCommoncomplex_test(ByteBuf _buf)
         {
 
-			{int __n0 = _buf.ReadSize(); _field0 = new int[__n0][];for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){int[] __v0; {int __n1 = _buf.ReadSize(); __v0 = new int[__n1];for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ){int __v1; __v1 = _buf.ReadInt(); __v0[__i1] = __v1;} } _field0[__i0] = __v0;} }
-			{int __n0 = _buf.ReadSize(); _field1 = new Dictionary<int, string>[__n0];for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){Dictionary<int, string> __v0; { int __n1 = _buf.ReadSize(); var __f1 = new Dictionary<int, string> (__n1 * 3 / 2) ; __v0 = __f1; for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ) {int __k1; __k1 = _buf.ReadInt(); string __v1; __v1 = _buf.ReadString(); __f1.Add(__k1, __v1); } } _field1[__i0] = __v0;} }
+			{int __n0 = _buf.ReadSize(); _field0 = new int[__n0][]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int[] __v0; {int __n1 = _buf.ReadSize(); __v0 = new int[__n1]; for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ){ int __v1; __v1 = _buf.ReadInt(); __v0[__i1] = __v1; } } _field0[__i0] = __v0; } }
+			{int __n0 = _buf.ReadSize(); _field1 = new Dictionary<int, string>[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ Dictionary<int, string> __v0; { int __n1 = _buf.ReadSize(); __v0 = new Dictionary<int, string> (__n1 * 3 / 2); for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ) {int __k1; __k1 = _buf.ReadInt(); string __v1; __v1 = _buf.ReadString(); __v0.Add(__k1, __v1); } } _field1[__i0] = __v0; } }
         }
 
     }

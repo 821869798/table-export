@@ -45,3 +45,8 @@ func ReplaceLast(source string, strToReplace string, strWithReplace string) stri
 	}
 	return source[:index] + strWithReplace + source[index+len(strToReplace):]
 }
+
+// ReplaceWindowsLineEnd 更换行尾符\r\n为\n
+func ReplaceWindowsLineEnd(source string) string {
+	return strings.ReplaceAll(source, "\r\n", "\n")
+}

@@ -37,7 +37,7 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 
 	csBinRule, ok := ru.(*config.RawMetaRuleUnitCSBin)
 	if !ok {
-		slog.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
+		slog.Fatal("Export CSBin expect *RawMetaRuleUnitJson Rule Unit")
 	}
 
 	//清空目录

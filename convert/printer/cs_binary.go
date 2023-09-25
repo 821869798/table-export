@@ -22,47 +22,47 @@ func NewCSBinaryPrint(collectionReadonly bool) api.ICodePrinter {
 	return p
 }
 
-func (C CSBinaryPrint) AcceptField(fieldType *meta.TableFieldType, fieldName string, reader string) string {
+func (C *CSBinaryPrint) AcceptField(fieldType *meta.TableFieldType, fieldName string, reader string) string {
 	return wrap.GetCodePrintValue(C, fieldType, fieldName, reader, 0)
 }
 
-func (C CSBinaryPrint) AcceptOptimizeAssignment(fieldName string, reader string, commonDataName string) string {
+func (C *CSBinaryPrint) AcceptOptimizeAssignment(fieldName string, reader string, commonDataName string) string {
 	return fmt.Sprintf("{ int dataIndex = %s.ReadInt() - 1; %s = %s[dataIndex]; }", reader, fieldName, commonDataName)
 }
 
-func (C CSBinaryPrint) AcceptInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadInt();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptUInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptUInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadUint();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptLong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptLong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadLong();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptULong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptULong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadUlong();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptFloat(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptFloat(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadFloat();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptDouble(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptDouble(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadDouble();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptBool(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptBool(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadBool();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptString(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptString(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadString();", fieldName, reader)
 }
 
-func (C CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := C.CollectionReadonly
 	valueDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)
 	if err != nil {
@@ -89,13 +89,13 @@ func (C CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName str
 
 	if collectionReadonly {
 		_f := fmt.Sprintf("__f%d", depth)
-		return fmt.Sprintf("{int %s = %s.ReadSize(); var %s = new %s; %s = %s;for(var %s = 0 ; %s < %s ; %s++ ){%s %s; %s %s[%s] = %s;} }", _n, reader, _f, valueDefInit, fieldName, _f, _i, _i, _n, _i, _vDef, _v, assignment, _f, _i, _v)
+		return fmt.Sprintf("{int %s = %s.ReadSize(); var %s = new %s; %s = %s; for(var %s = 0 ; %s < %s ; %s++ ){ %s %s; %s %s[%s] = %s; } }", _n, reader, _f, valueDefInit, fieldName, _f, _i, _i, _n, _i, _vDef, _v, assignment, _f, _i, _v)
 	} else {
-		return fmt.Sprintf("{int %s = %s.ReadSize(); %s = new %s;for(var %s = 0 ; %s < %s ; %s++ ){%s %s; %s %s[%s] = %s;} }", _n, reader, fieldName, valueDefInit, _i, _i, _n, _i, _vDef, _v, assignment, fieldName, _i, _v)
+		return fmt.Sprintf("{int %s = %s.ReadSize(); %s = new %s; for(var %s = 0 ; %s < %s ; %s++ ){ %s %s; %s %s[%s] = %s; } }", _n, reader, fieldName, valueDefInit, _i, _i, _n, _i, _vDef, _v, assignment, fieldName, _i, _v)
 	}
 }
 
-func (C CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (C *CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := C.CollectionReadonly
 
 	keyType, _ := fieldType.GetKeyFieldType()
@@ -115,13 +115,14 @@ func (C CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName strin
 	_v := fmt.Sprintf("__v%d", depth)
 	_f := fmt.Sprintf("__f%d", depth)
 
-	_fDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)
-	if err != nil {
-		slog.Fatal(err)
-	}
+	mapDef := fmt.Sprintf("Dictionary<%s, %s>", keyDef, valueDef)
 
 	keyAssignment := wrap.GetCodePrintValue(C, keyType, _k, reader, depth+1)
 	valueAssignment := wrap.GetCodePrintValue(C, fieldType.Value, _v, reader, depth+1)
 
-	return fmt.Sprintf("{ int %s = %s.ReadSize(); var %s = new %s (%s * 3 / 2) ; %s = %s; for(var %s = 0 ; %s < %s ; %s++ ) {%s %s; %s %s %s; %s %s.Add(%s, %s); } }", _n, reader, _f, _fDef, _n, fieldName, _f, _i, _i, _n, _i, keyDef, _k, keyAssignment, valueDef, _v, valueAssignment, _f, _k, _v)
+	if collectionReadonly {
+		return fmt.Sprintf("{ int %s = %s.ReadSize(); var %s = new %s (%s * 3 / 2) ; %s = %s; for(var %s = 0 ; %s < %s ; %s++ ) {%s %s; %s %s %s; %s %s.Add(%s, %s); } }", _n, reader, _f, mapDef, _n, fieldName, _f, _i, _i, _n, _i, keyDef, _k, keyAssignment, valueDef, _v, valueAssignment, _f, _k, _v)
+	} else {
+		return fmt.Sprintf("{ int %s = %s.ReadSize(); %s = new %s (%s * 3 / 2); for(var %s = 0 ; %s < %s ; %s++ ) {%s %s; %s %s %s; %s %s.Add(%s, %s); } }", _n, reader, fieldName, mapDef, _n, _i, _i, _n, _i, keyDef, _k, keyAssignment, valueDef, _v, valueAssignment, fieldName, _k, _v)
+	}
 }

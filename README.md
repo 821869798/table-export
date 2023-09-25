@@ -120,6 +120,12 @@ table_export -g csv_test,csv_test.csv
 
 **可以看到读取时间以及内存占用都大幅降低了**
 
+# TODO
+
+在1.0版本中会加入数据检测，自定义复合类型，自定义枚举，特殊后处理等功能。
+
+
+
 ## Credits
 
 - [LuaTableOptimizer](https://github.com/lujian101/LuaTableOptimizer) 使用了lua表优化工具，在此基础上做了更进一步的优化

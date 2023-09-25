@@ -104,7 +104,7 @@ namespace CfgTable
         internal _TbCommonbase_test(ByteBuf _buf)
         {
 
-			{int __n0 = _buf.ReadSize(); _field0 = new int[__n0][];for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){int[] __v0; {int __n1 = _buf.ReadSize(); __v0 = new int[__n1];for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ){int __v1; __v1 = _buf.ReadInt(); __v0[__i1] = __v1;} } _field0[__i0] = __v0;} }
+			{int __n0 = _buf.ReadSize(); _field0 = new int[__n0][]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int[] __v0; {int __n1 = _buf.ReadSize(); __v0 = new int[__n1]; for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ){ int __v1; __v1 = _buf.ReadInt(); __v0[__i1] = __v1; } } _field0[__i0] = __v0; } }
         }
 
     }

@@ -1,5 +1,4 @@
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using Serialization;
 using System.Text.Json;
 
@@ -19,14 +18,14 @@ public class Program
 
         //var summary = BenchmarkRunner.Run<Program>();
 
-        //bytes = File.ReadAllBytes("table_bytes/complex_test.bytes");
-        //ByteBuf buf2 = new ByteBuf(bytes);
-        //var table2 = new CfgTable.Tblcomplex_test(buf2);
-        //var dataRecord = table2.GetDataById(1, "k3");
-        //if (table2 != null)
-        //{
-        //    Console.WriteLine(dataRecord.content);
-        //}
+        bytes = File.ReadAllBytes("table_bytes/complex_test.bytes");
+        ByteBuf buf2 = new ByteBuf(bytes);
+        var table2 = new CfgTable.Tblcomplex_test(buf2);
+        var dataRecord = table2.GetDataById(1, "k3");
+        if (table2 != null)
+        {
+            Console.WriteLine(dataRecord.content);
+        }
 
     }
 
