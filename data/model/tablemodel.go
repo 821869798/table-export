@@ -1,11 +1,11 @@
 package model
 
 import (
-	"github.com/821869798/table-export/data/dtype"
+	"github.com/821869798/table-export/data/apidata"
 	"github.com/821869798/table-export/meta"
 )
 
-// 表的数据
+// TableModel 表的数据
 type TableModel struct {
 	NameIndexMapping map[string]int //目标字段名到index的索引
 	NameRow          []string       //字段名的行
@@ -13,7 +13,7 @@ type TableModel struct {
 	RawData          [][]string     //数据
 	Meta             *meta.TableMeta
 	Optimize         *TableOptimize
-	DTable           *dtype.DTableType
+	MemTable         apidata.IMemoryTable
 }
 
 func NewTableModel(meta *meta.TableMeta) *TableModel {

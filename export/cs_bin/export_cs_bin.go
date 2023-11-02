@@ -4,7 +4,6 @@ import (
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/visitor"
 	"github.com/821869798/table-export/data/model"
-	"github.com/821869798/table-export/data/optimize"
 	"github.com/821869798/table-export/export/api"
 	"github.com/821869798/table-export/export/common"
 	"github.com/821869798/table-export/meta"
@@ -52,19 +51,19 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	defer util.TimeCost(time.Now(), "export c# bin time cost = %v\n")
 
 	//实际开始转换
-	allDataModel := common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
-
+	allDataModel := common.ExportPlusParallel(e.tableMetas, csBinRule, func(dataModel *model.TableModel) {
+		//slog.Infof(dataModel.Meta.Target)
 	})
+
+	// TODO 表的数据后处理
+
+	// TODO 表的数据检查
 
 	//生成代码和二进制数据
 	wg := sync.WaitGroup{}
 	wg.Add(len(allDataModel))
 	for _, tableModel := range allDataModel {
 		go func(tm *model.TableModel) {
-			if csBinRule.GenOptimizeData {
-				//表数据优化
-				optimize.OptimizeTableDataRepeat(tm, csBinRule.OptimizeThreshold)
-			}
 			GenCSBinCode(tm, csBinRule, csBinRule.CodeTempDir)
 			GenCSBinData(tm, csBinRule.DataTempDir)
 			wg.Done()
@@ -83,12 +82,12 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	}
 }
 
-func GenCSBinData(dataModel *model.TableModel, ouputPath string) {
+func GenCSBinData(dataModel *model.TableModel, outputPath string) {
 	byteBuff := serialization.NewByteBuf(1024)
 	binary := visitor.NewBinary(byteBuff)
 	binary.AcceptTable(dataModel)
 	bytes := byteBuff.GetBytes()
-	filePath := util.RelExecuteDir(ouputPath, dataModel.Meta.Target+".bytes")
+	filePath := util.RelExecuteDir(outputPath, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
 		slog.Fatalf("export cs_bin bytes file create file error:%v", err)

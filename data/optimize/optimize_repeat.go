@@ -6,7 +6,7 @@ import (
 )
 
 // OptimizeTableDataRepeat 优化重复的数据
-func OptimizeTableDataRepeat(dataModel *model.TableModel, threshold float32) {
+func OptimizeTableDataRepeat(dataModel *model.TableModel) {
 	//除了Key以外没有其他字段，不需要优化
 	if dataModel.Meta.NotKeyFieldCount() <= 0 {
 		return
@@ -40,29 +40,27 @@ func OptimizeTableDataRepeat(dataModel *model.TableModel, threshold float32) {
 		}
 	}
 
-	result := genOptimizeRefTableData(dataModel, threshold, refTableFields)
+	result := genOptimizeRefTableData(dataModel, refTableFields)
 	if result != nil {
 		dataModel.Optimize = result
 	}
 }
 
-func genOptimizeRefTableData(dataModel *model.TableModel, threshold float32, refTableFields []*OptimizeProcess) *model.TableOptimize {
+func genOptimizeRefTableData(dataModel *model.TableModel, refTableFields []*OptimizeProcess) *model.TableOptimize {
 	tableOptimize := model.NewTableOptimize()
 	optimizeFields := make([]*OptimizeProcess, 0)
 	for _, refField := range refTableFields {
-		if float32(refField.RepeatedCount)/float32(len(dataModel.RawData)) >= threshold {
-			refField.TableOptimizeField = model.NewTableOptimizeField(refField.Field, len(refField.CellCounts), len(dataModel.RawData))
-			refField.CellCounts = make(map[string]int, 0)
-			refField.DataIndex = 0
-			optimizeFields = append(optimizeFields, refField)
+		refField.TableOptimizeField = model.NewTableOptimizeField(refField.Field, len(refField.CellCounts), len(dataModel.RawData))
+		refField.CellCounts = make(map[string]int)
+		refField.DataIndex = 0
+		optimizeFields = append(optimizeFields, refField)
 
-			tableOptimize.AddOptimizeField(refField.TableOptimizeField)
-		}
+		tableOptimize.AddOptimizeField(refField.TableOptimizeField)
 	}
 	if len(optimizeFields) < 0 {
 		return nil
 	}
-	for i, rowData := range dataModel.RawData {
+	for rowIndex, rowData := range dataModel.RawData {
 		for _, refField := range optimizeFields {
 			rawIndex := dataModel.NameIndexMapping[refField.Field.Target]
 			var rawStr string
@@ -71,10 +69,10 @@ func genOptimizeRefTableData(dataModel *model.TableModel, threshold float32, ref
 			}
 			lastIndex, ok := refField.CellCounts[rawStr]
 			if ok {
-				refField.TableOptimizeField.DataIndexs[i] = lastIndex
+				refField.TableOptimizeField.DataUseIndex[rowIndex] = lastIndex
 			} else {
-				refField.TableOptimizeField.OriginDatas[refField.DataIndex] = rawStr
-				refField.TableOptimizeField.DataIndexs[i] = refField.DataIndex
+				refField.TableOptimizeField.OptimizeDataInTableRow[refField.DataIndex] = rowIndex
+				refField.TableOptimizeField.DataUseIndex[rowIndex] = refField.DataIndex
 				refField.CellCounts[rawStr] = refField.DataIndex
 				refField.DataIndex++
 			}

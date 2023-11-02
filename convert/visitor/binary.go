@@ -2,12 +2,11 @@ package visitor
 
 import (
 	"github.com/821869798/table-export/config"
-	"github.com/821869798/table-export/convert/adapter"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 	"github.com/821869798/table-export/serialization"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 )
 
@@ -27,11 +26,17 @@ func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 	if optimize != nil && len(optimize.OptimizeFields) > 0 {
 		b.byteBuff.WriteSize(len(optimize.OptimizeFields))
 		for _, tableOptimizeField := range optimize.OptimizeFields {
-			b.byteBuff.WriteSize(len(tableOptimizeField.OriginDatas))
-			for _, origin := range tableOptimizeField.OriginDatas {
-				err := wrap.GetDataVisitorValue(b, tableOptimizeField.Field.Type, origin)
+			b.byteBuff.WriteSize(len(tableOptimizeField.OptimizeDataInTableRow))
+			for _, originRowIndex := range tableOptimizeField.OptimizeDataInTableRow {
+				recordMap, err := dataModel.MemTable.GetRecordByRow(originRowIndex)
+				//err := wrap.RunDataVisitorString(b, tableOptimizeField.Field.Type, origin)
 				if err != nil {
-					slog.Fatalf("export binary target file[%v] optimize error:%v", dataModel.Meta.Target, err.Error())
+					slog.Fatalf("export binary target file[%v] optimize get record error:%v", dataModel.Meta.Target, err.Error())
+				}
+				value := recordMap[tableOptimizeField.Field.Target]
+				err = wrap.RunDataVisitorValue(b, tableOptimizeField.Field.Type, value)
+				if err != nil {
+					slog.Fatalf("export binary target file[%v] optimize visitor error:%v", dataModel.Meta.Target, err.Error())
 				}
 			}
 		}
@@ -41,6 +46,30 @@ func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 
 	b.byteBuff.WriteSize(len(dataModel.RawData))
 	rowDataOffset := config.GlobalConfig.Table.DataStart + 1
+	for rowIndex, recordIndex := range dataModel.MemTable.RowIndexList() {
+		for _, tf := range dataModel.Meta.Fields {
+			if optimize != nil {
+				tableOptimizeField, _ := optimize.GetOptimizeField(tf)
+				if tableOptimizeField != nil {
+					var dIndex = tableOptimizeField.DataUseIndex[rowIndex]
+					// 索引+1,从1开始给之后有空类型的数据0考虑
+					b.byteBuff.WriteInt(int32(dIndex) + 1)
+					continue
+				}
+			}
+
+			recordMap := dataModel.MemTable.GetRecordRecordMap(recordIndex)
+			value, ok := recordMap[tf.Target]
+			if !ok {
+				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] not found", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
+			}
+			err := wrap.RunDataVisitorValue(b, tf.Type, value)
+			if err != nil {
+				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
+			}
+		}
+	}
+
 	for rowIndex, rowData := range dataModel.RawData {
 		for _, tf := range dataModel.Meta.Fields {
 			rawIndex := dataModel.NameIndexMapping[tf.Target]
@@ -51,13 +80,13 @@ func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 			if optimize != nil {
 				tableOptimizeField, _ := optimize.GetOptimizeField(tf)
 				if tableOptimizeField != nil {
-					var dIndex = tableOptimizeField.DataIndexs[rowIndex]
+					var dIndex = tableOptimizeField.DataUseIndex[rowIndex]
 					// 索引+1,从1开始给之后有空类型的数据0考虑
 					b.byteBuff.WriteInt(int32(dIndex) + 1)
 					continue
 				}
 			}
-			err := wrap.GetDataVisitorValue(b, tf.Type, rawStr)
+			err := wrap.RunDataVisitorString(b, tf.Type, rawStr)
 			if err != nil {
 				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 			}
@@ -101,27 +130,66 @@ func (b *BinaryVisitor) AcceptByte(r byte) {
 	b.byteBuff.WriteByte(r)
 }
 
-func (b *BinaryVisitor) AcceptArray(r *adapter.Array) {
-	b.byteBuff.WriteSize(len(r.Datas))
-	for _, origin := range r.Datas {
-		err := wrap.GetDataVisitorValue(b, r.ValueType, origin)
+func (b *BinaryVisitor) AcceptArray(r []interface{}, ValueType *meta.TableFieldType) {
+	b.byteBuff.WriteSize(len(r))
+	for _, origin := range r {
+		err := wrap.RunDataVisitorValue(b, ValueType, origin)
 		if err != nil {
 			slog.Fatalf("export binary AcceptArray failed: %v", err)
 		}
 	}
 }
 
-func (b *BinaryVisitor) AcceptMap(r *adapter.Map) {
-	b.byteBuff.WriteSize(len(r.Datas))
-	for _, key := range util.GetMapSortedKeys(r.Datas) {
-		value := r.Datas[key]
-		err := wrap.GetDataVisitorValue(b, r.KeyType, key)
+func (b *BinaryVisitor) AcceptStringArray(r []string, ValueType *meta.TableFieldType) {
+	b.byteBuff.WriteSize(len(r))
+	for _, origin := range r {
+		err := wrap.RunDataVisitorString(b, ValueType, origin)
+		if err != nil {
+			slog.Fatalf("export binary AcceptArray failed: %v", err)
+		}
+	}
+}
+
+func (b *BinaryVisitor) AcceptStringMap(r map[string]string, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+	b.byteBuff.WriteSize(len(r))
+	for _, key := range GetMapSortedKeys(r) {
+		value := r[key]
+		err := wrap.RunDataVisitorString(b, KeyType, key)
+		if err != nil {
+			slog.Fatalf("export binary AcceptStringMap failed: %v", err)
+		}
+		err = wrap.RunDataVisitorString(b, ValueType, value)
+		if err != nil {
+			slog.Fatalf("export binary AcceptStringMap failed: %v", err)
+		}
+	}
+}
+
+func (b *BinaryVisitor) AcceptMap(r map[string]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+	b.byteBuff.WriteSize(len(r))
+	for _, key := range GetMapSortedKeys(r) {
+		value := r[key]
+		err := wrap.RunDataVisitorString(b, KeyType, key)
 		if err != nil {
 			slog.Fatalf("export binary AcceptMap failed: %v", err)
 		}
-		err = wrap.GetDataVisitorValue(b, r.ValueType, value)
+		err = wrap.RunDataVisitorValue(b, ValueType, value)
 		if err != nil {
 			slog.Fatalf("export binary AcceptMap failed: %v", err)
+		}
+	}
+}
+func (b *BinaryVisitor) AcceptCommonMap(r map[interface{}]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+	b.byteBuff.WriteSize(len(r))
+	for _, key := range GetMapSortedKeysInterface(r, KeyType) {
+		value := r[key]
+		err := wrap.RunDataVisitorValue(b, KeyType, key)
+		if err != nil {
+			slog.Fatalf("export binary AcceptCommonMap failed: %v", err)
+		}
+		err = wrap.RunDataVisitorValue(b, ValueType, value)
+		if err != nil {
+			slog.Fatalf("export binary AcceptCommonMap failed: %v", err)
 		}
 	}
 }

@@ -1,5 +1,5 @@
 using Serialization;
-        
+    
 using System.Collections.Generic;
 
 namespace CfgTable 
@@ -56,7 +56,7 @@ namespace CfgTable
         {
 
 			id = _buf.ReadInt();
-			name = _buf.ReadString();
+			{ int dataIndex = _buf.ReadInt() - 1; name = _commonData._field0[dataIndex]; }
 			age = _buf.ReadInt();
             PostInit();
         }
@@ -89,14 +89,16 @@ namespace CfgTable
 	}
 
     /// <summary>
-    /// internal common data.Optimize memory
+    /// internal common data optimize
     /// </summary>
     internal class _TbCommoncsv_test
     {
 
+        internal string[] _field0 { get; private set; }
         internal _TbCommoncsv_test(ByteBuf _buf)
         {
 
+			{int __n0 = _buf.ReadSize(); _field0 = new string[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ string __v0; __v0 = _buf.ReadString(); _field0[__i0] = __v0; } }
         }
 
     }

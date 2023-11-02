@@ -1,8 +1,8 @@
 package apiconvert
 
 import (
-	"github.com/821869798/table-export/convert/adapter"
 	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
 )
 
 type IDataVisitor interface {
@@ -16,6 +16,9 @@ type IDataVisitor interface {
 	AcceptDouble(r float64)
 	AcceptString(r string)
 	AcceptByte(r byte)
-	AcceptArray(r *adapter.Array)
-	AcceptMap(r *adapter.Map)
+	AcceptArray(r []interface{}, ValueType *meta.TableFieldType)
+	AcceptStringArray(r []string, ValueType *meta.TableFieldType)
+	AcceptStringMap(r map[string]string, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType)
+	AcceptMap(r map[string]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType)
+	AcceptCommonMap(r map[interface{}]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType)
 }

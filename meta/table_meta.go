@@ -6,13 +6,14 @@ import (
 )
 
 type TableMeta struct {
-	Target     string
-	Mode       string
-	SourceType string
-	Sources    []*TableSource
-	Fields     []*TableField
-	Keys       []*TableField   //关键key
-	SourceMap  map[string]bool //需要的source字段名
+	Target         string
+	Mode           string
+	SourceType     string
+	Sources        []*TableSource
+	Fields         []*TableField
+	Keys           []*TableField   //关键key
+	IsKeyTypeEqual bool            //key的类型是否相等
+	SourceMap      map[string]bool //需要的source字段名
 }
 
 type TableSource struct {
@@ -22,10 +23,11 @@ type TableSource struct {
 
 func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	t := &TableMeta{
-		Target:     rtm.Target,
-		Mode:       rtm.Mode,
-		SourceType: rtm.SourceType,
-		SourceMap:  make(map[string]bool),
+		Target:         rtm.Target,
+		Mode:           rtm.Mode,
+		SourceType:     rtm.SourceType,
+		SourceMap:      make(map[string]bool),
+		IsKeyTypeEqual: true,
 	}
 
 	//source
@@ -44,6 +46,7 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	//校验
 	fields := make([]*TableField, 0)
 	keysMap := make(map[int]*TableField)
+	lastKeyType := EFieldType_None
 	for _, rtf := range rtm.Fields {
 		if !rtf.Active {
 			continue
@@ -66,6 +69,12 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 				return nil, errors.New(fmt.Sprintf("table meta config[%v] key only support base type[%v]", rtm.Target, tft.Target))
 			}
 			keysMap[tft.Key] = tft
+
+			if lastKeyType == EFieldType_None {
+				lastKeyType = tft.Type.Type
+			} else if lastKeyType != tft.Type.Type {
+				t.IsKeyTypeEqual = false
+			}
 		}
 	}
 
@@ -78,7 +87,7 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	if keyCount == 0 {
 		return nil, errors.New(fmt.Sprintf("table meta config[%v] key count must >= 0", rtm.Target))
 	}
-	keys := make([]*TableField, keyCount, keyCount)
+	keys := make([]*TableField, keyCount)
 	for keyIndex, tft := range keysMap {
 		if keyIndex > keyCount {
 			return nil, errors.New(fmt.Sprintf("table meta config[%v] key value error[%v]", rtm.Target, keyIndex))
@@ -114,7 +123,7 @@ func (tm *TableMeta) GetKeyDefTypeOffset(finalType EFieldType, offset int) *Tabl
 	value := newTableFieldType(finalType)
 	for i := len(tm.Keys) - 1; i >= offset; i-- {
 		key := tm.Keys[i]
-		value = newTableFieldMapType(key.Type.Type, value)
+		value = newTableFieldMapType(key.Type, value)
 	}
 	return value
 }

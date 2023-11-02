@@ -2,6 +2,7 @@ package wrap
 
 import (
 	"errors"
+	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/meta"
@@ -11,6 +12,10 @@ import (
 type stringWrap struct{}
 
 func (b *stringWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+	return origin, nil
+}
+
+func (b *stringWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
 		newValue := strings.Replace(origin, "\\", "\\\\", -1)
@@ -23,13 +28,6 @@ func (b *stringWrap) OutputValue(exportType config.ExportType, filedType *meta.T
 	}
 }
 
-func (b *stringWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin interface{}) (string, error) {
-	if value, ok := origin.(string); ok {
-		return value, nil
-	}
-	return "", errors.New("origin content not a string type")
-}
-
 func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
@@ -38,9 +36,18 @@ func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, filedType 
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	visitor.AcceptString(origin)
 	return nil
+}
+
+func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+	stringValue, ok := origin.(string)
+	if ok {
+		visitor.AcceptString(stringValue)
+		return nil
+	}
+	return errors.New(fmt.Sprintf("[DataVisitorValue|long] no support type[%T]", origin))
 }
 
 func (b *stringWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {

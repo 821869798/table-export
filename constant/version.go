@@ -1,11 +1,11 @@
-package consts
+package constant
 
 import (
 	"github.com/gookit/slog"
 )
 
 var (
-	Version = "0.0.1"
+	Version = "1.0.0"
 )
 
 func PrintBuild() {

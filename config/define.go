@@ -12,3 +12,8 @@ const (
 type MetaRuleUnit interface {
 	RuleExportType() ExportType
 }
+
+type MetaRuleUnitPlus interface {
+	MetaRuleUnit
+	ActiveOptimizeData() bool
+}

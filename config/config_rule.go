@@ -44,16 +44,19 @@ func (r *RawMetaRuleUnitLua) RuleExportType() ExportType {
 }
 
 type RawMetaRuleUnitCSBin struct {
-	CodeTempDir       string  `toml:"code_temp_dir"`
-	DataTempDir       string  `toml:"data_temp_dir"`
-	GenCodeDir        string  `toml:"gen_code_dir"`
-	DataBinDir        string  `toml:"data_bin_dir"`
-	GenCodeHead       string  `toml:"gen_code_head"`
-	GenCodeNamespace  string  `toml:"code_namespace"`
-	GenOptimizeData   bool    `toml:"gen_optimize"`
-	OptimizeThreshold float32 `toml:"optimize_threshold"`
+	CodeTempDir      string `toml:"code_temp_dir"`
+	DataTempDir      string `toml:"data_temp_dir"`
+	GenCodeDir       string `toml:"gen_code_dir"`
+	DataBinDir       string `toml:"data_bin_dir"`
+	GenCodeHead      string `toml:"gen_code_head"`
+	GenCodeNamespace string `toml:"code_namespace"`
+	GenOptimizeData  bool   `toml:"gen_optimize"`
 }
 
 func (r *RawMetaRuleUnitCSBin) RuleExportType() ExportType {
 	return ExportType_CS_Bin
+}
+
+func (r *RawMetaRuleUnitCSBin) ActiveOptimizeData() bool {
+	return r.GenOptimizeData
 }

@@ -78,7 +78,7 @@ namespace {{.NameSpace}}
 	}
 
     /// <summary>
-    /// internal common data.Optimize memory
+    /// internal common data optimize
     /// </summary>
     internal class {{.TableCommonName}}
     {
@@ -99,6 +99,7 @@ namespace {{.NameSpace}}
 }
 `
 
+// 废弃
 const templateCSCodeNew = `
 {{.CodeHead}}
 using System.Collections.Generic;
@@ -203,7 +204,7 @@ namespace {{.NameSpace}}
     }
 
     /// <summary>
-    /// internal common data.Optimize memory
+    /// internal common data optimize
     /// </summary>
     internal class {{TableCommonName}}
     {

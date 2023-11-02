@@ -1,5 +1,5 @@
 using Serialization;
-        
+    
 using System.Collections.Generic;
 
 namespace CfgTable 
@@ -101,7 +101,7 @@ namespace CfgTable
 	}
 
     /// <summary>
-    /// internal common data.Optimize memory
+    /// internal common data optimize
     /// </summary>
     internal class _TbCommonbig_data
     {

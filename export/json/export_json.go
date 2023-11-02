@@ -46,7 +46,7 @@ func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 	defer util.TimeCost(time.Now(), "export json time cost = %v\n")
 
 	//实际开始转换
-	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
+	common.ExportParallel(e.tableMetas, func(dataModel *model.TableModel) {
 		ExportJsonFile(dataModel, outputPath)
 	})
 
@@ -98,7 +98,7 @@ func generateJsonData(dataModel *model.TableModel, exportList bool) (map[string]
 
 			//存储key
 			if tf.Key > 0 {
-				formatKey, err := wrap.GetOutputStringValue(config.ExportType_Json, tf.Type, output)
+				formatKey, err := wrap.GetOutputStringValue(config.ExportType_Json, tf.Type, rawStr)
 				if err != nil {
 					slog.Fatalf("export json target file[%v] RowCount[%v] filedName[%v] format key error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err)
 				}

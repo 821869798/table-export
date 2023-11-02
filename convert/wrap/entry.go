@@ -24,6 +24,7 @@ func init() {
 	valueWrapMap[meta.EFieldType_Map] = &mapWrap{}
 }
 
+// GetOutputValue 获取真实的值，使用interface{}包装
 func GetOutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
@@ -33,7 +34,8 @@ func GetOutputValue(exportType config.ExportType, filedType *meta.TableFieldType
 	return result, err
 }
 
-func GetOutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin interface{}) (string, error) {
+// GetOutputStringValue 获取该导出类型下String的值
+func GetOutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
 		return "", errors.New(fmt.Sprintf("GetOutputStringValue no support field type[%v]", filedType.Type))
@@ -42,6 +44,7 @@ func GetOutputStringValue(exportType config.ExportType, filedType *meta.TableFie
 	return result, err
 }
 
+// GetOutputDefTypeValue 获取这种类型的导出的定义符号·
 func GetOutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
@@ -51,10 +54,19 @@ func GetOutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFi
 	return result, err
 }
 
-func GetDataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func RunDataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	wrap, ok := valueWrapMap[filedType.Type]
 	if !ok {
-		return errors.New(fmt.Sprintf("DataVisitorValue no support field type[%v]", filedType.Type))
+		return errors.New(fmt.Sprintf("DataVisitorString no support field type[%v]", filedType.Type))
+	}
+	err := wrap.DataVisitorString(visitor, filedType, origin)
+	return err
+}
+
+func RunDataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+	wrap, ok := valueWrapMap[filedType.Type]
+	if !ok {
+		return errors.New(fmt.Sprintf("DataVisitorString no support field type[%v]", filedType.Type))
 	}
 	err := wrap.DataVisitorValue(visitor, filedType, origin)
 	return err

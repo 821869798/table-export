@@ -18,8 +18,8 @@ func TestTemplate(t *testing.T) {
 	t1 := template.New("test1")
 	tmpl, _ := t1.Parse(
 		`
-{{- consts "T1"}}ONE {{println .}}{{end}}
-{{- consts "T2"}}{{template "T1" $}}{{end}}
+{{- define "T1"}}ONE {{println .}}{{end}}
+{{- define "T2"}}{{template "T1" $}}{{end}}
 {{- template "T2" . -}}
 `)
 	bb := &bytes.Buffer{}

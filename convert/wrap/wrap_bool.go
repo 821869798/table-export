@@ -2,6 +2,7 @@ package wrap
 
 import (
 	"errors"
+	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/meta"
@@ -11,34 +12,28 @@ import (
 type boolWrap struct{}
 
 func (b *boolWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+	if origin == "" {
+		return false, nil
+	}
+	value, err := strconv.ParseBool(origin)
+	if err != nil {
+		return nil, err
+	}
+	return value, nil
+}
+
+func (b *boolWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
-	case config.ExportType_Lua:
+	default:
 		if origin == "" {
 			return strconv.FormatBool(false), nil
 		}
 		value, err := strconv.ParseBool(origin)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		return strconv.FormatBool(value), nil
-	default:
-		if origin == "" {
-			return false, nil
-		}
-		value, err := strconv.ParseBool(origin)
-		if err != nil {
-			return nil, err
-		}
-		return value, nil
 	}
-}
-
-func (b *boolWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin interface{}) (string, error) {
-	if value, ok := origin.(bool); ok {
-		result := strconv.FormatBool(value)
-		return result, nil
-	}
-	return "", errors.New("origin content not a bool type")
 }
 
 func (b *boolWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
@@ -49,7 +44,7 @@ func (b *boolWrap) OutputDefTypeValue(exportType config.ExportType, filedType *m
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *boolWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *boolWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptBool(false)
 		return nil
@@ -60,6 +55,19 @@ func (b *boolWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *
 	}
 	visitor.AcceptBool(value)
 	return nil
+}
+
+func (b *boolWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+	value, ok := origin.(bool)
+	if ok {
+		visitor.AcceptBool(value)
+		return nil
+	}
+	stringValue, ok := origin.(string)
+	if ok {
+		return b.DataVisitorString(visitor, filedType, stringValue)
+	}
+	return errors.New(fmt.Sprintf("[DataVisitorValue|bool] no support type[%T]", origin))
 }
 
 func (b *boolWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {

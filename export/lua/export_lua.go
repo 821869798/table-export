@@ -61,7 +61,7 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 	}
 
 	//实际开始转换
-	common.CommonMutilExport(e.tableMetas, func(dataModel *model.TableModel) {
+	common.ExportParallel(e.tableMetas, func(dataModel *model.TableModel) {
 		exportLuaFile(dataModel, outputPath)
 	})
 
@@ -82,6 +82,12 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 		execPath = util.RelExecuteDir(luaRule.LuaMacDir)
 	}
 
+	// 添加执行权限
+	if output, err := util.AddExecuteChmod(execPath); nil != err {
+		slog.Fatalf("Add lua execute chmod linux or macos exec error:%s\nerr:%v", output, err)
+		os.Exit(1)
+	}
+
 	luaTempDir := util.RelExecuteDir(luaRule.TempDir)
 	outputDir := util.RelExecuteDir(luaRule.LuaOutputDir)
 
@@ -94,7 +100,8 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 	)
 
 	if output, err := postProcessExec.CombinedOutput(); nil != err {
-		slog.Fatalf("output:%s\nerr:%v", output, err)
+		slog.Fatalf("lua postprocess exec error:%s\nerr:%v", output, err)
+		os.Exit(1)
 	}
 	fileList, err := util.GetFileListByExt(luaTempDir, ".lua")
 	if err != nil {
@@ -143,13 +150,9 @@ func exportLuaFile(dataModel *model.TableModel, outputPath string) {
 			if rawIndex < len(rowData) {
 				rawStr = rowData[rawIndex]
 			}
-			output, err := wrap.GetOutputValue(config.ExportType_Lua, tf.Type, rawStr)
+			outputStr, err := wrap.GetOutputStringValue(config.ExportType_Lua, tf.Type, rawStr)
 			if err != nil {
 				slog.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
-			}
-			outputStr, ok := output.(string)
-			if !ok {
-				slog.Fatalf("export lua target file[%v] RowCount[%v] filedName[%v] convert to string error", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
 			}
 			recordString += tf.Target + "=" + outputStr + ","
 

@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/821869798/table-export/config"
-	"github.com/821869798/table-export/consts"
+	"github.com/821869798/table-export/constant"
 	"github.com/821869798/table-export/export"
 	"github.com/821869798/table-export/meta"
 	"github.com/gookit/slog"
@@ -21,7 +21,7 @@ func main() {
 	}
 
 	if params.version {
-		consts.PrintBuild()
+		constant.PrintBuild()
 	}
 
 	config.ParseConfig(params.confFile)

@@ -3,7 +3,7 @@ package meta
 import (
 	"encoding/csv"
 	"github.com/821869798/table-export/config"
-	"github.com/821869798/table-export/consts"
+	"github.com/821869798/table-export/constant"
 	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"github.com/xuri/excelize/v2"
@@ -105,7 +105,7 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := util.RelExecuteDir(config.GlobalConfig.Meta.GenDir, targetName+consts.MetaFileSuffix)
+	genFilePath := util.RelExecuteDir(config.GlobalConfig.Meta.GenDir, targetName+constant.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		slog.Fatal(err)

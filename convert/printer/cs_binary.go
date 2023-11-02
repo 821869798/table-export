@@ -98,9 +98,7 @@ func (c *CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName st
 func (c *CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := c.CollectionReadonly
 
-	keyType, _ := fieldType.GetKeyFieldType()
-
-	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, keyType, collectionReadonly)
+	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType.Key, collectionReadonly)
 	if err != nil {
 		slog.Fatal(err)
 	}
@@ -117,7 +115,7 @@ func (c *CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName stri
 
 	mapDef := fmt.Sprintf("Dictionary<%s, %s>", keyDef, valueDef)
 
-	keyAssignment := wrap.GetCodePrintValue(c, keyType, _k, reader, depth+1)
+	keyAssignment := wrap.GetCodePrintValue(c, fieldType.Key, _k, reader, depth+1)
 	valueAssignment := wrap.GetCodePrintValue(c, fieldType.Value, _v, reader, depth+1)
 
 	if collectionReadonly {

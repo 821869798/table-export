@@ -2,6 +2,7 @@ package wrap
 
 import (
 	"errors"
+	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/meta"
@@ -11,34 +12,28 @@ import (
 type longWrap struct{}
 
 func (b *longWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+	if origin == "" {
+		return int64(0), nil
+	}
+	value, err := strconv.ParseInt(origin, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	return value, nil
+}
+
+func (b *longWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
-	case config.ExportType_Lua:
+	default:
 		if origin == "" {
 			return "0", nil
 		}
 		_, err := strconv.ParseInt(origin, 10, 64)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		return origin, nil
-	default:
-		if origin == "" {
-			return int64(0), nil
-		}
-		value, err := strconv.ParseInt(origin, 10, 64)
-		if err != nil {
-			return nil, err
-		}
-		return value, nil
 	}
-}
-
-func (b *longWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin interface{}) (string, error) {
-	if value, ok := origin.(int64); ok {
-		result := strconv.FormatInt(value, 10)
-		return result, nil
-	}
-	return "", errors.New("origin content not a int type")
 }
 
 func (b *longWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
@@ -49,7 +44,7 @@ func (b *longWrap) OutputDefTypeValue(exportType config.ExportType, filedType *m
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *longWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *longWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptLong(0)
 		return nil
@@ -60,6 +55,19 @@ func (b *longWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *
 	}
 	visitor.AcceptLong(value)
 	return nil
+}
+
+func (b *longWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+	value, ok := origin.(int64)
+	if ok {
+		visitor.AcceptLong(value)
+		return nil
+	}
+	stringValue, ok := origin.(string)
+	if ok {
+		return b.DataVisitorString(visitor, filedType, stringValue)
+	}
+	return errors.New(fmt.Sprintf("[DataVisitorValue|long] no support type[%T]", origin))
 }
 
 func (b *longWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {

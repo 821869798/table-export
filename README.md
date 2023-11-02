@@ -39,7 +39,6 @@ C# binary （推荐），lua （推荐），c# proto，json，可以根据自己
         code_namespace = "CfgTable"
         # 以下是生成的优化相关数据
         gen_optimize = true
-        optimize_threshold = 0.2
 ```
 
 5. 上述配置中config_dir对应的目录是表的描述文件，一般其他的导表工具会定义在excel头部，但是table-export会使用单独的meta配置来控制表的导出规则等。这样可以在由程序来控制配置表如何输出，而不用让策划帮忙改表的定义，减少了这方面的沟通。
