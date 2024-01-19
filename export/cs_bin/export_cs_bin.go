@@ -3,6 +3,7 @@ package cs_bin
 import (
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/visitor"
+	"github.com/821869798/table-export/data/check"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/export/api"
 	"github.com/821869798/table-export/export/common"
@@ -52,12 +53,25 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 
 	//实际开始转换
 	allDataModel := common.ExportPlusParallel(e.tableMetas, csBinRule, func(dataModel *model.TableModel) {
-		//slog.Infof(dataModel.Meta.Target)
+
 	})
 
 	// TODO 表的数据后处理
 
-	// TODO 表的数据检查
+	// 表的数据检查
+	global := make(map[string]map[interface{}]interface{}, len(allDataModel))
+	for _, m := range allDataModel {
+		global[m.Meta.Target] = m.MemTable.RawDataMapping()
+	}
+	wgCheck := sync.WaitGroup{}
+	wgCheck.Add(len(allDataModel))
+	for _, m := range allDataModel {
+		go func(m *model.TableModel) {
+			check.Run(m, global)
+			wgCheck.Done()
+		}(m)
+	}
+	wgCheck.Wait()
 
 	//生成代码和二进制数据
 	wg := sync.WaitGroup{}

@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/expr-lang/expr v1.15.8
 	github.com/gookit/slog v0.5.4
 	github.com/xuri/excelize/v2 v2.8.0
 )

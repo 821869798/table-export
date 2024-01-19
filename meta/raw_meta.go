@@ -15,6 +15,7 @@ type RawTableMeta struct {
 	SourceType string            `toml:"source_type"`
 	Sources    []*RawTableSource `toml:"sources"`
 	Fields     []*RawTableField  `toml:"fields"`
+	Checks     []*RawTableCheck  `toml:"checks"`
 }
 
 type RawTableSource struct {
@@ -29,6 +30,12 @@ type RawTableField struct {
 	Type   string `toml:"type"`
 	Key    int    `toml:"key"`
 	Desc   string `toml:"desc"`
+}
+
+type RawTableCheck struct {
+	Active bool   `tomm:"active"`
+	Global bool   `toml:"global"`
+	Code   string `toml:"code"`
 }
 
 func NewRawTableMeta() *RawTableMeta {
@@ -91,6 +98,9 @@ sources = [
 fields = [
 {{range $i, $v := .Fields }}	{ active = {{$v.Active}},   sname = "{{$v.Source}}" ,      tname = "{{$v.Target}}" ,      type = "{{$v.Type}}" ,  key = {{$v.Key}},    desc = "{{$v.Desc}}" },
 {{end}}]
+
+checks = [
+]
 `)
 	if err != nil {
 		return err
@@ -99,7 +109,7 @@ fields = [
 	parentDir := filepath.Dir(filePath)
 	//不存在就创建
 	if !util.ExistDir(parentDir) {
-		os.MkdirAll(parentDir, os.ModePerm)
+		_ = os.MkdirAll(parentDir, os.ModePerm)
 	}
 	file, err := os.Create(filePath)
 	if err != nil {

@@ -14,6 +14,8 @@ type TableMeta struct {
 	Keys           []*TableField   //关键key
 	IsKeyTypeEqual bool            //key的类型是否相等
 	SourceMap      map[string]bool //需要的source字段名
+	RecordChecks   []*TableCheck   // 针对一行数据的检查
+	GlobalChecks   []*TableCheck   // 只调一次的Check
 }
 
 type TableSource struct {
@@ -106,6 +108,19 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 		}
 		filedMap[tf.Target] = tf
 		t.SourceMap[tf.Source] = true
+	}
+
+	// 生成Check
+	for _, rck := range rtm.Checks {
+		if !rck.Active {
+			continue
+		}
+		tck := newTableCheck(rck)
+		if rck.Global {
+			t.GlobalChecks = append(t.GlobalChecks, tck)
+		} else {
+			t.RecordChecks = append(t.RecordChecks, tck)
+		}
 	}
 
 	return t, nil

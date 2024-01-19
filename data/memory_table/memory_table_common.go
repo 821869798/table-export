@@ -36,6 +36,14 @@ func (m *MemoryTableCommon) TableName() string {
 	return m.Name
 }
 
+func (m *MemoryTableCommon) RawDataMapping() map[interface{}]interface{} {
+	return m.ValueMapping
+}
+
+func (m *MemoryTableCommon) RawDataList() []map[string]interface{} {
+	return m.ValueList
+}
+
 func (m *MemoryTableCommon) ReadTableModel(dataModel *model.TableModel) error {
 	rowDataOffset := config.GlobalConfig.Table.DataStart + 1
 	for rowIndex, rowData := range dataModel.RawData {
