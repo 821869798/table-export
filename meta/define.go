@@ -9,20 +9,23 @@ const (
 	EFieldType_Long
 	EFieldType_ULong
 	EFieldType_Bool
-	EFiledType_Float
-	EFiledType_Double
+	EFieldType_Float
+	EFieldType_Double
 	EFieldType_String
+	EFieldType_Enum
 	EFieldType_Slice
 	EFieldType_Map
+	EFieldType_Class
 )
 
-var baseFiledType = map[EFieldType]*TableFieldType{
+var baseFieldType = map[EFieldType]*TableFieldType{
 	EFieldType_Int:    newTableFieldType(EFieldType_Int),
 	EFieldType_UInt:   newTableFieldType(EFieldType_UInt),
 	EFieldType_Long:   newTableFieldType(EFieldType_Long),
 	EFieldType_ULong:  newTableFieldType(EFieldType_ULong),
 	EFieldType_Bool:   newTableFieldType(EFieldType_Bool),
-	EFiledType_Float:  newTableFieldType(EFiledType_Float),
-	EFiledType_Double: newTableFieldType(EFiledType_Double),
+	EFieldType_Float:  newTableFieldType(EFieldType_Float),
+	EFieldType_Double: newTableFieldType(EFieldType_Double),
 	EFieldType_String: newTableFieldType(EFieldType_String),
+	EFieldType_Enum:   newTableFieldType(EFieldType_Enum),
 }

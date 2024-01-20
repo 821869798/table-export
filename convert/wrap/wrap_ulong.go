@@ -11,7 +11,7 @@ import (
 
 type ulongWrap struct{}
 
-func (b *ulongWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *ulongWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	if origin == "" {
 		return uint64(0), nil
 	}
@@ -22,7 +22,7 @@ func (b *ulongWrap) OutputValue(exportType config.ExportType, filedType *meta.Ta
 	return value, nil
 }
 
-func (b *ulongWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *ulongWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		if origin == "" {
@@ -36,7 +36,7 @@ func (b *ulongWrap) OutputStringValue(exportType config.ExportType, filedType *m
 	}
 }
 
-func (b *ulongWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *ulongWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "ulong", nil
@@ -44,7 +44,7 @@ func (b *ulongWrap) OutputDefTypeValue(exportType config.ExportType, filedType *
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *ulongWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *ulongWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptULong(0)
 		return nil
@@ -57,7 +57,7 @@ func (b *ulongWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType
 	return nil
 }
 
-func (b *ulongWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *ulongWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	value, ok := origin.(uint64)
 	if ok {
 		visitor.AcceptULong(value)
@@ -65,9 +65,9 @@ func (b *ulongWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType 
 	}
 	stringValue, ok := origin.(string)
 	if ok {
-		return b.DataVisitorString(visitor, filedType, stringValue)
+		return b.DataVisitorString(visitor, fieldType, stringValue)
 	}
-	return errors.New(fmt.Sprintf("[DataVisitorValue|long] no support type[%T]", origin))
+	return errors.New(fmt.Sprintf("[DataVisitorValue|ulong] no support type[%T]", origin))
 }
 
 func (b *ulongWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {

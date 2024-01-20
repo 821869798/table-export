@@ -11,12 +11,12 @@ import (
 
 type sliceWrap struct{}
 
-func (b *sliceWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *sliceWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
 	result := make([]interface{}, 0, len(strSlice))
 	if origin != "" {
 		for _, v := range strSlice {
-			content, err := GetOutputValue(exportType, filedType.Value, v)
+			content, err := GetOutputValue(exportType, fieldType.Value, v)
 			if err != nil {
 				return nil, err
 			}
@@ -26,14 +26,14 @@ func (b *sliceWrap) OutputValue(exportType config.ExportType, filedType *meta.Ta
 	return result, nil
 }
 
-func (b *sliceWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *sliceWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
 		strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
 		result := "{"
 		if origin != "" {
 			for _, v := range strSlice {
-				content, err := GetOutputStringValue(exportType, filedType.Value, v)
+				content, err := GetOutputStringValue(exportType, fieldType.Value, v)
 				if err != nil {
 					return "", err
 				}
@@ -47,10 +47,10 @@ func (b *sliceWrap) OutputStringValue(exportType config.ExportType, filedType *m
 	}
 }
 
-func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
-		valueDef, err := GetOutputDefTypeValue(exportType, filedType.Value, collectionReadonly)
+		valueDef, err := GetOutputDefTypeValue(exportType, fieldType.Value, collectionReadonly)
 		if err != nil {
 			return "", err
 		}
@@ -66,28 +66,28 @@ func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, filedType *
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	if origin == "" {
-		visitor.AcceptStringArray(EmptyStringArray, filedType.Value)
+		visitor.AcceptStringArray(EmptyStringArray, fieldType.Value)
 		return nil
 	}
 	strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
-	visitor.AcceptStringArray(strSlice, filedType.Value)
+	visitor.AcceptStringArray(strSlice, fieldType.Value)
 	return nil
 }
 
-func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case []interface{}:
-		visitor.AcceptArray(value, filedType.Value)
+		visitor.AcceptArray(value, fieldType.Value)
 		return nil
 	case []string:
-		visitor.AcceptStringArray(value, filedType.Value)
+		visitor.AcceptStringArray(value, fieldType.Value)
 		return nil
 	case string:
-		return b.DataVisitorString(visitor, filedType, value)
+		return b.DataVisitorString(visitor, fieldType, value)
 	default:
-		return errors.New(fmt.Sprintf("[DataVisitorValue|int] no support type[%T]", origin))
+		return errors.New(fmt.Sprintf("[DataVisitorValue|slice] no support type[%T]", origin))
 	}
 }
 

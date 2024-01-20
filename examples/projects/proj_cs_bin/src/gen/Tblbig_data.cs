@@ -41,7 +41,20 @@ namespace CfgTable
 		public Dictionary<int, Cfgbig_data> DataMap => _dataMap;
 		public List<Cfgbig_data> DataList => _dataList;
 		
-		public Cfgbig_data GetDataById(int __k0) { if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; } return null; } 
+        public Cfgbig_data Get(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            #if UNITY_EDITOR
+            Debug.LogError($"[Tblbig_data] config id not found,id:{__k0.ToString()}");
+            #endif
+            return null; 
+        } 
+
+        public Cfgbig_data GetWithoutError(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            return null; 
+        } 
 		
         /// <summary>
         /// post process table

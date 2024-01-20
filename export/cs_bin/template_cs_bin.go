@@ -1,6 +1,6 @@
 package cs_bin
 
-const templateCSCode string = `{{ .CodeHead }}
+const template_CS_Table string = `{{ .CodeHead }}
 using System.Collections.Generic;
 
 namespace {{.NameSpace}} 
@@ -43,6 +43,8 @@ namespace {{.NameSpace}}
 		public List<{{.RecordClassName}}> DataList => _dataList;
 		
 {{UniqueMapGetFunc $ "_dataMap" 2}} 
+
+{{UniqueMapGetFuncWithoutError $ "_dataMap" 2}} 
 		
         /// <summary>
         /// post process table
@@ -96,6 +98,21 @@ namespace {{.NameSpace}}
 
     }
 
+}
+`
+
+const template_CS_Enum = `
+namespace {{.NameSpace}}
+{
+{{ range $v := .Enums }}
+    public enum {{$v.Name}}
+    {
+{{- range $enumValue := $v.Values }}
+        // {{$enumValue.Name}} : {{$enumValue.Desc}}
+        {{$enumValue.Name}} = {{$enumValue.Index}},
+{{- end }}
+    }
+{{ end }}
 }
 `
 

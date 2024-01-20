@@ -1,0 +1,23 @@
+enum_file = "CfgEnums"
+
+[[enums]]
+name = "ItemType"
+values = [
+    { index = 0 , name = "None",        desc = "" },
+    { index = 1 , name = "Resource",    desc = "资源类" },
+    { index = 2 , name = "Package",     desc = "礼包" }
+]
+
+[[enums]]
+name = "ConditionType"
+# 使用String来解析
+parse_string = true
+values = [
+    { index = 0 , name = "None",            string = "",    desc = "" },
+    { index = 1 , name = "Equal",           string = "=",   desc = "等于" },
+    { index = 2 , name = "Greater",         string = ">",   desc = "大于"},
+    { index = 3 , name = "Less",            string = "<",   desc = "小于"},
+    { index = 4 , name = "GreaterEqual",    string = ">=",   desc = "大于等于"},
+    { index = 5 , name = "LessEqual",       string = "<=",   desc = "大于等于"},
+    { index = 10, name = "NotEqual",        string = "!=",   desc = "不等于"},
+]

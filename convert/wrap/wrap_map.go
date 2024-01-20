@@ -11,7 +11,7 @@ import (
 
 type mapWrap struct{}
 
-func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *mapWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	switch exportType {
 	case config.ExportType_Json:
 		strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
@@ -25,7 +25,7 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 				return nil, errors.New("map format error to convert,string:" + origin)
 			}
 
-			keyContent, err := GetOutputStringValue(exportType, filedType.Key, kvStr[0])
+			keyContent, err := GetOutputStringValue(exportType, fieldType.Key, kvStr[0])
 			if err != nil {
 				return nil, err
 			}
@@ -36,7 +36,7 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 				return nil, errors.New("map format error to convert,key repeated,string:" + origin)
 			}
 
-			valueContent, err := GetOutputValue(exportType, filedType.Value, kvStr[1])
+			valueContent, err := GetOutputValue(exportType, fieldType.Value, kvStr[1])
 			if err != nil {
 				return nil, err
 			}
@@ -57,7 +57,7 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 				return nil, errors.New("map format error to convert,string:" + origin)
 			}
 
-			keyContent, err := GetOutputValue(exportType, filedType.Key, kvStr[0])
+			keyContent, err := GetOutputValue(exportType, fieldType.Key, kvStr[0])
 			if err != nil {
 				return nil, err
 			}
@@ -68,7 +68,7 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 				return nil, errors.New("map format error to convert,key repeated,string:" + origin)
 			}
 
-			valueContent, err := GetOutputValue(exportType, filedType.Value, kvStr[1])
+			valueContent, err := GetOutputValue(exportType, fieldType.Value, kvStr[1])
 			if err != nil {
 				return nil, err
 			}
@@ -80,7 +80,7 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 	}
 }
 
-func (b *mapWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *mapWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
 		strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
@@ -96,7 +96,7 @@ func (b *mapWrap) OutputStringValue(exportType config.ExportType, filedType *met
 				return "", errors.New("map format error to convert,string:" + origin)
 			}
 
-			keyContent, err := GetOutputStringValue(exportType, filedType.Key, kvStr[0])
+			keyContent, err := GetOutputStringValue(exportType, fieldType.Key, kvStr[0])
 			if err != nil {
 				return "", err
 			}
@@ -107,7 +107,7 @@ func (b *mapWrap) OutputStringValue(exportType config.ExportType, filedType *met
 			}
 			keyMapping[keyContent] = true
 
-			valueContent, err := GetOutputStringValue(exportType, filedType.Value, kvStr[0])
+			valueContent, err := GetOutputStringValue(exportType, fieldType.Value, kvStr[0])
 			if err != nil {
 				return "", err
 			}
@@ -122,14 +122,14 @@ func (b *mapWrap) OutputStringValue(exportType config.ExportType, filedType *met
 	}
 }
 
-func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
-		keyDef, err := GetOutputDefTypeValue(exportType, filedType.Key, collectionReadonly)
+		keyDef, err := GetOutputDefTypeValue(exportType, fieldType.Key, collectionReadonly)
 		if err != nil {
 			return "", err
 		}
-		valueDef, err := GetOutputDefTypeValue(exportType, filedType.Value, collectionReadonly)
+		valueDef, err := GetOutputDefTypeValue(exportType, fieldType.Value, collectionReadonly)
 		if err != nil {
 			return "", err
 		}
@@ -145,9 +145,9 @@ func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, filedType *me
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	if origin == "" {
-		visitor.AcceptStringMap(EmptyStringMap, filedType.Key, filedType.Value)
+		visitor.AcceptStringMap(EmptyStringMap, fieldType.Key, fieldType.Value)
 		return nil
 	}
 	strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
@@ -168,25 +168,25 @@ func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *
 
 		result[kvStr[0]] = kvStr[1]
 	}
-	visitor.AcceptStringMap(result, filedType.Key, filedType.Value)
+	visitor.AcceptStringMap(result, fieldType.Key, fieldType.Value)
 	return nil
 }
 
-func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case map[string]interface{}:
-		visitor.AcceptMap(value, filedType.Key, filedType.Value)
+		visitor.AcceptMap(value, fieldType.Key, fieldType.Value)
 		return nil
 	case map[interface{}]interface{}:
-		visitor.AcceptCommonMap(value, filedType.Key, filedType.Value)
+		visitor.AcceptCommonMap(value, fieldType.Key, fieldType.Value)
 		return nil
 	case map[string]string:
-		visitor.AcceptStringMap(value, filedType.Key, filedType.Value)
+		visitor.AcceptStringMap(value, fieldType.Key, fieldType.Value)
 		return nil
 	case string:
-		return b.DataVisitorString(visitor, filedType, value)
+		return b.DataVisitorString(visitor, fieldType, value)
 	default:
-		return errors.New(fmt.Sprintf("[DataVisitorValue|int] no support type[%T]", origin))
+		return errors.New(fmt.Sprintf("[DataVisitorValue|map] no support type[%T]", origin))
 	}
 }
 

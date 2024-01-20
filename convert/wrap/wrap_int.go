@@ -11,7 +11,7 @@ import (
 
 type intWrap struct{}
 
-func (b *intWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *intWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	if origin == "" {
 		return int32(0), nil
 	}
@@ -22,7 +22,7 @@ func (b *intWrap) OutputValue(exportType config.ExportType, filedType *meta.Tabl
 	return int32(value), nil
 }
 
-func (b *intWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *intWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		if origin == "" {
@@ -36,15 +36,16 @@ func (b *intWrap) OutputStringValue(exportType config.ExportType, filedType *met
 	}
 }
 
-func (b *intWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *intWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "int", nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *intWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *intWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptInt(0)
 		return nil
@@ -57,7 +58,7 @@ func (b *intWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *
 	return nil
 }
 
-func (b *intWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *intWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case int32:
 		visitor.AcceptInt(value)
@@ -69,7 +70,7 @@ func (b *intWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *m
 		visitor.AcceptInt(int32(value))
 		return nil
 	case string:
-		return b.DataVisitorString(visitor, filedType, value)
+		return b.DataVisitorString(visitor, fieldType, value)
 	default:
 		return errors.New(fmt.Sprintf("[DataVisitorValue|int] no support type[%T]", origin))
 	}

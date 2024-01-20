@@ -41,7 +41,20 @@ namespace CfgTable
 		public Dictionary<int, Cfgbase_test> DataMap => _dataMap;
 		public List<Cfgbase_test> DataList => _dataList;
 		
-		public Cfgbase_test GetDataById(int __k0) { if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; } return null; } 
+        public Cfgbase_test Get(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            #if UNITY_EDITOR
+            Debug.LogError($"[Tblbase_test] config id not found,id:{__k0.ToString()}");
+            #endif
+            return null; 
+        } 
+
+        public Cfgbase_test GetWithoutError(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            return null; 
+        } 
 		
         /// <summary>
         /// post process table
@@ -59,6 +72,9 @@ namespace CfgTable
 			{ int dataIndex = _buf.ReadInt() - 1; name = _commonData._field0[dataIndex]; }
 			age = _buf.ReadInt();
 			{ int dataIndex = _buf.ReadInt() - 1; course = _commonData._field1[dataIndex]; }
+			bigDataId = _buf.ReadInt();
+			itemType = (ItemType)_buf.ReadInt();
+			conditionType = (ConditionType)_buf.ReadInt();
             PostInit();
         }
 
@@ -86,6 +102,21 @@ namespace CfgTable
         /// 学科
         /// </summary>
 		public int[] course { get; private set; }
+
+        /// <summary>
+        /// 对应big_data表id
+        /// </summary>
+		public int bigDataId { get; private set; }
+
+        /// <summary>
+        /// 道具类型，测试枚举1
+        /// </summary>
+		public ItemType itemType { get; private set; }
+
+        /// <summary>
+        /// 条件类型，测试枚举2
+        /// </summary>
+		public ConditionType conditionType { get; private set; }
 
 
         /// <summary>

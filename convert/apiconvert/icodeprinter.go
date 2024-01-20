@@ -13,6 +13,7 @@ type ICodePrinter interface {
 	AcceptDouble(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
 	AcceptBool(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
 	AcceptString(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
+	AcceptEnum(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
 	AcceptArray(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
 	AcceptMap(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string
 }

@@ -11,11 +11,11 @@ import (
 
 type stringWrap struct{}
 
-func (b *stringWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *stringWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	return origin, nil
 }
 
-func (b *stringWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *stringWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
 		newValue := strings.Replace(origin, "\\", "\\\\", -1)
@@ -28,7 +28,7 @@ func (b *stringWrap) OutputStringValue(exportType config.ExportType, filedType *
 	}
 }
 
-func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "string", nil
@@ -36,18 +36,18 @@ func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, filedType 
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	visitor.AcceptString(origin)
 	return nil
 }
 
-func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	stringValue, ok := origin.(string)
 	if ok {
 		visitor.AcceptString(stringValue)
 		return nil
 	}
-	return errors.New(fmt.Sprintf("[DataVisitorValue|long] no support type[%T]", origin))
+	return errors.New(fmt.Sprintf("[DataVisitorValue|string] no support type[%T]", origin))
 }
 
 func (b *stringWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {

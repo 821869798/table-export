@@ -11,7 +11,7 @@ import (
 
 type doubleWrap struct{}
 
-func (b *doubleWrap) OutputValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *doubleWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
 	if origin == "" {
 		return float64(0), nil
 	}
@@ -22,7 +22,7 @@ func (b *doubleWrap) OutputValue(exportType config.ExportType, filedType *meta.T
 	return value, nil
 }
 
-func (b *doubleWrap) OutputStringValue(exportType config.ExportType, filedType *meta.TableFieldType, origin string) (string, error) {
+func (b *doubleWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		if origin == "" {
@@ -36,7 +36,7 @@ func (b *doubleWrap) OutputStringValue(exportType config.ExportType, filedType *
 	}
 }
 
-func (b *doubleWrap) OutputDefTypeValue(exportType config.ExportType, filedType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *doubleWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "double", nil
@@ -44,7 +44,7 @@ func (b *doubleWrap) OutputDefTypeValue(exportType config.ExportType, filedType 
 	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *doubleWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin string) error {
+func (b *doubleWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptDouble(0)
 		return nil
@@ -57,7 +57,7 @@ func (b *doubleWrap) DataVisitorString(visitor apiconvert.IDataVisitor, filedTyp
 	return nil
 }
 
-func (b *doubleWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType *meta.TableFieldType, origin interface{}) error {
+func (b *doubleWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
 	value, ok := origin.(float64)
 	if ok {
 		visitor.AcceptDouble(value)
@@ -65,7 +65,7 @@ func (b *doubleWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, filedType
 	}
 	stringValue, ok := origin.(string)
 	if ok {
-		return b.DataVisitorString(visitor, filedType, stringValue)
+		return b.DataVisitorString(visitor, fieldType, stringValue)
 	}
 	return errors.New(fmt.Sprintf("[DataVisitorValue|double] no support type[%T]", origin))
 }

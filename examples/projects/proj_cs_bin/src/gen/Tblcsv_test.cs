@@ -41,7 +41,20 @@ namespace CfgTable
 		public Dictionary<int, Cfgcsv_test> DataMap => _dataMap;
 		public List<Cfgcsv_test> DataList => _dataList;
 		
-		public Cfgcsv_test GetDataById(int __k0) { if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; } return null; } 
+        public Cfgcsv_test Get(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            #if UNITY_EDITOR
+            Debug.LogError($"[Tblcsv_test] config id not found,id:{__k0.ToString()}");
+            #endif
+            return null; 
+        } 
+
+        public Cfgcsv_test GetWithoutError(int __k0) 
+        {
+            if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
+            return null; 
+        } 
 		
         /// <summary>
         /// post process table

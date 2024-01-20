@@ -62,6 +62,10 @@ func (c *CSBinaryPrint) AcceptString(fieldType *meta.TableFieldType, fieldName s
 	return fmt.Sprintf("%s = %s.ReadString();", fieldName, reader)
 }
 
+func (c *CSBinaryPrint) AcceptEnum(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+	return fmt.Sprintf("%s = (%s)%s.ReadInt();", fieldName, fieldType.Name, reader)
+}
+
 func (c *CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := c.CollectionReadonly
 	valueDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)

@@ -12,20 +12,26 @@ public class Program
         var bytes = File.ReadAllBytes("table_bytes/big_data.bytes");
         ByteBuf buf = new ByteBuf(bytes);
         var table = new CfgTable.Tblbig_data(buf);
-        var cfg1 = table.GetDataById(1);
+        var cfg1 = table.Get(1);
         Console.WriteLine(JsonSerializer.Serialize(cfg1));
         Console.WriteLine(table.DataCount);
-
-        //var summary = BenchmarkRunner.Run<Program>();
-
-        bytes = File.ReadAllBytes("table_bytes/complex_test.bytes");
+        
+        bytes = File.ReadAllBytes("table_bytes/base_test.bytes");
         ByteBuf buf2 = new ByteBuf(bytes);
-        var table2 = new CfgTable.Tblcomplex_test(buf2);
-        var dataRecord = table2.GetDataById(1, "k3");
-        if (table2 != null)
+        var table2 = new CfgTable.Tblbase_test(buf2);
+        var cfg2 = table2.Get(2);
+        Console.WriteLine(JsonSerializer.Serialize(cfg2));
+        
+        bytes = File.ReadAllBytes("table_bytes/complex_test.bytes");
+        ByteBuf buf3 = new ByteBuf(bytes);
+        var table3 = new CfgTable.Tblcomplex_test(buf3);
+        var dataRecord = table3.Get(1, "k3");
+        if (dataRecord != null)
         {
             Console.WriteLine(dataRecord.content);
         }
+        
+        //var summary = BenchmarkRunner.Run<Program>();
 
     }
 

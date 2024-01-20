@@ -116,8 +116,12 @@ func InitDirAndClearFile(path string, removePattern string) error {
 			return err
 		}
 	}
-	err := filepath.Walk(path, func(fileName string, f os.FileInfo, err error) error {
-		if ok, _ := regexp.MatchString(removePattern, fileName); !ok {
+	reg, err := regexp.Compile(removePattern)
+	if err != nil {
+		return err
+	}
+	err = filepath.Walk(path, func(fileName string, f os.FileInfo, err error) error {
+		if ok := reg.MatchString(fileName); !ok {
 			return nil
 		}
 		err = os.Remove(fileName)

@@ -46,7 +46,7 @@ func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 	defer util.TimeCost(time.Now(), "export json time cost = %v\n")
 
 	//实际开始转换
-	common.ExportParallel(e.tableMetas, func(dataModel *model.TableModel) {
+	common.LoadTableModelParallel(e.tableMetas, func(dataModel *model.TableModel) {
 		ExportJsonFile(dataModel, outputPath)
 	})
 

@@ -3,6 +3,7 @@ package meta
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/table-export/data/env"
 	"regexp"
 )
 
@@ -10,6 +11,7 @@ type TableFieldType struct {
 	Type  EFieldType      //类型
 	Key   *TableFieldType //key的类型
 	Value *TableFieldType //Value的类型
+	Name  string          // 枚举或者Class的名字
 }
 
 var TableFieldTypeNone = newTableFieldType(EFieldType_None)
@@ -43,24 +45,24 @@ func newTableFieldMapType(key *TableFieldType, value *TableFieldType) *TableFiel
 
 // IsBaseType 是否可以作为map的key
 func (tft *TableFieldType) IsBaseType() bool {
-	_, ok := baseFiledType[tft.Type]
+	_, ok := baseFieldType[tft.Type]
 	return ok
 }
 
 func (tft *TableFieldType) IsComplexType() bool {
 	switch tft.Type {
-	case EFieldType_Slice, EFieldType_Map:
+	case EFieldType_Slice, EFieldType_Map, EFieldType_Class:
 		return true
+	default:
+		return false
 	}
-	return false
 }
 
 func (tft *TableFieldType) IsReferenceType() bool {
 	if tft.IsComplexType() {
 		return true
 	}
-	switch tft.Type {
-	case EFieldType_String:
+	if tft.Type == EFieldType_String {
 		return true
 	}
 	return false
@@ -86,12 +88,22 @@ func getFieldTypeFromString(origin string) (*TableFieldType, error) {
 	case "bool":
 		tft.Type = EFieldType_Bool
 	case "float":
-		tft.Type = EFiledType_Float
+		tft.Type = EFieldType_Float
 	case "double":
-		tft.Type = EFiledType_Double
+		tft.Type = EFieldType_Double
 	case "string":
 		tft.Type = EFieldType_String
 	default:
+
+		// enum
+		enumDefine, ok := env.GetEnumDefine(origin)
+		if ok {
+			tft.Type = EFieldType_Enum
+			tft.Name = enumDefine.Name
+			break
+		}
+
+		// array
 		reg := regexp.MustCompile(`^\[\](.+)$`)
 		result := reg.FindAllStringSubmatch(origin, -1)
 		if len(result) == 1 && len(result[0]) == 2 {

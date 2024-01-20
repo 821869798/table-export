@@ -61,7 +61,7 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 	}
 
 	//实际开始转换
-	common.ExportParallel(e.tableMetas, func(dataModel *model.TableModel) {
+	common.LoadTableModelParallel(e.tableMetas, func(dataModel *model.TableModel) {
 		exportLuaFile(dataModel, outputPath)
 	})
 

@@ -52,18 +52,25 @@ config_dir = "./cs_proto_meta"
 
 [[meta.rules]]
 rule_name = "cs_bin"
-config_dir = "./cs_bin_meta"
+config_dir = "./cs_bin_config/table_meta"
 [meta.rules.cs_bin]
     code_temp_dir = "./temp_work/temp_cs_bin_code"
     data_temp_dir = "./temp_work/temp_cs_bin_data"
     gen_code_dir = "./projects/proj_cs_bin/src/gen"
     data_bin_dir = "./projects/proj_cs_bin/table_bytes"
+    code_namespace = "CfgTable"
     #toml支持多行文本
     gen_code_head = """using Serialization;
     """
-    code_namespace = "CfgTable"
+    code_not_found_key = """#if UNITY_EDITOR
+Debug.LogError($"[%s] config id not found,id:{%s}");
+#endif"""
     # 以下是生成的优化相关数据
     gen_optimize = true
+    # 枚举文件路径集，可以支持多个，以及*或**匹配
+    enum_files = [
+        "./cs_bin_config/enum_define/*.toml",
+    ]
 
 
 

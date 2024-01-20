@@ -2,100 +2,61 @@ package common
 
 import (
 	"github.com/821869798/table-export/config"
-	"github.com/821869798/table-export/constant"
-	"github.com/821869798/table-export/data"
-	"github.com/821869798/table-export/data/memory_table"
+	"github.com/821869798/table-export/data/check"
+	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/data/model"
-	"github.com/821869798/table-export/data/optimize"
 	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/util"
+	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
+	"path/filepath"
 	"sync"
 )
 
-// ExportParallel 通用的并行执行的方法
-func ExportParallel(tableMetas []*meta.RawTableMeta, exportFunc func(*model.TableModel)) []*model.TableModel {
-	wg := sync.WaitGroup{}
-	wg.Add(len(tableMetas))
-	allDataModel := make([]*model.TableModel, 0, len(tableMetas))
-	var mutex sync.Mutex
+func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleUnitPlus) []*model.TableModel {
 
-	for _, tableMeta := range tableMetas {
-		if tableMeta.Mode == constant.CommentSymbol {
-			//是注释模式，不导出
-			wg.Done()
-			continue
+	// 加载枚举配置
+	var enumFiles = rulePlus.GetEnumFiles()
+	rawEnumConfigs := make([]*config.RawMetaEnumConfig, 0, len(enumFiles))
+	for _, p := range enumFiles {
+		matches, err := filepath.Glob(p)
+		if err != nil {
+			slog.Fatalf("Enum Files laod error filePath:%s err:%v", p, err)
 		}
-		go func(tableMeta *meta.RawTableMeta) {
-			tm, err := meta.NewTableMeta(tableMeta)
-			if err != nil {
-				slog.Fatal(err)
+		for _, m := range matches {
+			fullPath := util.AbsOrRelExecutePath(m)
+			enumConfig := new(config.RawMetaEnumConfig)
+			if _, err := toml.DecodeFile(fullPath, enumConfig); err != nil {
+				slog.Fatalf("load enum config error:%v", err)
 			}
-
-			dataModel, err := data.GetDataModelByType(tm)
-			if err != nil {
-				slog.Fatal(err)
-			}
-
-			//执行函数
-			exportFunc(dataModel)
-
-			mutex.Lock()
-			allDataModel = append(allDataModel, dataModel)
-			mutex.Unlock()
-
-			wg.Done()
-		}(tableMeta)
-	}
-	wg.Wait()
-
-	return allDataModel
-}
-
-// ExportPlusParallel 增强版的并行导出，生成中间层数据，支持配置中预处理，自定义类型等功能
-func ExportPlusParallel(tableMetas []*meta.RawTableMeta, ruleUnit config.MetaRuleUnitPlus, exportFunc func(*model.TableModel)) []*model.TableModel {
-	wg := sync.WaitGroup{}
-	wg.Add(len(tableMetas))
-	allDataModel := make([]*model.TableModel, 0, len(tableMetas))
-	var mutex sync.Mutex
-
-	for _, tableMeta := range tableMetas {
-		if tableMeta.Mode == constant.CommentSymbol {
-			//是注释模式，不导出
-			wg.Done()
-			continue
+			rawEnumConfigs = append(rawEnumConfigs, enumConfig)
 		}
-		go func(tableMeta *meta.RawTableMeta) {
-			tm, err := meta.NewTableMeta(tableMeta)
-			if err != nil {
-				slog.Fatal(err)
-			}
-
-			dataModel, err := data.GetDataModelByType(tm)
-			if err != nil {
-				slog.Fatal(err)
-			}
-
-			memoryTable, err := memory_table.NewMemTableCommon(dataModel, len(dataModel.RawData), len(dataModel.RawData))
-
-			if err != nil {
-				slog.Fatal(err)
-			}
-			dataModel.MemTable = memoryTable
-			if ruleUnit.ActiveOptimizeData() {
-				optimize.OptimizeTableDataRepeat(dataModel)
-			}
-
-			//执行函数
-			exportFunc(dataModel)
-
-			mutex.Lock()
-			allDataModel = append(allDataModel, dataModel)
-			mutex.Unlock()
-
-			wg.Done()
-		}(tableMeta)
 	}
-	wg.Wait()
+	if err := env.AddEnumDefines(rawEnumConfigs); err != nil {
+		slog.Fatalf("add enum config error:%v", err)
+	}
+
+	// TODO 加载自定义解析脚本
+
+	//实际开始转换
+	allDataModel := LoadTableModelPlusParallel(tableMetas, rulePlus, nil)
+
+	// TODO 表的数据后处理
+
+	// 表的数据检查
+	global := make(map[string]map[interface{}]interface{}, len(allDataModel))
+	for _, m := range allDataModel {
+		global[m.Meta.Target] = m.MemTable.RawDataMapping()
+	}
+	wgCheck := sync.WaitGroup{}
+	wgCheck.Add(len(allDataModel))
+	for _, m := range allDataModel {
+		go func(m *model.TableModel) {
+			check.Run(m, global)
+			wgCheck.Done()
+		}(m)
+	}
+	wgCheck.Wait()
 
 	return allDataModel
 }

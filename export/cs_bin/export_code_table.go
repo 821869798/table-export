@@ -16,19 +16,20 @@ import (
 	"text/template"
 )
 
-func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnitCSBin, outputPath string) {
+func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnitCSBin, outputPath string) {
 	//集合是否用只读的类型
-	collectionReadonly := false
+	const collectionReadonly = false
 
-	templateRoot := &CSCodeWriteContent{
+	templateRoot := &CSCodeWriteTableFile{
 		NameSpace:          util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
 		CodeHead:           util.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
+		CodeNotFoundKey:    util.ReplaceWindowsLineEnd(csBinRule.CodeNotFoundKey),
 		TableName:          dataModel.Meta.Target,
 		RecordClassName:    "Cfg" + dataModel.Meta.Target,
 		TableClassName:     "Tbl" + dataModel.Meta.Target,
 		TableCommonName:    "_TbCommon" + dataModel.Meta.Target,
 		CollectionReadonly: collectionReadonly,
-		CSCodeWriteFields:  make([]*CSCodeWriteField, 0, len(dataModel.Meta.Fields)),
+		CSCodeWriteFields:  make([]*CSCodeWriteTableField, 0, len(dataModel.Meta.Fields)),
 		TableOptimize:      dataModel.Optimize,
 		TableModel:         dataModel,
 	}
@@ -41,7 +42,7 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 			slog.Fatalf("gen cs code error:%v", typeDef)
 		}
 
-		writeField := &CSCodeWriteField{
+		writeField := &CSCodeWriteTableField{
 			TypeDef:            typeDef,
 			Name:               field.Target,
 			Desc:               field.Desc,
@@ -68,25 +69,25 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 	}
 
 	//创建模板,绑定全局函数,并且解析
-	tmpl, err := template.New("export_cs_code").Funcs(template.FuncMap{
+	tmpl, err := template.New("cs_bin_table").Funcs(template.FuncMap{
 		"CSbinFieldReader": func(fieldType *meta.TableFieldType, fieldName string, reader string) string {
 			return codePrinter.AcceptField(fieldType, fieldName, reader)
 		},
-		"CSbinFieldReaderEx": func(writeField *CSCodeWriteField, reader string, commonDataName string) string {
+		"CSbinFieldReaderEx": func(writeField *CSCodeWriteTableField, reader string, commonDataName string) string {
 			if writeField.OptimizeFieldIndex >= 0 {
 				return codePrinter.AcceptOptimizeAssignment(writeField.Name, reader, commonDataName+strconv.Itoa(writeField.OptimizeFieldIndex))
 			} else {
 				return codePrinter.AcceptField(writeField.Field.Type, writeField.Name, reader)
 			}
 		},
-		"GetOutputDefTypeValue": func(filedType *meta.TableFieldType, collectionReadonly bool) string {
-			typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, filedType, collectionReadonly)
+		"GetOutputDefTypeValue": func(fieldType *meta.TableFieldType, collectionReadonly bool) string {
+			typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, collectionReadonly)
 			if err != nil {
 				slog.Fatalf("gen cs code error:%v", typeDef)
 			}
 			return typeDef
 		},
-		"UniqueMapAssignment": func(writeContent *CSCodeWriteContent, originMapName string, recordName string, space int) string {
+		"UniqueMapAssignment": func(writeContent *CSCodeWriteTableFile, originMapName string, recordName string, space int) string {
 			var sb strings.Builder
 			tableModel := writeContent.TableModel
 			keyLen := len(tableModel.Meta.Keys)
@@ -118,45 +119,14 @@ func GenCSBinCode(dataModel *model.TableModel, csBinRule *config.RawMetaRuleUnit
 			sb.WriteString(fmt.Sprintf("%s[%s.%s] = %s;", mapName, recordName, tableModel.Meta.Keys[keyLen-1].Target, recordName))
 			return sb.String()
 		},
-		"UniqueMapGetFunc": func(writeContent *CSCodeWriteContent, originMapName string, space int) string {
-			tableModel := writeContent.TableModel
-			keyLen := len(tableModel.Meta.Keys)
-
-			var sb strings.Builder
-			spaces := strings.Repeat("\t", space)
-
-			sb.WriteString(spaces)
-			sb.WriteString(fmt.Sprintf("public %s GetDataById(", writeContent.RecordClassName))
-			for i, field := range tableModel.Meta.Keys {
-				keyName := "__k" + strconv.Itoa(i)
-				if i > 0 {
-					sb.WriteString(", ")
-				}
-				defType, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, false)
-				if err != nil {
-					slog.Fatal(err)
-				}
-				sb.WriteString(fmt.Sprintf("%s %s", defType, keyName))
-			}
-			sb.WriteString(") { if (")
-
-			mapName := originMapName
-			for i := 0; i < keyLen; i++ {
-				lastMapName := mapName
-				mapName = "__tmpv" + strconv.Itoa(i)
-				keyName := "__k" + strconv.Itoa(i)
-				if i > 0 {
-					sb.WriteString(" && ")
-				}
-				sb.WriteString(fmt.Sprintf("%s.TryGetValue(%s, out var %s)", lastMapName, keyName, mapName))
-				if i == keyLen-1 {
-					sb.WriteString(fmt.Sprintf(") { return %s; } return null; ", mapName))
-				}
-			}
-			sb.WriteString("}")
-			return sb.String()
+		"UniqueMapGetFunc": func(writeContent *CSCodeWriteTableFile, originMapName string, space int) string {
+			return UniqueMapGetFunc(writeContent, originMapName, space, "Get", false)
 		},
-	}).Parse(templateCSCode)
+
+		"UniqueMapGetFuncWithoutError": func(writeContent *CSCodeWriteTableFile, originMapName string, space int) string {
+			return UniqueMapGetFunc(writeContent, originMapName, space, "GetWithoutError", true)
+		},
+	}).Parse(template_CS_Table)
 
 	//渲染输出
 	err = tmpl.Execute(file, templateRoot)
@@ -180,21 +150,77 @@ func getKeyDefTypeMap(dataModel *model.TableModel, recordName string, offset int
 	return util.ReplaceLast(keyDef, "int", recordName)
 }
 
-type CSCodeWriteContent struct {
+func UniqueMapGetFunc(writeContent *CSCodeWriteTableFile, originMapName string, space int, funcName string, withoutError bool) string {
+	tableModel := writeContent.TableModel
+	keyLen := len(tableModel.Meta.Keys)
+
+	var sb strings.Builder
+	spaces := strings.Repeat("    ", space)
+
+	sb.WriteString(spaces)
+	sb.WriteString(fmt.Sprintf("public %s %s(", writeContent.RecordClassName, funcName))
+	for i, field := range tableModel.Meta.Keys {
+		keyName := "__k" + strconv.Itoa(i)
+		if i > 0 {
+			sb.WriteString(", ")
+		}
+		defType, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, false)
+		if err != nil {
+			slog.Fatal(err)
+		}
+		sb.WriteString(fmt.Sprintf("%s %s", defType, keyName))
+	}
+	sb.WriteString(fmt.Sprintf(") \n%s{\n%s    if (", spaces, spaces))
+
+	mapName := originMapName
+	for i := 0; i < keyLen; i++ {
+		lastMapName := mapName
+		mapName = "__tmpv" + strconv.Itoa(i)
+		keyName := "__k" + strconv.Itoa(i)
+		if i > 0 {
+			sb.WriteString(" && ")
+		}
+		sb.WriteString(fmt.Sprintf("%s.TryGetValue(%s, out var %s)", lastMapName, keyName, mapName))
+		if i == keyLen-1 {
+			sb.WriteString(fmt.Sprintf(") { return %s; }", mapName))
+			if !withoutError {
+				// 添加找不到报错
+				errorKeyString := ""
+				for i := 0; i < keyLen; i++ {
+					if i == keyLen-1 {
+						errorKeyString += fmt.Sprintf("__k%d.ToString()", i)
+					} else {
+						errorKeyString += fmt.Sprintf("__k%d.ToString() + \" \" + ", i)
+					}
+				}
+				sb.WriteString("\n" + spaces + "    ")
+				errorString := fmt.Sprintf(writeContent.CodeNotFoundKey, writeContent.TableClassName, errorKeyString)
+				sb.WriteString(strings.ReplaceAll(errorString, "\n", "\n"+spaces+"    "))
+			}
+			sb.WriteString(fmt.Sprintf("\n%s    return null; \n", spaces))
+		}
+	}
+	sb.WriteString(spaces)
+	sb.WriteString("}")
+	return sb.String()
+}
+
+type CSCodeWriteTableFile struct {
 	NameSpace          string
 	CodeHead           string
+	CodeNotFoundKey    string
 	TableName          string
 	RecordClassName    string
 	TableClassName     string
 	TableCommonName    string
 	KeyDefTypeMap      string
 	CollectionReadonly bool
-	CSCodeWriteFields  []*CSCodeWriteField
+	CSCodeWriteFields  []*CSCodeWriteTableField
 	TableOptimize      *model.TableOptimize
 	TableModel         *model.TableModel
 }
 
-type CSCodeWriteField struct {
+type CSCodeWriteTableField struct {
 	TypeDef            string
 	Name               string
 	Desc               string

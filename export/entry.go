@@ -2,6 +2,7 @@ package export
 
 import (
 	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/meta"
 	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
@@ -56,11 +57,14 @@ func (e *Entry) Run() {
 				slog.Debugf("start run export mode:%s", mode)
 
 				export := creatorFunc(tableMetas, extraArg)
-				wg.Add(1)
-				go func() {
-					export.Export(rule)
-					wg.Done()
-				}()
+				//因为有个全局的环境，所以不支持同时转换多个mode，需要依次执行
+				env.InitEnv()
+				export.Export(rule)
+				//wg.Add(1)
+				//go func() {
+				//	export.Export(rule)
+				//	wg.Done()
+				//}()
 			} else {
 				slog.Fatalf("export mode can't support:%v", rule.RuleExportType())
 			}

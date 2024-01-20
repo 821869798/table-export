@@ -44,13 +44,15 @@ func (r *RawMetaRuleUnitLua) RuleExportType() ExportType {
 }
 
 type RawMetaRuleUnitCSBin struct {
-	CodeTempDir      string `toml:"code_temp_dir"`
-	DataTempDir      string `toml:"data_temp_dir"`
-	GenCodeDir       string `toml:"gen_code_dir"`
-	DataBinDir       string `toml:"data_bin_dir"`
-	GenCodeHead      string `toml:"gen_code_head"`
-	GenCodeNamespace string `toml:"code_namespace"`
-	GenOptimizeData  bool   `toml:"gen_optimize"`
+	CodeTempDir      string   `toml:"code_temp_dir"`
+	DataTempDir      string   `toml:"data_temp_dir"`
+	GenCodeDir       string   `toml:"gen_code_dir"`
+	DataBinDir       string   `toml:"data_bin_dir"`
+	GenCodeNamespace string   `toml:"code_namespace"`
+	GenCodeHead      string   `toml:"gen_code_head"`
+	CodeNotFoundKey  string   `toml:"code_not_found_key"`
+	GenOptimizeData  bool     `toml:"gen_optimize"`
+	EnumFiles        []string `toml:"enum_files"`
 }
 
 func (r *RawMetaRuleUnitCSBin) RuleExportType() ExportType {
@@ -59,4 +61,8 @@ func (r *RawMetaRuleUnitCSBin) RuleExportType() ExportType {
 
 func (r *RawMetaRuleUnitCSBin) ActiveOptimizeData() bool {
 	return r.GenOptimizeData
+}
+
+func (r *RawMetaRuleUnitCSBin) GetEnumFiles() []string {
+	return r.EnumFiles
 }

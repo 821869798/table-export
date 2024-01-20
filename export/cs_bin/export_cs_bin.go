@@ -3,7 +3,8 @@ package cs_bin
 import (
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/visitor"
-	"github.com/821869798/table-export/data/check"
+	"github.com/821869798/table-export/data/enum"
+	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/export/api"
 	"github.com/821869798/table-export/export/common"
@@ -51,39 +52,39 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 
 	defer util.TimeCost(time.Now(), "export c# bin time cost = %v\n")
 
-	//实际开始转换
-	allDataModel := common.ExportPlusParallel(e.tableMetas, csBinRule, func(dataModel *model.TableModel) {
-
-	})
-
-	// TODO 表的数据后处理
-
-	// 表的数据检查
-	global := make(map[string]map[interface{}]interface{}, len(allDataModel))
-	for _, m := range allDataModel {
-		global[m.Meta.Target] = m.MemTable.RawDataMapping()
-	}
-	wgCheck := sync.WaitGroup{}
-	wgCheck.Add(len(allDataModel))
-	for _, m := range allDataModel {
-		go func(m *model.TableModel) {
-			check.Run(m, global)
-			wgCheck.Done()
-		}(m)
-	}
-	wgCheck.Wait()
+	// 生成导出数据
+	allDataModel := common.ExportPlusCommon(e.tableMetas, csBinRule)
 
 	//生成代码和二进制数据
 	wg := sync.WaitGroup{}
 	wg.Add(len(allDataModel))
 	for _, tableModel := range allDataModel {
 		go func(tm *model.TableModel) {
-			GenCSBinCode(tm, csBinRule, csBinRule.CodeTempDir)
+			GenCSBinCodeTable(tm, csBinRule, csBinRule.CodeTempDir)
 			GenCSBinData(tm, csBinRule.DataTempDir)
 			wg.Done()
 		}(tableModel)
 	}
+	// 生成枚举代码文件
+	enumFiles := env.EnumFiles()
+	wg.Add(len(enumFiles))
+	for _, enumFile := range enumFiles {
+		go func(ef *enum.DefineEnumFile) {
+			GenCSBinCodeEnum(ef, csBinRule, csBinRule.CodeTempDir)
+			wg.Done()
+		}(enumFile)
+	}
+	// 等待完成
 	wg.Wait()
+
+	//清空目录
+	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.DataBinDir), `^.*?\.bytes$`); err != nil {
+		slog.Fatal(err)
+	}
+
+	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.GenCodeDir), `^.*?\.cs$`); err != nil {
+		slog.Fatal(err)
+	}
 
 	// 拷贝到最终的目录去
 	err := util.CopyDir(csBinRule.DataTempDir, csBinRule.DataBinDir)
