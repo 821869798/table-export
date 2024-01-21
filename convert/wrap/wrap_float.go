@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"math"
 	"strconv"
 )
 
 type floatWrap struct{}
 
-func (b *floatWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *floatWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
 	if origin == "" {
 		return float32(0), nil
 	}
@@ -26,7 +26,7 @@ func (b *floatWrap) OutputValue(exportType config.ExportType, fieldType *meta.Ta
 	return float32(value), nil
 }
 
-func (b *floatWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (b *floatWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		if origin == "" {
@@ -40,15 +40,16 @@ func (b *floatWrap) OutputStringValue(exportType config.ExportType, fieldType *m
 	}
 }
 
-func (b *floatWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *floatWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "float", nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *floatWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (b *floatWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptFloat(0)
 		return nil
@@ -61,7 +62,7 @@ func (b *floatWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType
 	return nil
 }
 
-func (b *floatWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (b *floatWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case float32:
 		visitor.AcceptFloat(value)
@@ -76,6 +77,6 @@ func (b *floatWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType 
 	}
 }
 
-func (b *floatWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *floatWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptFloat(fieldType, fieldName, reader, depth)
 }

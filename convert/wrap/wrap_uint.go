@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"math"
 	"strconv"
 )
 
 type uintWrap struct{}
 
-func (b *uintWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *uintWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
 	if origin == "" {
 		return uint32(0), nil
 	}
@@ -26,7 +26,7 @@ func (b *uintWrap) OutputValue(exportType config.ExportType, fieldType *meta.Tab
 	return uint32(value), nil
 }
 
-func (b *uintWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (b *uintWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		if origin == "" {
@@ -40,15 +40,16 @@ func (b *uintWrap) OutputStringValue(exportType config.ExportType, fieldType *me
 	}
 }
 
-func (b *uintWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *uintWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "uint", nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *uintWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (b *uintWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptUInt(0)
 		return nil
@@ -61,7 +62,7 @@ func (b *uintWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType 
 	return nil
 }
 
-func (b *uintWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (b *uintWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case uint32:
 		visitor.AcceptUInt(value)
@@ -76,6 +77,6 @@ func (b *uintWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *
 	}
 }
 
-func (b *uintWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *uintWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptUInt(fieldType, fieldName, reader, depth)
 }

@@ -3,6 +3,7 @@ package meta
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/table-export/field_type"
 )
 
 type TableMeta struct {
@@ -48,7 +49,7 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	//校验
 	fields := make([]*TableField, 0)
 	keysMap := make(map[int]*TableField)
-	lastKeyType := EFieldType_None
+	lastKeyType := field_type.EFieldType_None
 	for _, rtf := range rtm.Fields {
 		if !rtf.Active {
 			continue
@@ -72,7 +73,7 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 			}
 			keysMap[tft.Key] = tft
 
-			if lastKeyType == EFieldType_None {
+			if lastKeyType == field_type.EFieldType_None {
 				lastKeyType = tft.Type.Type
 			} else if lastKeyType != tft.Type.Type {
 				t.IsKeyTypeEqual = false
@@ -81,7 +82,7 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	}
 
 	if len(fields) == 0 {
-		return nil, errors.New(fmt.Sprintf("table meta config[%v] not one active field", rtm.Target))
+		return nil, errors.New(fmt.Sprintf("table meta config[%v] not one active field_type", rtm.Target))
 	}
 
 	//检车key是否合法
@@ -130,15 +131,15 @@ func (tm *TableMeta) NotKeyFieldCount() int {
 	return len(tm.Fields) - len(tm.Keys)
 }
 
-func (tm *TableMeta) GetKeyDefType(finalType EFieldType) *TableFieldType {
+func (tm *TableMeta) GetKeyDefType(finalType field_type.EFieldType) *field_type.TableFieldType {
 	return tm.GetKeyDefTypeOffset(finalType, 0)
 }
 
-func (tm *TableMeta) GetKeyDefTypeOffset(finalType EFieldType, offset int) *TableFieldType {
-	value := newTableFieldType(finalType)
+func (tm *TableMeta) GetKeyDefTypeOffset(finalType field_type.EFieldType, offset int) *field_type.TableFieldType {
+	value := field_type.NewTableFieldType(finalType)
 	for i := len(tm.Keys) - 1; i >= offset; i-- {
 		key := tm.Keys[i]
-		value = newTableFieldMapType(key.Type, value)
+		value = field_type.NewTableFieldMapType(key.Type, value)
 	}
 	return value
 }

@@ -13,8 +13,9 @@ import (
 func GenCSBinCodeEnum(enumFile *enum.DefineEnumFile, csBinRule *config.RawMetaRuleUnitCSBin, outputPath string) {
 
 	templateRoot := &CSCodeWriteEnumFile{
-		NameSpace: util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
-		Enums:     enumFile.Enums,
+		NameSpace:        util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
+		Enums:            enumFile.Enums,
+		EnumDefinePrefix: csBinRule.GetEnumDefinePrefix(),
 	}
 
 	//目标路径
@@ -25,7 +26,7 @@ func GenCSBinCodeEnum(enumFile *enum.DefineEnumFile, csBinRule *config.RawMetaRu
 	}
 
 	//创建模板,绑定全局函数,并且解析
-	tmpl, err := template.New("cs_bin_enum").Funcs(template.FuncMap{}).Parse(template_CS_Enum)
+	tmpl, err := template.New("cs_bin_enum").Funcs(template.FuncMap{}).Parse(templateCSCodeEnum)
 
 	//渲染输出
 	err = tmpl.Execute(file, templateRoot)
@@ -40,6 +41,7 @@ func GenCSBinCodeEnum(enumFile *enum.DefineEnumFile, csBinRule *config.RawMetaRu
 }
 
 type CSCodeWriteEnumFile struct {
-	NameSpace string
-	Enums     []*enum.DefineEnum
+	NameSpace        string
+	EnumDefinePrefix string
+	Enums            []*enum.DefineEnum
 }

@@ -19,4 +19,7 @@ type MetaRuleUnitPlus interface {
 	MetaRuleUnit
 	ActiveOptimizeData() bool
 	GetEnumFiles() []string
+	GetEnumDefinePrefix() string
+	GetClassDefinePrefix() string
+	GetBuiltinFieldTypes() []string
 }

@@ -1,6 +1,9 @@
 package model
 
-import "github.com/821869798/table-export/meta"
+import (
+	"github.com/821869798/table-export/field_type"
+	"github.com/821869798/table-export/meta"
+)
 
 type TableOptimize struct {
 	OptimizeFields []*TableOptimizeField
@@ -30,9 +33,9 @@ func (t *TableOptimize) GetOptimizeField(field *meta.TableField) (*TableOptimize
 
 type TableOptimizeField struct {
 	Field                  *meta.TableField
-	OptimizeDataInTableRow []int                // 优化数据中在原始表的行数号
-	DataUseIndex           []int                // 原始数据对应优化数据的索引
-	OptimizeType           *meta.TableFieldType // 优化后的类型，就是包装了一层数组
+	OptimizeDataInTableRow []int                      // 优化数据中在原始表的行数号
+	DataUseIndex           []int                      // 原始数据对应优化数据的索引
+	OptimizeType           *field_type.TableFieldType // 优化后的类型，就是包装了一层数组
 }
 
 func NewTableOptimizeField(field *meta.TableField, valueCount int, allCount int) *TableOptimizeField {

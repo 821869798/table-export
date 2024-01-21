@@ -5,10 +5,12 @@ import (
 	"github.com/821869798/table-export/data/check"
 	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/ext"
 	"github.com/821869798/table-export/meta"
 	"github.com/821869798/table-export/util"
 	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
+	"os"
 	"path/filepath"
 	"sync"
 )
@@ -34,6 +36,20 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 	}
 	if err := env.AddEnumDefines(rawEnumConfigs); err != nil {
 		slog.Fatalf("add enum config error:%v", err)
+	}
+
+	// 添加内置扩展类型
+	for _, extFieldTypeName := range rulePlus.GetBuiltinFieldTypes() {
+		extFieldType, ok := ext.GetExistExtFieldType(extFieldTypeName)
+		if !ok {
+			slog.Fatalf("no builtin ext field type:%v", extFieldTypeName)
+			os.Exit(1)
+		}
+		err := env.AddExtFieldType(extFieldType)
+		if err != nil {
+			slog.Fatalf("add ext field type error:%v", err)
+			os.Exit(1)
+		}
 	}
 
 	// TODO 加载自定义解析脚本

@@ -2,7 +2,7 @@ package visitor
 
 import (
 	"cmp"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"github.com/gookit/slog"
 	"slices"
 )
@@ -18,7 +18,7 @@ func GetMapSortedKeys[T cmp.Ordered, V any](m map[T]V) []T {
 	return keys
 }
 
-func GetMapSortedKeysInterface(m map[interface{}]interface{}, KeyType *meta.TableFieldType) []interface{} {
+func GetMapSortedKeysInterface(m map[interface{}]interface{}, KeyType *field_type.TableFieldType) []interface{} {
 	keys := make([]interface{}, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)

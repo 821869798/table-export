@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"strings"
 )
 
 type mapWrap struct{}
 
-func (b *mapWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *mapWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
+	origin = strings.TrimSpace(origin)
 	switch exportType {
 	case config.ExportType_Json:
 		strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
@@ -80,7 +81,8 @@ func (b *mapWrap) OutputValue(exportType config.ExportType, fieldType *meta.Tabl
 	}
 }
 
-func (b *mapWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (b *mapWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
+	origin = strings.TrimSpace(origin)
 	switch exportType {
 	case config.ExportType_Lua:
 		strMap := strings.Split(origin, config.GlobalConfig.Table.MapSplit1)
@@ -122,7 +124,7 @@ func (b *mapWrap) OutputStringValue(exportType config.ExportType, fieldType *met
 	}
 }
 
-func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		keyDef, err := GetOutputDefTypeValue(exportType, fieldType.Key, collectionReadonly)
@@ -141,11 +143,13 @@ func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *me
 		}
 
 		return result, nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
+	origin = strings.TrimSpace(origin)
 	if origin == "" {
 		visitor.AcceptStringMap(EmptyStringMap, fieldType.Key, fieldType.Value)
 		return nil
@@ -172,7 +176,7 @@ func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *
 	return nil
 }
 
-func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case map[string]interface{}:
 		visitor.AcceptMap(value, fieldType.Key, fieldType.Value)
@@ -190,6 +194,6 @@ func (b *mapWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *m
 	}
 }
 
-func (b *mapWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *mapWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptMap(fieldType, fieldName, reader, depth)
 }

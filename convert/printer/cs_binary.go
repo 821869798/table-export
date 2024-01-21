@@ -5,7 +5,8 @@ import (
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/convert/wrap"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/data/env"
+	"github.com/821869798/table-export/field_type"
 	"github.com/gookit/slog"
 	"strings"
 )
@@ -22,7 +23,7 @@ func NewCSBinaryPrint(collectionReadonly bool) apiconvert.ICodePrinter {
 	return p
 }
 
-func (c *CSBinaryPrint) AcceptField(fieldType *meta.TableFieldType, fieldName string, reader string) string {
+func (c *CSBinaryPrint) AcceptField(fieldType *field_type.TableFieldType, fieldName string, reader string) string {
 	return wrap.GetCodePrintValue(c, fieldType, fieldName, reader, 0)
 }
 
@@ -30,43 +31,43 @@ func (c *CSBinaryPrint) AcceptOptimizeAssignment(fieldName string, reader string
 	return fmt.Sprintf("{ int dataIndex = %s.ReadInt() - 1; %s = %s[dataIndex]; }", reader, fieldName, commonDataName)
 }
 
-func (c *CSBinaryPrint) AcceptInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptInt(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadInt();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptUInt(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptUInt(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadUint();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptLong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptLong(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadLong();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptULong(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptULong(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadUlong();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptFloat(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptFloat(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadFloat();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptDouble(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptDouble(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadDouble();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptBool(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptBool(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadBool();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptString(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptString(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return fmt.Sprintf("%s = %s.ReadString();", fieldName, reader)
 }
 
-func (c *CSBinaryPrint) AcceptEnum(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
-	return fmt.Sprintf("%s = (%s)%s.ReadInt();", fieldName, fieldType.Name, reader)
+func (c *CSBinaryPrint) AcceptEnum(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
+	return fmt.Sprintf("%s = (%s%s)%s.ReadInt();", fieldName, env.GetMetaRuleUnitPlus().GetEnumDefinePrefix(), fieldType.Name, reader)
 }
 
-func (c *CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptArray(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := c.CollectionReadonly
 	valueDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, false)
 	if err != nil {
@@ -99,7 +100,7 @@ func (c *CSBinaryPrint) AcceptArray(fieldType *meta.TableFieldType, fieldName st
 	}
 }
 
-func (c *CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (c *CSBinaryPrint) AcceptMap(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	collectionReadonly := c.CollectionReadonly
 
 	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType.Key, collectionReadonly)
@@ -127,4 +128,8 @@ func (c *CSBinaryPrint) AcceptMap(fieldType *meta.TableFieldType, fieldName stri
 	} else {
 		return fmt.Sprintf("{ int %s = %s.ReadSize(); %s = new %s (%s * 3 / 2); for(var %s = 0 ; %s < %s ; %s++ ) {%s %s; %s %s %s; %s %s.Add(%s, %s); } }", _n, reader, fieldName, mapDef, _n, _i, _i, _n, _i, keyDef, _k, keyAssignment, valueDef, _v, valueAssignment, fieldName, _k, _v)
 	}
+}
+
+func (c *CSBinaryPrint) AcceptClass(fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
+	return fmt.Sprintf("%s = new %s%s(%s);", fieldName, env.GetMetaRuleUnitPlus().GetClassDefinePrefix(), fieldType.Name, reader)
 }

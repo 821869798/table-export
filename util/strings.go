@@ -60,3 +60,11 @@ func JoinEx[T fmt.Stringer](joinStrings []T, sep string) string {
 
 	return strings.Join(result, sep)
 }
+
+func SplitEx(splitString string, sep string) []string {
+	splitString = strings.TrimSpace(splitString)
+	if len(splitString) == 0 {
+		return []string{}
+	}
+	return strings.Split(splitString, sep)
+}

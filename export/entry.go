@@ -59,6 +59,9 @@ func (e *Entry) Run() {
 				export := creatorFunc(tableMetas, extraArg)
 				//因为有个全局的环境，所以不支持同时转换多个mode，需要依次执行
 				env.InitEnv()
+				if rulePlus, ok := rule.(config.MetaRuleUnitPlus); ok {
+					env.SetMetaRuleUnitPlus(rulePlus)
+				}
 				export.Export(rule)
 				//wg.Add(1)
 				//go func() {

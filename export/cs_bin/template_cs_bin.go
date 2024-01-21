@@ -1,6 +1,6 @@
 package cs_bin
 
-const template_CS_Table string = `{{ .CodeHead }}
+const templateCSCodeTable string = `{{ .CodeHead }}
 using System.Collections.Generic;
 
 namespace {{.NameSpace}} 
@@ -58,7 +58,8 @@ namespace {{.NameSpace}}
 		private {{.RecordClassName}}(ByteBuf _buf, {{.TableCommonName}} _commonData)
         {
 {{ range $v := .CSCodeWriteFields }}
-			{{CSbinFieldReaderEx $v "_buf" "_commonData._field"}}{{ end }}
+			{{CSbinFieldReaderEx $v "_buf" "_commonData._field"}}
+{{- end }}
             PostInit();
         }
 
@@ -101,17 +102,46 @@ namespace {{.NameSpace}}
 }
 `
 
-const template_CS_Enum = `
+const templateCSCodeEnum = `
 namespace {{.NameSpace}}
 {
 {{ range $v := .Enums }}
-    public enum {{$v.Name}}
+    public enum {{$.EnumDefinePrefix}}{{$v.Name}}
     {
 {{- range $enumValue := $v.Values }}
         // {{$enumValue.Name}} : {{$enumValue.Desc}}
         {{$enumValue.Name}} = {{$enumValue.Index}},
 {{- end }}
     }
+{{ end }}
+}
+`
+
+const templateCSCodeClass = `{{ .CodeHead }}
+using System.Collections.Generic;
+
+namespace {{.NameSpace}} 
+{
+{{ range $classType := .ClassTypes }}
+	public partial class {{$.ClassDefinePrefix}}{{$classType.Name}}
+	{
+{{- range $v := $classType.Fields }}
+		public {{$v.TypeDef}} {{$v.Name}} { get; private set; }
+{{- end }}
+
+		public {{$.ClassDefinePrefix}}{{$classType.Name}}(ByteBuf _buf)
+        {
+{{ range $v := $classType.Fields }}
+			{{CSbinFieldReader $v.FieldType $v.Name "_buf" }}
+{{- end }}
+            PostInit();
+        }
+
+        /// <summary>
+        /// post process ext class
+        /// </summary>
+        partial void PostInit();
+	}
 {{ end }}
 }
 `

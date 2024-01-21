@@ -7,23 +7,6 @@ import (
 	"github.com/821869798/table-export/data/enum"
 )
 
-// 全局环境变量
-var (
-	environment *Environment
-)
-
-// Environment 当前的环境
-type Environment struct {
-	enumFiles   []*enum.DefineEnumFile
-	enumMapping map[string]*enum.DefineEnum
-}
-
-func InitEnv() {
-	environment = &Environment{
-		enumMapping: make(map[string]*enum.DefineEnum),
-	}
-}
-
 func AddEnumDefines(enumConfigs []*config.RawMetaEnumConfig) error {
 	fileMapping := make(map[string]*enum.DefineEnumFile)
 	for _, enumConfig := range enumConfigs {

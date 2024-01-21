@@ -6,14 +6,14 @@ import (
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/data/env"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"strconv"
 	"strings"
 )
 
 type enumWrap struct{}
 
-func convertEnumToInt(fieldType *meta.TableFieldType, origin string) (int32, error) {
+func convertEnumToInt(fieldType *field_type.TableFieldType, origin string) (int32, error) {
 	enumDefine, ok := env.GetEnumDefine(fieldType.Name)
 	if !ok {
 		return 0, errors.New(fmt.Sprintf("no support enum type[%v]", fieldType.Name))
@@ -40,11 +40,11 @@ func convertEnumToInt(fieldType *meta.TableFieldType, origin string) (int32, err
 	return result, nil
 }
 
-func (e *enumWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (e *enumWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
 	return convertEnumToInt(fieldType, origin)
 }
 
-func (e *enumWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (e *enumWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	default:
 		value, err := convertEnumToInt(fieldType, origin)
@@ -55,16 +55,16 @@ func (e *enumWrap) OutputStringValue(exportType config.ExportType, fieldType *me
 	}
 }
 
-func (e *enumWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (e *enumWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
-		return fieldType.Name, nil
+		return env.GetMetaRuleUnitPlus().GetEnumDefinePrefix() + fieldType.Name, nil
 	default:
 		return "", errors.New("no support export Type Output DefType")
 	}
 }
 
-func (e *enumWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (e *enumWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	value, err := convertEnumToInt(fieldType, origin)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (e *enumWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType 
 	return nil
 }
 
-func (e *enumWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (e *enumWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case int32:
 		visitor.AcceptInt(value)
@@ -91,6 +91,6 @@ func (e *enumWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *
 	}
 }
 
-func (e *enumWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (e *enumWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptEnum(fieldType, fieldName, reader, depth)
 }

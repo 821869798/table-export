@@ -71,6 +71,13 @@ Debug.LogError($"[%s] config id not found,id:{%s}");
     enum_files = [
         "./cs_bin_config/enum_define/*.toml",
     ]
-
+    # 枚举，统一添加一个的前缀名，可为空
+    enum_define_prefix = ""
+    # 自定义class，统一添加一个的前缀名，可为空
+    class_define_prefix = ""
+    # 添加内置代码的扩展类型支持
+    builtin_field_types = [
+        "PointInt",
+    ]
 
 

@@ -6,6 +6,7 @@ import (
 	"github.com/821869798/table-export/convert/printer"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/field_type"
 	"github.com/821869798/table-export/meta"
 	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
@@ -70,7 +71,7 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 
 	//创建模板,绑定全局函数,并且解析
 	tmpl, err := template.New("cs_bin_table").Funcs(template.FuncMap{
-		"CSbinFieldReader": func(fieldType *meta.TableFieldType, fieldName string, reader string) string {
+		"CSbinFieldReader": func(fieldType *field_type.TableFieldType, fieldName string, reader string) string {
 			return codePrinter.AcceptField(fieldType, fieldName, reader)
 		},
 		"CSbinFieldReaderEx": func(writeField *CSCodeWriteTableField, reader string, commonDataName string) string {
@@ -80,7 +81,7 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 				return codePrinter.AcceptField(writeField.Field.Type, writeField.Name, reader)
 			}
 		},
-		"GetOutputDefTypeValue": func(fieldType *meta.TableFieldType, collectionReadonly bool) string {
+		"GetOutputDefTypeValue": func(fieldType *field_type.TableFieldType, collectionReadonly bool) string {
 			typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, fieldType, collectionReadonly)
 			if err != nil {
 				slog.Fatalf("gen cs code error:%v", typeDef)
@@ -126,7 +127,7 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 		"UniqueMapGetFuncWithoutError": func(writeContent *CSCodeWriteTableFile, originMapName string, space int) string {
 			return UniqueMapGetFunc(writeContent, originMapName, space, "GetWithoutError", true)
 		},
-	}).Parse(template_CS_Table)
+	}).Parse(templateCSCodeTable)
 
 	//渲染输出
 	err = tmpl.Execute(file, templateRoot)
@@ -142,7 +143,7 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 }
 
 func getKeyDefTypeMap(dataModel *model.TableModel, recordName string, offset int) string {
-	keyDefType := dataModel.Meta.GetKeyDefTypeOffset(meta.EFieldType_Int, offset)
+	keyDefType := dataModel.Meta.GetKeyDefTypeOffset(field_type.EFieldType_Int, offset)
 	keyDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, keyDefType, false)
 	if err != nil {
 		slog.Fatal(err)

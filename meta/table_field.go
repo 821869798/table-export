@@ -1,9 +1,13 @@
 package meta
 
+import (
+	"github.com/821869798/table-export/field_type"
+)
+
 type TableField struct {
 	Source     string
 	Target     string
-	Type       *TableFieldType
+	Type       *field_type.TableFieldType
 	TypeString string
 	Desc       string
 	Key        int
@@ -17,7 +21,7 @@ func newTableField(rtf *RawTableField) (*TableField, error) {
 		Desc:       rtf.Desc,
 		Key:        rtf.Key,
 	}
-	tft, err := getFieldTypeFromString(tf.TypeString)
+	tft, err := parseFieldTypeFromString(tf.TypeString)
 	if err != nil {
 		return nil, err
 	}

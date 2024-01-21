@@ -5,7 +5,7 @@ import (
 	"github.com/821869798/table-export/convert/apiconvert"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"github.com/821869798/table-export/serialization"
 	"github.com/gookit/slog"
 )
@@ -70,28 +70,6 @@ func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 		}
 	}
 
-	for rowIndex, rowData := range dataModel.RawData {
-		for _, tf := range dataModel.Meta.Fields {
-			rawIndex := dataModel.NameIndexMapping[tf.Target]
-			var rawStr string
-			if rawIndex < len(rowData) {
-				rawStr = rowData[rawIndex]
-			}
-			if optimize != nil {
-				tableOptimizeField, _ := optimize.GetOptimizeField(tf)
-				if tableOptimizeField != nil {
-					var dIndex = tableOptimizeField.DataUseIndex[rowIndex]
-					// 索引+1,从1开始给之后有空类型的数据0考虑
-					b.byteBuff.WriteInt(int32(dIndex) + 1)
-					continue
-				}
-			}
-			err := wrap.RunDataVisitorString(b, tf.Type, rawStr)
-			if err != nil {
-				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
-			}
-		}
-	}
 }
 
 func (b *BinaryVisitor) AcceptInt(r int32) {
@@ -130,7 +108,7 @@ func (b *BinaryVisitor) AcceptByte(r byte) {
 	b.byteBuff.WriteByte(r)
 }
 
-func (b *BinaryVisitor) AcceptArray(r []interface{}, ValueType *meta.TableFieldType) {
+func (b *BinaryVisitor) AcceptArray(r []interface{}, ValueType *field_type.TableFieldType) {
 	b.byteBuff.WriteSize(len(r))
 	for _, origin := range r {
 		err := wrap.RunDataVisitorValue(b, ValueType, origin)
@@ -140,7 +118,7 @@ func (b *BinaryVisitor) AcceptArray(r []interface{}, ValueType *meta.TableFieldT
 	}
 }
 
-func (b *BinaryVisitor) AcceptStringArray(r []string, ValueType *meta.TableFieldType) {
+func (b *BinaryVisitor) AcceptStringArray(r []string, ValueType *field_type.TableFieldType) {
 	b.byteBuff.WriteSize(len(r))
 	for _, origin := range r {
 		err := wrap.RunDataVisitorString(b, ValueType, origin)
@@ -150,7 +128,7 @@ func (b *BinaryVisitor) AcceptStringArray(r []string, ValueType *meta.TableField
 	}
 }
 
-func (b *BinaryVisitor) AcceptStringMap(r map[string]string, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+func (b *BinaryVisitor) AcceptStringMap(r map[string]string, KeyType *field_type.TableFieldType, ValueType *field_type.TableFieldType) {
 	b.byteBuff.WriteSize(len(r))
 	for _, key := range GetMapSortedKeys(r) {
 		value := r[key]
@@ -165,7 +143,7 @@ func (b *BinaryVisitor) AcceptStringMap(r map[string]string, KeyType *meta.Table
 	}
 }
 
-func (b *BinaryVisitor) AcceptMap(r map[string]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+func (b *BinaryVisitor) AcceptMap(r map[string]interface{}, KeyType *field_type.TableFieldType, ValueType *field_type.TableFieldType) {
 	b.byteBuff.WriteSize(len(r))
 	for _, key := range GetMapSortedKeys(r) {
 		value := r[key]
@@ -179,7 +157,7 @@ func (b *BinaryVisitor) AcceptMap(r map[string]interface{}, KeyType *meta.TableF
 		}
 	}
 }
-func (b *BinaryVisitor) AcceptCommonMap(r map[interface{}]interface{}, KeyType *meta.TableFieldType, ValueType *meta.TableFieldType) {
+func (b *BinaryVisitor) AcceptCommonMap(r map[interface{}]interface{}, KeyType *field_type.TableFieldType, ValueType *field_type.TableFieldType) {
 	b.byteBuff.WriteSize(len(r))
 	for _, key := range GetMapSortedKeysInterface(r, KeyType) {
 		value := r[key]
@@ -190,6 +168,37 @@ func (b *BinaryVisitor) AcceptCommonMap(r map[interface{}]interface{}, KeyType *
 		err = wrap.RunDataVisitorValue(b, ValueType, value)
 		if err != nil {
 			slog.Fatalf("export binary AcceptCommonMap failed: %v", err)
+		}
+	}
+}
+
+func (b *BinaryVisitor) AcceptClass(r map[string]interface{}, class *field_type.TableFieldClass) {
+	for _, field := range class.AllFields() {
+		value, ok := r[field.Name]
+		if !ok {
+			// 写入默认值
+			err := wrap.RunDataVisitorString(b, field.Type, "")
+			if err != nil {
+				slog.Fatalf("export binary AcceptClass failed: %v", err)
+			}
+		}
+		err := wrap.RunDataVisitorValue(b, field.Type, value)
+		if err != nil {
+			slog.Fatalf("export binary AcceptClass failed: %v", err)
+		}
+	}
+}
+
+func (b *BinaryVisitor) AcceptClassString(r map[string]string, class *field_type.TableFieldClass) {
+	for _, field := range class.AllFields() {
+		value, ok := r[field.Name]
+		if !ok {
+			// 使用默认值解析
+			value = ""
+		}
+		err := wrap.RunDataVisitorString(b, field.Type, value)
+		if err != nil {
+			slog.Fatalf("export binary AcceptClass failed: %v", err)
 		}
 	}
 }

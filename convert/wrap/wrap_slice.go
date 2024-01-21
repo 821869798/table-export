@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"strings"
 )
 
 type sliceWrap struct{}
 
-func (b *sliceWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *sliceWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
+	origin = strings.TrimSpace(origin)
 	strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
 	result := make([]interface{}, 0, len(strSlice))
 	if origin != "" {
@@ -26,9 +27,10 @@ func (b *sliceWrap) OutputValue(exportType config.ExportType, fieldType *meta.Ta
 	return result, nil
 }
 
-func (b *sliceWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (b *sliceWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
+		origin = strings.TrimSpace(origin)
 		strSlice := strings.Split(origin, config.GlobalConfig.Table.ArraySplit)
 		result := "{"
 		if origin != "" {
@@ -47,7 +49,7 @@ func (b *sliceWrap) OutputStringValue(exportType config.ExportType, fieldType *m
 	}
 }
 
-func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		valueDef, err := GetOutputDefTypeValue(exportType, fieldType.Value, collectionReadonly)
@@ -62,11 +64,13 @@ func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *
 		}
 
 		return result, nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
+	origin = strings.TrimSpace(origin)
 	if origin == "" {
 		visitor.AcceptStringArray(EmptyStringArray, fieldType.Value)
 		return nil
@@ -76,7 +80,7 @@ func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType
 	return nil
 }
 
-func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	switch value := origin.(type) {
 	case []interface{}:
 		visitor.AcceptArray(value, fieldType.Value)
@@ -91,6 +95,6 @@ func (b *sliceWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType 
 	}
 }
 
-func (b *sliceWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *sliceWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptArray(fieldType, fieldName, reader, depth)
 }

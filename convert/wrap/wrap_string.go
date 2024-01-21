@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/apiconvert"
-	"github.com/821869798/table-export/meta"
+	"github.com/821869798/table-export/field_type"
 	"strings"
 )
 
 type stringWrap struct{}
 
-func (b *stringWrap) OutputValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (interface{}, error) {
+func (b *stringWrap) OutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
 	return origin, nil
 }
 
-func (b *stringWrap) OutputStringValue(exportType config.ExportType, fieldType *meta.TableFieldType, origin string) (string, error) {
+func (b *stringWrap) OutputStringValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (string, error) {
 	switch exportType {
 	case config.ExportType_Lua:
 		newValue := strings.Replace(origin, "\\", "\\\\", -1)
@@ -28,20 +28,21 @@ func (b *stringWrap) OutputStringValue(exportType config.ExportType, fieldType *
 	}
 }
 
-func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *meta.TableFieldType, collectionReadonly bool) (string, error) {
+func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *field_type.TableFieldType, collectionReadonly bool) (string, error) {
 	switch exportType {
 	case config.ExportType_CS_Bin:
 		return "string", nil
+	default:
+		return "", errors.New("no support export Type Output DefType")
 	}
-	return "", errors.New("no support export Type Output DefType")
 }
 
-func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin string) error {
+func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	visitor.AcceptString(origin)
 	return nil
 }
 
-func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *meta.TableFieldType, origin interface{}) error {
+func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
 	stringValue, ok := origin.(string)
 	if ok {
 		visitor.AcceptString(stringValue)
@@ -50,6 +51,6 @@ func (b *stringWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType
 	return errors.New(fmt.Sprintf("[DataVisitorValue|string] no support type[%T]", origin))
 }
 
-func (b *stringWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *meta.TableFieldType, fieldName string, reader string, depth int32) string {
+func (b *stringWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
 	return print.AcceptString(fieldType, fieldName, reader, depth)
 }

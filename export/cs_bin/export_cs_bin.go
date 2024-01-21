@@ -8,6 +8,7 @@ import (
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/export/api"
 	"github.com/821869798/table-export/export/common"
+	"github.com/821869798/table-export/field_type"
 	"github.com/821869798/table-export/meta"
 	"github.com/821869798/table-export/serialization"
 	"github.com/821869798/table-export/util"
@@ -73,6 +74,16 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 			GenCSBinCodeEnum(ef, csBinRule, csBinRule.CodeTempDir)
 			wg.Done()
 		}(enumFile)
+	}
+
+	// 生成自定义Class定义文件
+	extFieldClassFiles := env.GetExtFieldClassFiles()
+	wg.Add(len(extFieldClassFiles))
+	for n, e := range extFieldClassFiles {
+		go func(fileName string, extFieldClasses []*field_type.TableFieldType) {
+			GenCSBinCodeExtClass(fileName, extFieldClasses, csBinRule, csBinRule.CodeTempDir)
+			wg.Done()
+		}(n, e)
 	}
 	// 等待完成
 	wg.Wait()
