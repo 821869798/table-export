@@ -18,6 +18,7 @@ fields = [
     { active = true,   sname = "item_type" ,        tname = "itemType" ,        type = "ItemType" ,  	    key = 0,    desc = "道具类型，测试枚举1"},
     { active = true,   sname = "condition_type" ,   tname = "conditionType" ,  type = "ConditionType" ,  	key = 0,    desc = "条件类型，测试枚举2"},
     { active = true,   sname = "position",          tname = "position",     type = "PointInt",  	key = 0,    desc = "位置"},
+    { active = true,   sname = "rewards",   tname = "rewards",  type = "KVList_IntInt",  	key = 0,    desc = "奖励"},
 ]
 
 # 数据检测示例，$代表一行数据，table代表当前表，global代表全局，global[name]可以取到其他表的数据

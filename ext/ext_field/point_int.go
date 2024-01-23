@@ -40,7 +40,7 @@ func (e *ExtFieldPointInt) TableFieldType() *field_type.TableFieldType {
 	return e.FieldType
 }
 
-func (e *ExtFieldPointInt) ParseDataOne(origin string) (interface{}, error) {
+func (e *ExtFieldPointInt) ParseOriginData(origin string) (interface{}, error) {
 	strSlice := fanstr.SplitEx(origin, config.GlobalConfig.Table.ArraySplit)
 	if len(strSlice) == 0 {
 		return map[string]interface{}{
@@ -49,23 +49,19 @@ func (e *ExtFieldPointInt) ParseDataOne(origin string) (interface{}, error) {
 		}, nil
 	}
 	if len(strSlice) != 2 {
-		return nil, errors.New(fmt.Sprintf("PointInt ParseDataOne error,need array length 2 or 0: [%v]", origin))
+		return nil, errors.New(fmt.Sprintf("PointInt ParseOriginData error,need array length 2 or 0: [%v]", origin))
 	}
 
 	x, err := strconv.Atoi(strSlice[0])
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("PointInt ParseDataOne error,need param x int: [%v]", origin))
+		return nil, errors.New(fmt.Sprintf("PointInt ParseOriginData error,need param x int: [%v]", origin))
 	}
 	y, err := strconv.Atoi(strSlice[1])
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("PointInt ParseDataOne error,need param y int: [%v]", origin))
+		return nil, errors.New(fmt.Sprintf("PointInt ParseOriginData error,need param y int: [%v]", origin))
 	}
 	return map[string]interface{}{
 		"x": int32(x),
 		"y": int32(y),
 	}, nil
-}
-
-func (e *ExtFieldPointInt) ParseDataMultiple(originArray []string) (interface{}, error) {
-	return nil, errors.New("PointInt no support ParseDataMultiple")
 }

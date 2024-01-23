@@ -76,6 +76,7 @@ namespace CfgTable
 			itemType = (ItemType)_buf.ReadInt();
 			conditionType = (ConditionType)_buf.ReadInt();
 			{ int dataIndex = _buf.ReadInt() - 1; position = _commonData._field2[dataIndex]; }
+			{ int dataIndex = _buf.ReadInt() - 1; rewards = _commonData._field3[dataIndex]; }
             PostInit();
         }
 
@@ -124,6 +125,11 @@ namespace CfgTable
         /// </summary>
 		public PointInt position { get; private set; }
 
+        /// <summary>
+        /// 奖励
+        /// </summary>
+		public KVList_IntInt rewards { get; private set; }
+
 
         /// <summary>
         /// post process table
@@ -140,12 +146,14 @@ namespace CfgTable
         internal string[] _field0 { get; private set; }
         internal int[][] _field1 { get; private set; }
         internal PointInt[] _field2 { get; private set; }
+        internal KVList_IntInt[] _field3 { get; private set; }
         internal _TbCommonbase_test(ByteBuf _buf)
         {
 
 			{int __n0 = _buf.ReadSize(); _field0 = new string[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ string __v0; __v0 = _buf.ReadString(); _field0[__i0] = __v0; } }
 			{int __n0 = _buf.ReadSize(); _field1 = new int[__n0][]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int[] __v0; {int __n1 = _buf.ReadSize(); __v0 = new int[__n1]; for(var __i1 = 0 ; __i1 < __n1 ; __i1++ ){ int __v1; __v1 = _buf.ReadInt(); __v0[__i1] = __v1; } } _field1[__i0] = __v0; } }
 			{int __n0 = _buf.ReadSize(); _field2 = new PointInt[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ PointInt __v0; __v0 = new PointInt(_buf); _field2[__i0] = __v0; } }
+			{int __n0 = _buf.ReadSize(); _field3 = new KVList_IntInt[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ KVList_IntInt __v0; __v0 = new KVList_IntInt(_buf); _field3[__i0] = __v0; } }
         }
 
     }

@@ -78,6 +78,8 @@ Debug.LogError($"[%s] config id not found,id:{%s}");
     # 添加内置代码的扩展类型支持
     builtin_field_types = [
         "PointInt",
+        "KVList_IntInt",
+        "KVList_IntFloat",
     ]
 
 

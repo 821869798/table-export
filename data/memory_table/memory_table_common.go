@@ -58,7 +58,7 @@ func (m *MemoryTableCommon) ReadTableModel(dataModel *model.TableModel) error {
 			}
 			output, err := wrap.GetOutputValue(config.ExportType_Json, tf.Type, rawStr)
 			if err != nil {
-				return errors.New(fmt.Sprintf("export json target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err))
+				return errors.New(fmt.Sprintf("create memory table failed,file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err))
 			}
 
 			recordMap[tf.Target] = output
@@ -88,7 +88,7 @@ func (m *MemoryTableCommon) ReadTableModel(dataModel *model.TableModel) error {
 		lastKey := keys[len(keys)-1]
 		_, ok := dataMap[lastKey]
 		if ok {
-			return errors.New(fmt.Sprintf("export json target file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys))
+			return errors.New(fmt.Sprintf("create memory table failed,file[%v] RowCount[%v] key is repeated:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, keys))
 		}
 
 		dataMap[lastKey] = recordMap

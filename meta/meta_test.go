@@ -2,7 +2,7 @@ package meta
 
 import (
 	"bytes"
-	"github.com/821869798/table-export/util"
+	"github.com/821869798/fankit/fanpath"
 	"regexp"
 	"testing"
 	"text/template"
@@ -28,5 +28,5 @@ func TestTemplate(t *testing.T) {
 }
 
 func TestUtil(t *testing.T) {
-	util.InitDirAndClearFile(`E:\program\gopath\src\table-export\examples\temp_lua`, `^.*?\.(lua|meta)$`)
+	_ = fanpath.InitDirAndClearFile(`E:\program\gopath\src\table-export\examples\temp_lua`, `^.*?\.(lua|meta)$`)
 }

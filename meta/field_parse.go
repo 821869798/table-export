@@ -72,10 +72,10 @@ func parseFieldTypeFromString(origin string) (*field_type.TableFieldType, error)
 		}
 
 		// keyword generic: ext field_type type generic
-		result = regWordGeneric.FindAllStringSubmatch(origin, -1)
-		if len(result) == 1 && len(result[0]) == 3 {
-			// TODO generic support
-		}
+		//result = regWordGeneric.FindAllStringSubmatch(origin, -1)
+		//if len(result) == 1 && len(result[0]) == 3 {
+		//	// TODO generic support
+		//}
 
 		// ext field_type type
 		extFieldType, ok := env.GetExtFieldType(origin)

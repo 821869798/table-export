@@ -29,7 +29,7 @@ func init() {
 // GetOutputValue 获取真实的值，使用interface{}包装
 func GetOutputValue(exportType config.ExportType, fieldType *field_type.TableFieldType, origin string) (interface{}, error) {
 	if fieldType.ExtFieldType != nil {
-		return fieldType.ExtFieldType.ParseDataOne(origin)
+		return fieldType.ExtFieldType.ParseOriginData(origin)
 	}
 	wrap, ok := valueWrapMap[fieldType.Type]
 	if !ok {
@@ -61,7 +61,7 @@ func GetOutputDefTypeValue(exportType config.ExportType, fieldType *field_type.T
 
 func RunDataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if fieldType.ExtFieldType != nil {
-		data, err := fieldType.ExtFieldType.ParseDataOne(origin)
+		data, err := fieldType.ExtFieldType.ParseOriginData(origin)
 		if err != nil {
 			return err
 		}
