@@ -131,7 +131,7 @@ namespace {{.NameSpace}}
 
 		public {{$.ClassDefinePrefix}}{{$classType.Name}}(ByteBuf _buf)
         {
-{{ range $v := $classType.Fields }}
+{{- range $v := $classType.Fields }}
 			{{CSbinFieldReader $v.FieldType $v.Name "_buf" }}
 {{- end }}
             PostInit();

@@ -121,11 +121,15 @@ table_export -g csv_test,csv_test.csv
 
 # TODO
 
-在1.0版本中会加入数据检测，自定义复合类型，自定义枚举，特殊后处理等功能。
+目前1.0版本中已经支持，后续会更新使用文档
+ - 数据检测
+ - 自定义复合类型(使用go或者js脚本扩展)
+ - 自定义枚举
 
-
+TODO ：添加特殊后处理等功能。
 
 ## Credits
 
 - [LuaTableOptimizer](https://github.com/lujian101/LuaTableOptimizer) 使用了lua表优化工具，在此基础上做了更进一步的优化
 - [luban](https://github.com/focus-creative-games/luban) 使用了二进制序列化的代码和一些思路
+- [goja](https://github.com/dop251/goja) js的脚本引擎，使用js来扩展自定义类型和表后处理

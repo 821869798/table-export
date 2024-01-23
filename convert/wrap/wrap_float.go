@@ -70,6 +70,9 @@ func (b *floatWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType 
 	case float64:
 		visitor.AcceptFloat(float32(value))
 		return nil
+	case int64:
+		visitor.AcceptFloat(float32(value))
+		return nil
 	case string:
 		return b.DataVisitorString(visitor, fieldType, value)
 	default:

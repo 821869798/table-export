@@ -70,6 +70,18 @@ func (b *uintWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *
 	case uint64:
 		visitor.AcceptUInt(uint32(value))
 		return nil
+	case int:
+		visitor.AcceptUInt(uint32(value))
+		return nil
+	case float64:
+		visitor.AcceptUInt(uint32(value))
+		return nil
+	case int64:
+		visitor.AcceptUInt(uint32(value))
+		return nil
+	case int32:
+		visitor.AcceptUInt(uint32(value))
+		return nil
 	case string:
 		return b.DataVisitorString(visitor, fieldType, value)
 	default:

@@ -202,3 +202,13 @@ func (b *BinaryVisitor) AcceptClassString(r map[string]string, class *field_type
 		}
 	}
 }
+
+func (b *BinaryVisitor) AcceptClassNull(class *field_type.TableFieldClass) {
+	for _, field := range class.AllFields() {
+		// 使用默认值解析
+		err := wrap.RunDataVisitorString(b, field.Type, "")
+		if err != nil {
+			slog.Fatalf("export binary AcceptClass failed: %v", err)
+		}
+	}
+}

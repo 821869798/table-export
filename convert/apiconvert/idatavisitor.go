@@ -23,4 +23,5 @@ type IDataVisitor interface {
 	AcceptCommonMap(r map[interface{}]interface{}, KeyType *field_type.TableFieldType, ValueType *field_type.TableFieldType)
 	AcceptClass(r map[string]interface{}, class *field_type.TableFieldClass)
 	AcceptClassString(r map[string]string, class *field_type.TableFieldClass)
+	AcceptClassNull(class *field_type.TableFieldClass)
 }

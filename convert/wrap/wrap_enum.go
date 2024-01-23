@@ -84,6 +84,9 @@ func (e *enumWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *
 	case int:
 		visitor.AcceptInt(int32(value))
 		return nil
+	case float64:
+		visitor.AcceptInt(int32(value))
+		return nil
 	case string:
 		return e.DataVisitorString(visitor, fieldType, value)
 	default:

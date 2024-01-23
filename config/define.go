@@ -22,4 +22,5 @@ type MetaRuleUnitPlus interface {
 	GetEnumDefinePrefix() string
 	GetClassDefinePrefix() string
 	GetBuiltinFieldTypes() []string
+	GetExtFieldTypeScriptPath() []string
 }

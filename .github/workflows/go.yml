@@ -19,7 +19,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: '1.20'
+        go-version: '1.21'
 
     - run: go build -o bin/${{ github.event.repository.name }}_linux_x64 . 
     - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/${{ github.event.repository.name }}_win_x64.exe 

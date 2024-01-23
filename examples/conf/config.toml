@@ -69,7 +69,7 @@ Debug.LogError($"[%s] config id not found,id:{%s}");
     gen_optimize = true
     # 枚举文件路径集，可以支持多个，以及*或**匹配
     enum_files = [
-        "./cs_bin_config/enum_define/*.toml",
+        "./cs_bin_config/enum_define/**/*.toml",
     ]
     # 枚举，统一添加一个的前缀名，可为空
     enum_define_prefix = ""
@@ -81,5 +81,8 @@ Debug.LogError($"[%s] config id not found,id:{%s}");
         "KVList_IntInt",
         "KVList_IntFloat",
     ]
-
+    # 用脚本实现的扩展类型
+    script_field_types = [
+        "./cs_bin_config/scripts/ext_field/**/*.js",
+    ]
 

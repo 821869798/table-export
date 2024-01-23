@@ -7,11 +7,12 @@ import (
 	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/ext"
+	"github.com/821869798/table-export/ext/ext_scripts"
 	"github.com/821869798/table-export/meta"
 	"github.com/BurntSushi/toml"
+	"github.com/bmatcuk/doublestar/v4"
 	"github.com/gookit/slog"
 	"os"
-	"path/filepath"
 	"sync"
 )
 
@@ -21,9 +22,9 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 	var enumFiles = rulePlus.GetEnumFiles()
 	rawEnumConfigs := make([]*config.RawMetaEnumConfig, 0, len(enumFiles))
 	for _, p := range enumFiles {
-		matches, err := filepath.Glob(p)
+		matches, err := doublestar.FilepathGlob(p)
 		if err != nil {
-			slog.Fatalf("Enum Files laod error filePath:%s err:%v", p, err)
+			slog.Fatalf("Enum Files load error filePath:%s err:%v", p, err)
 		}
 		for _, m := range matches {
 			fullPath := fanpath.AbsOrRelExecutePath(m)
@@ -52,7 +53,26 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 		}
 	}
 
-	// TODO 加载自定义解析脚本
+	// 添加脚本实现的扩展类型
+	for _, extFieldScriptPath := range rulePlus.GetExtFieldTypeScriptPath() {
+		matches, err := doublestar.FilepathGlob(extFieldScriptPath)
+		if err != nil {
+			slog.Fatalf("Ext Script path glob error filePath:%s err:%v", extFieldScriptPath, err)
+			os.Exit(1)
+		}
+		for _, m := range matches {
+			extFieldType, err := ext_scripts.NewExtFieldJS(m)
+			if err != nil {
+				slog.Fatalf("Ext Script Files laod error filePath:%s err:%v", m, err)
+				os.Exit(1)
+			}
+			err = env.AddExtFieldType(extFieldType)
+			if err != nil {
+				slog.Fatalf("add ext field type error:%v", err)
+				os.Exit(1)
+			}
+		}
+	}
 
 	//实际开始转换
 	allDataModel := LoadTableModelPlusParallel(tableMetas, rulePlus, nil)

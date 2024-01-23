@@ -19,6 +19,7 @@ fields = [
     { active = true,   sname = "condition_type" ,   tname = "conditionType" ,  type = "ConditionType" ,  	key = 0,    desc = "条件类型，测试枚举2"},
     { active = true,   sname = "position",          tname = "position",     type = "PointInt",  	key = 0,    desc = "位置"},
     { active = true,   sname = "rewards",   tname = "rewards",  type = "KVList_IntInt",  	key = 0,    desc = "奖励"},
+    { active = true,   sname = "vector3",   tname = "vector3",  type = "TestVector3",  	key = 0,    desc = "测试使用脚本自定义字段类型" }
 ]
 
 # 数据检测示例，$代表一行数据，table代表当前表，global代表全局，global[name]可以取到其他表的数据

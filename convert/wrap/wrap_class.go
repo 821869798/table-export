@@ -34,6 +34,10 @@ func (c *classWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType
 }
 
 func (c *classWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
+	if origin == nil {
+		visitor.AcceptClassNull(fieldType.Class)
+		return nil
+	}
 	switch value := origin.(type) {
 	case map[string]interface{}:
 		visitor.AcceptClass(value, fieldType.Class)
@@ -44,7 +48,7 @@ func (c *classWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType 
 	case string:
 		return RunDataVisitorString(visitor, fieldType, value)
 	default:
-		return errors.New(fmt.Sprintf("[DataVisitorValue|map] no support type[%T]", origin))
+		return errors.New(fmt.Sprintf("[DataVisitorValue|class] no support type[%T]", origin))
 	}
 }
 

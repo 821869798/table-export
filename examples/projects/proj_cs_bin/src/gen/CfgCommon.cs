@@ -12,7 +12,6 @@ namespace CfgTable
 
 		public KVList_IntInt(ByteBuf _buf)
         {
-
 			{int __n0 = _buf.ReadSize(); keys = new int[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int __v0; __v0 = _buf.ReadInt(); keys[__i0] = __v0; } }
 			{int __n0 = _buf.ReadSize(); values = new int[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int __v0; __v0 = _buf.ReadInt(); values[__i0] = __v0; } }
             PostInit();
@@ -31,7 +30,6 @@ namespace CfgTable
 
 		public KVList_IntFloat(ByteBuf _buf)
         {
-
 			{int __n0 = _buf.ReadSize(); keys = new int[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ int __v0; __v0 = _buf.ReadInt(); keys[__i0] = __v0; } }
 			{int __n0 = _buf.ReadSize(); values = new float[__n0]; for(var __i0 = 0 ; __i0 < __n0 ; __i0++ ){ float __v0; __v0 = _buf.ReadFloat(); values[__i0] = __v0; } }
             PostInit();

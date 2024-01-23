@@ -59,16 +59,30 @@ func (b *ulongWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType
 }
 
 func (b *ulongWrap) DataVisitorValue(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin interface{}) error {
-	value, ok := origin.(uint64)
-	if ok {
+	switch value := origin.(type) {
+	case uint64:
 		visitor.AcceptULong(value)
 		return nil
+	case uint32:
+		visitor.AcceptULong(uint64(value))
+		return nil
+	case int:
+		visitor.AcceptULong(uint64(value))
+		return nil
+	case float64:
+		visitor.AcceptULong(uint64(value))
+		return nil
+	case int64:
+		visitor.AcceptULong(uint64(value))
+		return nil
+	case int32:
+		visitor.AcceptULong(uint64(value))
+		return nil
+	case string:
+		return b.DataVisitorString(visitor, fieldType, value)
+	default:
+		return errors.New(fmt.Sprintf("[DataVisitorValue|ulong] no support type[%T]", origin))
 	}
-	stringValue, ok := origin.(string)
-	if ok {
-		return b.DataVisitorString(visitor, fieldType, stringValue)
-	}
-	return errors.New(fmt.Sprintf("[DataVisitorValue|ulong] no support type[%T]", origin))
 }
 
 func (b *ulongWrap) CodePrintValue(print apiconvert.ICodePrinter, fieldType *field_type.TableFieldType, fieldName string, reader string, depth int32) string {
