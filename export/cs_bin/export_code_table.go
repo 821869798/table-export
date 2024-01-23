@@ -2,13 +2,13 @@ package cs_bin
 
 import (
 	"fmt"
+	"github.com/821869798/fankit/fanstr"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/printer"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/field_type"
 	"github.com/821869798/table-export/meta"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
@@ -22,9 +22,9 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 	const collectionReadonly = false
 
 	templateRoot := &CSCodeWriteTableFile{
-		NameSpace:          util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
-		CodeHead:           util.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
-		CodeNotFoundKey:    util.ReplaceWindowsLineEnd(csBinRule.CodeNotFoundKey),
+		NameSpace:          fanstr.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
+		CodeHead:           fanstr.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
+		CodeNotFoundKey:    fanstr.ReplaceWindowsLineEnd(csBinRule.CodeNotFoundKey),
 		TableName:          dataModel.Meta.Target,
 		RecordClassName:    "Cfg" + dataModel.Meta.Target,
 		TableClassName:     "Tbl" + dataModel.Meta.Target,
@@ -148,7 +148,7 @@ func getKeyDefTypeMap(dataModel *model.TableModel, recordName string, offset int
 	if err != nil {
 		slog.Fatal(err)
 	}
-	return util.ReplaceLast(keyDef, "int", recordName)
+	return fanstr.ReplaceLast(keyDef, "int", recordName)
 }
 
 func UniqueMapGetFunc(writeContent *CSCodeWriteTableFile, originMapName string, space int, funcName string, withoutError bool) string {

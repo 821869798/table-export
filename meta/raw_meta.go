@@ -1,7 +1,7 @@
 package meta
 
 import (
-	"github.com/821869798/table-export/util"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
 	"os"
@@ -56,7 +56,7 @@ func NewRawTableField(source, desc string) *RawTableField {
 }
 
 func LoadTableMetasByDir(fullPath string) ([]*RawTableMeta, error) {
-	fileLists, err := util.GetFileListByExt(fullPath, ".toml")
+	fileLists, err := fanpath.GetFileListByExt(fullPath, ".toml")
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +74,8 @@ func LoadTableMetasByDir(fullPath string) ([]*RawTableMeta, error) {
 func (rtm *RawTableMeta) SaveTableMetaByDir(filePath string) error {
 	parentDir := filepath.Dir(filePath)
 	//不存在就创建
-	if !util.ExistDir(parentDir) {
-		os.MkdirAll(parentDir, os.ModePerm)
+	if !fanpath.ExistDir(parentDir) {
+		_ = os.MkdirAll(parentDir, os.ModePerm)
 	}
 	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
@@ -108,7 +108,7 @@ checks = [
 
 	parentDir := filepath.Dir(filePath)
 	//不存在就创建
-	if !util.ExistDir(parentDir) {
+	if !fanpath.ExistDir(parentDir) {
 		_ = os.MkdirAll(parentDir, os.ModePerm)
 	}
 	file, err := os.Create(filePath)

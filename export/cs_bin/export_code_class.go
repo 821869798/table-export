@@ -1,11 +1,11 @@
 package cs_bin
 
 import (
+	"github.com/821869798/fankit/fanstr"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/printer"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/field_type"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
@@ -16,8 +16,8 @@ func GenCSBinCodeExtClass(fileName string, extFieldClasses []*field_type.TableFi
 
 	// 生成模板数据
 	templateRoot := &CSCodeWriteExtClassFile{
-		CodeHead:          util.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
-		NameSpace:         util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
+		CodeHead:          fanstr.ReplaceWindowsLineEnd(csBinRule.GenCodeHead),
+		NameSpace:         fanstr.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
 		ClassDefinePrefix: csBinRule.GetClassDefinePrefix(),
 	}
 

@@ -3,6 +3,7 @@ module github.com/821869798/table-export
 go 1.21
 
 require (
+	github.com/821869798/fankit v0.0.6
 	github.com/BurntSushi/toml v1.3.2
 	github.com/expr-lang/expr v1.15.8
 	github.com/gookit/slog v0.5.4

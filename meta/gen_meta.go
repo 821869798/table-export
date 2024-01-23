@@ -2,9 +2,9 @@ package meta
 
 import (
 	"encoding/csv"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/constant"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"github.com/xuri/excelize/v2"
 	"os"
@@ -44,9 +44,9 @@ func (g *GenMeta) Run() {
 	targetName := sourceSlice[0]
 	srcFileName := sourceSlice[1]
 
-	filePath := util.RelExecuteDir(config.GlobalConfig.Table.SrcDir, srcFileName)
+	filePath := fanpath.RelExecuteDir(config.GlobalConfig.Table.SrcDir, srcFileName)
 
-	if !util.ExistFile(filePath) {
+	if !fanpath.ExistFile(filePath) {
 		slog.Fatalf("generator source source file path not exist! FilePath:%s", filePath)
 	}
 
@@ -105,7 +105,7 @@ func (g *GenMeta) Run() {
 		rtm.Fields = append(rtm.Fields, rtf)
 	}
 
-	genFilePath := util.RelExecuteDir(config.GlobalConfig.Meta.GenDir, targetName+constant.MetaFileSuffix)
+	genFilePath := fanpath.RelExecuteDir(config.GlobalConfig.Meta.GenDir, targetName+constant.MetaFileSuffix)
 	err = rtm.SaveTableMetaTemplateByDir(genFilePath)
 	if err != nil {
 		slog.Fatal(err)

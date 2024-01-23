@@ -3,10 +3,10 @@ package source
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/meta"
-	"github.com/821869798/table-export/util"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -27,7 +27,7 @@ func (d *DataSourceExcel) LoadDataModel(tableMetal *meta.TableMeta) (*model.Tabl
 	//读取excel数据到自定义结构体中
 	dataModel := model.NewTableModel(tableMetal)
 	for _, tableSource := range tableMetal.Sources {
-		filePath := util.RelExecuteDir(config.GlobalConfig.Table.SrcDir, tableSource.Table)
+		filePath := fanpath.RelExecuteDir(config.GlobalConfig.Table.SrcDir, tableSource.Table)
 		excelFile, err := excelize.OpenFile(filePath)
 		if err != nil {
 			return nil, err

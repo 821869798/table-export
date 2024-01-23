@@ -1,9 +1,9 @@
 package cs_bin
 
 import (
+	"github.com/821869798/fankit/fanstr"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/data/enum"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
@@ -13,7 +13,7 @@ import (
 func GenCSBinCodeEnum(enumFile *enum.DefineEnumFile, csBinRule *config.RawMetaRuleUnitCSBin, outputPath string) {
 
 	templateRoot := &CSCodeWriteEnumFile{
-		NameSpace:        util.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
+		NameSpace:        fanstr.ReplaceWindowsLineEnd(csBinRule.GenCodeNamespace),
 		Enums:            enumFile.Enums,
 		EnumDefinePrefix: csBinRule.GetEnumDefinePrefix(),
 	}

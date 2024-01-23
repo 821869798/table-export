@@ -1,10 +1,10 @@
 package export
 
 import (
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/meta"
-	"github.com/821869798/table-export/util"
 	"github.com/gookit/slog"
 	"strings"
 	"sync"
@@ -47,7 +47,7 @@ func (e *Entry) Run() {
 			slog.Fatalf("export mode can't not find in config:%v", mode)
 		}
 
-		tableMetas, err := meta.LoadTableMetasByDir(util.RelExecuteDir(metaRule.ConfigDir))
+		tableMetas, err := meta.LoadTableMetasByDir(fanpath.RelExecuteDir(metaRule.ConfigDir))
 		if err != nil {
 			slog.Fatalf("load table meta toml config failed! mode:%s err:%v", mode, err)
 		}

@@ -1,13 +1,13 @@
 package common
 
 import (
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/data/check"
 	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/data/model"
 	"github.com/821869798/table-export/ext"
 	"github.com/821869798/table-export/meta"
-	"github.com/821869798/table-export/util"
 	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
 	"os"
@@ -26,7 +26,7 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 			slog.Fatalf("Enum Files laod error filePath:%s err:%v", p, err)
 		}
 		for _, m := range matches {
-			fullPath := util.AbsOrRelExecutePath(m)
+			fullPath := fanpath.AbsOrRelExecutePath(m)
 			enumConfig := new(config.RawMetaEnumConfig)
 			if _, err := toml.DecodeFile(fullPath, enumConfig); err != nil {
 				slog.Fatalf("load enum config error:%v", err)

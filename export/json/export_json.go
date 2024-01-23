@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
@@ -37,9 +38,9 @@ func (e *ExportJson) Export(ru config.MetaRuleUnit) {
 		slog.Fatal("Export Json expect *RawMetaRuleUnitJson Rule Unit")
 	}
 
-	outputPath := util.RelExecuteDir(jsonRule.JsonOutputDir)
+	outputPath := fanpath.RelExecuteDir(jsonRule.JsonOutputDir)
 	//清空目录
-	if err := util.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
+	if err := fanpath.InitDirAndClearFile(outputPath, `^.*?\.json$`); err != nil {
 		slog.Fatal(err)
 	}
 

@@ -1,6 +1,8 @@
 package lua
 
 import (
+	"github.com/821869798/fankit/fanpath"
+	"github.com/821869798/fankit/fansys"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/model"
@@ -42,12 +44,12 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	//清空目录
 	if luaRule.EnableProcess {
-		if err := util.ClearDirAndCreateNew(util.RelExecuteDir(luaRule.TempDir)); err != nil {
+		if err := fanpath.ClearDirAndCreateNew(fanpath.RelExecuteDir(luaRule.TempDir)); err != nil {
 			slog.Fatal(err)
 		}
 	}
 
-	if err := util.InitDirAndClearFile(util.RelExecuteDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
+	if err := fanpath.InitDirAndClearFile(fanpath.RelExecuteDir(luaRule.LuaOutputDir), `^.*?\.(lua|meta)$`); err != nil {
 		slog.Fatal(err)
 	}
 
@@ -55,9 +57,9 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	var outputPath string
 	if luaRule.EnableProcess {
-		outputPath = util.RelExecuteDir(luaRule.TempDir)
+		outputPath = fanpath.RelExecuteDir(luaRule.TempDir)
 	} else {
-		outputPath = util.RelExecuteDir(luaRule.LuaOutputDir)
+		outputPath = fanpath.RelExecuteDir(luaRule.LuaOutputDir)
 	}
 
 	//实际开始转换
@@ -67,7 +69,7 @@ func (e *ExportLua) Export(ru config.MetaRuleUnit) {
 
 	if luaRule.EnableProcess {
 		luaTablePostProcess(luaRule)
-		_ = os.RemoveAll(util.RelExecuteDir(luaRule.TempDir))
+		_ = os.RemoveAll(fanpath.RelExecuteDir(luaRule.TempDir))
 	}
 
 }
@@ -77,24 +79,24 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 	//做lua导出后的预处理
 	var execPath string
 	if runtime.GOOS == "windows" {
-		execPath = util.RelExecuteDir(luaRule.LuaWinDir)
+		execPath = fanpath.RelExecuteDir(luaRule.LuaWinDir)
 	} else {
-		execPath = util.RelExecuteDir(luaRule.LuaMacDir)
+		execPath = fanpath.RelExecuteDir(luaRule.LuaMacDir)
 	}
 
 	// 添加执行权限
-	if output, err := util.AddExecuteChmod(execPath); nil != err {
+	if output, err := fansys.AddExecuteChmod(execPath); nil != err {
 		slog.Fatalf("Add lua execute chmod linux or macos exec error:%s\nerr:%v", output, err)
 		os.Exit(1)
 	}
 
-	luaTempDir := util.RelExecuteDir(luaRule.TempDir)
-	outputDir := util.RelExecuteDir(luaRule.LuaOutputDir)
+	luaTempDir := fanpath.RelExecuteDir(luaRule.TempDir)
+	outputDir := fanpath.RelExecuteDir(luaRule.LuaOutputDir)
 
 	postProcessExec := exec.Command(
 		execPath,
-		util.RelExecuteDir(luaRule.PostProcessLua),
-		util.RelExecuteDir(luaRule.PostWorkDir),
+		fanpath.RelExecuteDir(luaRule.PostProcessLua),
+		fanpath.RelExecuteDir(luaRule.PostWorkDir),
 		luaTempDir,
 		runtime.GOOS,
 	)
@@ -103,7 +105,7 @@ func luaTablePostProcess(luaRule *config.RawMetaRuleUnitLua) {
 		slog.Fatalf("lua postprocess exec error:%s\nerr:%v", output, err)
 		os.Exit(1)
 	}
-	fileList, err := util.GetFileListByExt(luaTempDir, ".lua")
+	fileList, err := fanpath.GetFileListByExt(luaTempDir, ".lua")
 	if err != nil {
 		slog.Fatal(err)
 	}

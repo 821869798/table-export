@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/821869798/table-export/util"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/BurntSushi/toml"
 	"github.com/gookit/slog"
 )
@@ -38,7 +38,7 @@ func GetMetaRuleConfigByName(name string) *RawMetaRule {
 var GlobalConfig *RawGlobalConfig
 
 func ParseConfig(configFile string) {
-	configFile = util.AbsOrRelExecutePath(configFile)
+	configFile = fanpath.AbsOrRelExecutePath(configFile)
 	GlobalConfig = new(RawGlobalConfig)
 	if _, err := toml.DecodeFile(configFile, GlobalConfig); err != nil {
 		slog.Fatalf("load global config error:%v", err)

@@ -3,9 +3,9 @@ package ext_field
 import (
 	"errors"
 	"fmt"
+	"github.com/821869798/fankit/fanstr"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/field_type"
-	"github.com/821869798/table-export/util"
 	"strconv"
 )
 
@@ -41,7 +41,7 @@ func (e *ExtFieldPointInt) TableFieldType() *field_type.TableFieldType {
 }
 
 func (e *ExtFieldPointInt) ParseDataOne(origin string) (interface{}, error) {
-	strSlice := util.SplitEx(origin, config.GlobalConfig.Table.ArraySplit)
+	strSlice := fanstr.SplitEx(origin, config.GlobalConfig.Table.ArraySplit)
 	if len(strSlice) == 0 {
 		return map[string]interface{}{
 			"x": int32(0),

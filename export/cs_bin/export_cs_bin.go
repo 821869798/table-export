@@ -1,6 +1,7 @@
 package cs_bin
 
 import (
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/convert/visitor"
 	"github.com/821869798/table-export/data/enum"
@@ -43,11 +44,11 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	}
 
 	//清空目录
-	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.DataTempDir), `^.*?\.bytes$`); err != nil {
+	if err := fanpath.InitDirAndClearFile(fanpath.RelExecuteDir(csBinRule.DataTempDir), `^.*?\.bytes$`); err != nil {
 		slog.Fatal(err)
 	}
 
-	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.CodeTempDir), `^.*?\.cs`); err != nil {
+	if err := fanpath.InitDirAndClearFile(fanpath.RelExecuteDir(csBinRule.CodeTempDir), `^.*?\.cs`); err != nil {
 		slog.Fatal(err)
 	}
 
@@ -89,20 +90,20 @@ func (e *ExportCSBin) Export(ru config.MetaRuleUnit) {
 	wg.Wait()
 
 	//清空目录
-	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.DataBinDir), `^.*?\.bytes$`); err != nil {
+	if err := fanpath.InitDirAndClearFile(fanpath.RelExecuteDir(csBinRule.DataBinDir), `^.*?\.bytes$`); err != nil {
 		slog.Fatal(err)
 	}
 
-	if err := util.InitDirAndClearFile(util.RelExecuteDir(csBinRule.GenCodeDir), `^.*?\.cs$`); err != nil {
+	if err := fanpath.InitDirAndClearFile(fanpath.RelExecuteDir(csBinRule.GenCodeDir), `^.*?\.cs$`); err != nil {
 		slog.Fatal(err)
 	}
 
 	// 拷贝到最终的目录去
-	err := util.CopyDir(csBinRule.DataTempDir, csBinRule.DataBinDir)
+	err := fanpath.CopyDir(csBinRule.DataTempDir, csBinRule.DataBinDir)
 	if err != nil {
 		slog.Fatal("Copy files error:" + err.Error())
 	}
-	err = util.CopyDir(csBinRule.CodeTempDir, csBinRule.GenCodeDir)
+	err = fanpath.CopyDir(csBinRule.CodeTempDir, csBinRule.GenCodeDir)
 	if err != nil {
 		slog.Fatal("Copy files error:" + err.Error())
 	}
@@ -113,7 +114,7 @@ func GenCSBinData(dataModel *model.TableModel, outputPath string) {
 	binary := visitor.NewBinary(byteBuff)
 	binary.AcceptTable(dataModel)
 	bytes := byteBuff.GetBytes()
-	filePath := util.RelExecuteDir(outputPath, dataModel.Meta.Target+".bytes")
+	filePath := fanpath.RelExecuteDir(outputPath, dataModel.Meta.Target+".bytes")
 	file, err := os.Create(filePath)
 	if err != nil {
 		slog.Fatalf("export cs_bin bytes file create file error:%v", err)

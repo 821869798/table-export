@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/821869798/fankit/fanpath"
 	"github.com/821869798/table-export/config"
 	"github.com/821869798/table-export/constant"
 	"github.com/821869798/table-export/export"
@@ -12,6 +13,11 @@ import (
 func main() {
 
 	slog.SetLogLevel(slog.InfoLevel)
+
+	err := fanpath.InitExecutePath()
+	if err != nil {
+		slog.Fatal(err)
+	}
 
 	flag.Parse()
 
