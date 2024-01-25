@@ -34,6 +34,7 @@ namespace CfgTable
 				_dataMap[_v.id] = _v;
             }
 
+
             PostInit();
 		}
 
@@ -55,7 +56,13 @@ namespace CfgTable
             if (_dataMap.TryGetValue(__k0, out var __tmpv0)) { return __tmpv0; }
             return null; 
         } 
-		
+
+
+        /// <summary>
+        /// table data file
+        /// </summary>
+        public static string TableFileName { get; } = "base_test";
+
         /// <summary>
         /// post process table
         /// </summary>

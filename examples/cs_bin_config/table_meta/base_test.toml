@@ -22,8 +22,9 @@ fields = [
     { active = true,   sname = "vector3",   tname = "vector3",  type = "TestVector3",  	key = 0,    desc = "测试使用脚本自定义字段类型" }
 ]
 
-# 数据检测示例，$代表一行数据，table代表当前表，global代表全局，global[name]可以取到其他表的数据
+# 数据检测示例，$代表一行数据，table代表当前表，global代表全局，global[name]可以取到其他表的数据,extra表示当前表的额外新增数据
 # global为false表是一行行数据检测，会有$。如果通过&&放到一行配置中能提升运行效率
+# global为true表示是这个表单次的检查
 checks = [
     { active = true, global = false, code = """ $.age < 60 """ },
     { active = true, global = false, code = """ $.bigDataId == 0 || global["big_data"][$.bigDataId] != nil """ },

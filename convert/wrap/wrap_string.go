@@ -37,6 +37,14 @@ func (b *stringWrap) OutputDefTypeValue(exportType config.ExportType, fieldType 
 	}
 }
 
+func (b *stringWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	_, ok := origin.(string)
+	if ok {
+		return origin, nil
+	}
+	return nil, errors.New(fmt.Sprintf("[FormatValueInterface|string] no support type[%T]", origin))
+}
+
 func (b *stringWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	visitor.AcceptString(origin)
 	return nil

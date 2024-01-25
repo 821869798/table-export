@@ -23,4 +23,5 @@ type MetaRuleUnitPlus interface {
 	GetClassDefinePrefix() string
 	GetBuiltinFieldTypes() []string
 	GetExtFieldTypeScriptPath() []string
+	GetPostGlobalScriptPath() string
 }

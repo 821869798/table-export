@@ -31,12 +31,14 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 		TableCommonName:    "_TbCommon" + dataModel.Meta.Target,
 		CollectionReadonly: collectionReadonly,
 		CSCodeWriteFields:  make([]*CSCodeWriteTableField, 0, len(dataModel.Meta.Fields)),
+		CSCodeExtraFields:  make([]*CSCodeWriteTableField, 0, len(dataModel.Meta.ExtraFields)),
 		TableOptimize:      dataModel.Optimize,
 		TableModel:         dataModel,
 	}
 
 	templateRoot.KeyDefTypeMap = getKeyDefTypeMap(dataModel, templateRoot.RecordClassName, 0)
 
+	// 写个每行数据的字段
 	for _, field := range dataModel.Meta.Fields {
 		typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, collectionReadonly)
 		if err != nil {
@@ -57,6 +59,22 @@ func GenCSBinCodeTable(dataModel *model.TableModel, csBinRule *config.RawMetaRul
 			}
 		}
 		templateRoot.CSCodeWriteFields = append(templateRoot.CSCodeWriteFields, writeField)
+	}
+
+	// 写入table root下的额外字段
+	for _, field := range dataModel.Meta.ExtraFields {
+		typeDef, err := wrap.GetOutputDefTypeValue(config.ExportType_CS_Bin, field.Type, collectionReadonly)
+		if err != nil {
+			slog.Fatalf("gen cs code error:%v", typeDef)
+		}
+		writeField := &CSCodeWriteTableField{
+			TypeDef:            typeDef,
+			Name:               field.Target,
+			Desc:               field.Desc,
+			Field:              field,
+			OptimizeFieldIndex: -1,
+		}
+		templateRoot.CSCodeExtraFields = append(templateRoot.CSCodeExtraFields, writeField)
 	}
 
 	//创建代理打印器
@@ -217,6 +235,7 @@ type CSCodeWriteTableFile struct {
 	KeyDefTypeMap      string
 	CollectionReadonly bool
 	CSCodeWriteFields  []*CSCodeWriteTableField
+	CSCodeExtraFields  []*CSCodeWriteTableField
 	TableOptimize      *model.TableOptimize
 	TableModel         *model.TableModel
 }

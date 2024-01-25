@@ -45,6 +45,19 @@ func (b *doubleWrap) OutputDefTypeValue(exportType config.ExportType, fieldType 
 	}
 }
 
+func (b *doubleWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	switch value := origin.(type) {
+	case float64:
+		return value, nil
+	case float32:
+		return float64(value), nil
+	case int64:
+		return float64(value), nil
+	default:
+		return nil, errors.New(fmt.Sprintf("[FormatValueInterface|double] no support type[%T]", origin))
+	}
+}
+
 func (b *doubleWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptDouble(0)

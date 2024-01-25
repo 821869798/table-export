@@ -69,6 +69,17 @@ func (b *sliceWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *
 	}
 }
 
+func (b *sliceWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	switch origin.(type) {
+	case []interface{}:
+		return origin, nil
+	case []string:
+		return origin, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("[FormatValueInterface|slice] no support type[%T]", origin))
+	}
+}
+
 func (b *sliceWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	origin = strings.TrimSpace(origin)
 	if origin == "" {

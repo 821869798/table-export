@@ -59,6 +59,15 @@ func GetOutputDefTypeValue(exportType config.ExportType, fieldType *field_type.T
 	return result, err
 }
 
+func GetFormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	wrap, ok := valueWrapMap[fieldType.Type]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("FormatValueInterface no support field_type type[%v]", fieldType.Type))
+	}
+	result, err := wrap.FormatValueInterface(fieldType, origin)
+	return result, err
+}
+
 func RunDataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if fieldType.ExtFieldType != nil {
 		data, err := fieldType.ExtFieldType.ParseOriginData(origin)

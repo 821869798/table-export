@@ -7,14 +7,18 @@ import (
 	"github.com/821869798/table-export/convert/wrap"
 	"github.com/821869798/table-export/data/apidata"
 	"github.com/821869798/table-export/data/model"
+	"github.com/821869798/table-export/meta"
+	"github.com/gookit/slog"
 )
 
 // MemoryTableCommon Table中所有的key的类型有不一样的,只能使用interface{}
 type MemoryTableCommon struct {
 	ValueMapping map[interface{}]interface{}
 	ValueList    []map[string]interface{}
-	RowDataIndex []int // 数据所在的原始行，可能之后会支持删除某一行
+	RowDataIndex []int                  // 数据所在的原始行，可能之后会支持删除某一行
+	ExtraData    map[string]interface{} // 额外的数据，一般是后处理添加的
 	Name         string
+	tableMeta    *meta.TableMeta
 }
 
 func NewMemTableCommon(dataModel *model.TableModel, count, cap int) (apidata.IMemoryTable, error) {
@@ -23,7 +27,9 @@ func NewMemTableCommon(dataModel *model.TableModel, count, cap int) (apidata.IMe
 		ValueMapping: make(map[interface{}]interface{}, count),
 		ValueList:    make([]map[string]interface{}, 0, count),
 		RowDataIndex: make([]int, cap),
+		ExtraData:    make(map[string]interface{}),
 		Name:         dataModel.Meta.Target,
+		tableMeta:    dataModel.Meta,
 	}
 	err := memTable.ReadTableModel(dataModel)
 	if err != nil {
@@ -113,6 +119,45 @@ func (m *MemoryTableCommon) GetRecordRecordMap(recordIndex int) map[string]inter
 	return m.ValueList[recordIndex-1]
 }
 
+func (m *MemoryTableCommon) GetRecordByKey(keys ...interface{}) map[string]interface{} {
+	if len(keys) != len(m.tableMeta.Keys) {
+		return nil
+	}
+	dataMap := m.ValueMapping
+	for i := 0; i < len(keys)-1; i++ {
+		value, err := wrap.GetFormatValueInterface(m.tableMeta.Keys[i].Type, keys[i])
+		if err != nil {
+			slog.Fatalf("get format value interface error:%v", err)
+		}
+		tmpInterface, ok := dataMap[value]
+		var tmpMap map[interface{}]interface{}
+		if !ok {
+			return nil
+		} else {
+			tmpMap = tmpInterface.(map[interface{}]interface{})
+		}
+		dataMap = tmpMap
+	}
+	lastKey := keys[len(keys)-1]
+	value, err := wrap.GetFormatValueInterface(m.tableMeta.Keys[len(keys)-1].Type, lastKey)
+	if err != nil {
+		slog.Fatalf("get format value interface error:%v", err)
+	}
+	return dataMap[value].(map[string]interface{})
+}
+
 func (m *MemoryTableCommon) RowIndexList() []int {
 	return m.RowDataIndex
+}
+
+func (m *MemoryTableCommon) AddExtraData(name string, data interface{}) {
+	m.ExtraData[name] = data
+}
+
+func (m *MemoryTableCommon) RemoveExtraData(name string) {
+	delete(m.ExtraData, name)
+}
+
+func (m *MemoryTableCommon) GetExtraDataMap() map[string]interface{} {
+	return m.ExtraData
 }

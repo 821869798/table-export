@@ -13,6 +13,7 @@ type RawTableMeta struct {
 	Target     string
 	Mode       string
 	SourceType string            `toml:"source_type"`
+	PostScript string            `toml:"post_script"`
 	Sources    []*RawTableSource `toml:"sources"`
 	Fields     []*RawTableField  `toml:"fields"`
 	Checks     []*RawTableCheck  `toml:"checks"`
@@ -90,6 +91,7 @@ func (rtm *RawTableMeta) SaveTableMetaTemplateByDir(filePath string) error {
 	tmpl, err := template.New("lua").Parse(`target = "{{.Target}}"
 mode = "{{.Mode}}"
 source_type = "{{.SourceType}}"
+post_script = ""
 
 sources = [
 {{range $i, $v := .Sources }}	{ file_name = "{{$v.Table}}",    sheet_name = "{{$v.Sheet}}" },

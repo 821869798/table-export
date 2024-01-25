@@ -14,6 +14,7 @@ type RawMetaRuleUnitCSBin struct {
 	ClassDefinePrefix string   `toml:"class_define_prefix"`
 	BuiltinFieldTypes []string `toml:"builtin_field_types"`
 	ScriptFieldTypes  []string `toml:"script_field_types"`
+	PostGlobalScript  string   `toml:"post_global_script"`
 }
 
 func (r *RawMetaRuleUnitCSBin) RuleExportType() ExportType {
@@ -42,4 +43,8 @@ func (r *RawMetaRuleUnitCSBin) GetBuiltinFieldTypes() []string {
 
 func (r *RawMetaRuleUnitCSBin) GetExtFieldTypeScriptPath() []string {
 	return r.ScriptFieldTypes
+}
+
+func (r *RawMetaRuleUnitCSBin) GetPostGlobalScriptPath() string {
+	return r.PostGlobalScript
 }

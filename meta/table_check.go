@@ -20,12 +20,13 @@ func newTableCheck(check *RawTableCheck) *TableCheck {
 	}
 }
 
-func (c *TableCheck) CompileCode(memTable map[interface{}]interface{}, global map[string]map[interface{}]interface{}) error {
+func (c *TableCheck) CompileCode(memTable map[interface{}]interface{}, global map[string]map[interface{}]interface{}, extraData map[string]interface{}) error {
 
 	c.CodeEnv = map[string]interface{}{
 		//"$":      0,
 		"table":  memTable,
 		"global": global,
+		"extra":  extraData,
 	}
 
 	args := []expr.Option{

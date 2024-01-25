@@ -45,6 +45,14 @@ func (b *boolWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *f
 	}
 }
 
+func (b *boolWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	_, ok := origin.(bool)
+	if ok {
+		return origin, nil
+	}
+	return nil, errors.New(fmt.Sprintf("[FormatValueInterface|bool] no support type[%T]", origin))
+}
+
 func (b *boolWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	if origin == "" {
 		visitor.AcceptBool(false)

@@ -64,6 +64,21 @@ func (e *enumWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *f
 	}
 }
 
+func (e *enumWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	switch value := origin.(type) {
+	case int32:
+		return value, nil
+	case int64:
+		return int32(value), nil
+	case int:
+		return int32(value), nil
+	case float64:
+		return int32(value), nil
+	default:
+		return nil, errors.New(fmt.Sprintf("[FormatValueInterface|enum] no support type[%T]", origin))
+	}
+}
+
 func (e *enumWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	value, err := convertEnumToInt(fieldType, origin)
 	if err != nil {

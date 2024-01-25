@@ -85,4 +85,6 @@ Debug.LogError($"[%s] config id not found,id:{%s}");
     script_field_types = [
         "./cs_bin_config/scripts/ext_field/**/*.js",
     ]
+    # 全局单次的后处理
+    post_global_script = "./cs_bin_config/scripts/global/post_global.js"
 

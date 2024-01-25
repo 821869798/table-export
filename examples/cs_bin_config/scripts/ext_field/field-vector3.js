@@ -1,4 +1,5 @@
 const {eFieldType} = require('../common/table-lib');
+const strings = require('../common/strings');
 
 const TypeName = "TestVector3";
 
@@ -22,11 +23,7 @@ const extFieldVector3 = {
         return fieldType;
     },
     ParseOriginData(origin, context) {
-        origin = origin.trim();
-        if (origin.length === 0) {
-            return { x : 0, y: 0, z: 0};
-        }
-        const stringArray = origin.split(ArraySplit);
+        const stringArray = strings.trimSplit(origin,ArraySplit);
         if (stringArray.length === 0) {
             return { x : 0, y: 0, z: 0};
         }

@@ -39,6 +39,7 @@ namespace CfgTable
 				_tmpuk0[_v.key2] = _v;
             }
 
+
             PostInit();
 		}
 
@@ -60,7 +61,13 @@ namespace CfgTable
             if (_dataMap.TryGetValue(__k0, out var __tmpv0) && __tmpv0.TryGetValue(__k1, out var __tmpv1)) { return __tmpv1; }
             return null; 
         } 
-		
+
+
+        /// <summary>
+        /// table data file
+        /// </summary>
+        public static string TableFileName { get; } = "complex_test";
+
         /// <summary>
         /// post process table
         /// </summary>

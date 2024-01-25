@@ -31,6 +31,11 @@ public class Program
             Console.WriteLine(dataRecord.content);
         }
         
+        bytes = File.ReadAllBytes($"table_bytes/{CfgTable.TblGameConfig.TableFileName}.bytes");
+        ByteBuf buf4 = new ByteBuf(bytes);
+        var table4 = new CfgTable.TblGameConfig(buf4);
+        Console.WriteLine(JsonSerializer.Serialize(table4));
+        
         //var summary = BenchmarkRunner.Run<Program>();
 
     }

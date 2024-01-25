@@ -23,7 +23,7 @@ func NewBinary(buff *serialization.ByteBuf) apiconvert.IDataVisitor {
 
 func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 	optimize := dataModel.Optimize
-	if optimize != nil && len(optimize.OptimizeFields) > 0 {
+	if !dataModel.ClearRecord && optimize != nil && len(optimize.OptimizeFields) > 0 {
 		b.byteBuff.WriteSize(len(optimize.OptimizeFields))
 		for _, tableOptimizeField := range optimize.OptimizeFields {
 			b.byteBuff.WriteSize(len(tableOptimizeField.OptimizeDataInTableRow))
@@ -44,32 +44,51 @@ func (b *BinaryVisitor) AcceptTable(dataModel *model.TableModel) {
 		b.byteBuff.WriteSize(0)
 	}
 
-	b.byteBuff.WriteSize(len(dataModel.RawData))
-	rowDataOffset := config.GlobalConfig.Table.DataStart + 1
-	for rowIndex, recordIndex := range dataModel.MemTable.RowIndexList() {
-		for _, tf := range dataModel.Meta.Fields {
-			if optimize != nil {
-				tableOptimizeField, _ := optimize.GetOptimizeField(tf)
-				if tableOptimizeField != nil {
-					var dIndex = tableOptimizeField.DataUseIndex[rowIndex]
-					// 索引+1,从1开始给之后有空类型的数据0考虑
-					b.byteBuff.WriteInt(int32(dIndex) + 1)
-					continue
+	if !dataModel.ClearRecord {
+		b.byteBuff.WriteSize(len(dataModel.RawData))
+		rowDataOffset := config.GlobalConfig.Table.DataStart + 1
+		for rowIndex, recordIndex := range dataModel.MemTable.RowIndexList() {
+			for _, tf := range dataModel.Meta.Fields {
+				if optimize != nil {
+					tableOptimizeField, _ := optimize.GetOptimizeField(tf)
+					if tableOptimizeField != nil {
+						var dIndex = tableOptimizeField.DataUseIndex[rowIndex]
+						// 索引+1,从1开始给之后有空类型的数据0考虑
+						b.byteBuff.WriteInt(int32(dIndex) + 1)
+						continue
+					}
+				}
+
+				recordMap := dataModel.MemTable.GetRecordRecordMap(recordIndex)
+				value, ok := recordMap[tf.Target]
+				if !ok {
+					slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] not found", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
+				}
+				err := wrap.RunDataVisitorValue(b, tf.Type, value)
+				if err != nil {
+					slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
 				}
 			}
-
-			recordMap := dataModel.MemTable.GetRecordRecordMap(recordIndex)
-			value, ok := recordMap[tf.Target]
-			if !ok {
-				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] not found", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source)
-			}
-			err := wrap.RunDataVisitorValue(b, tf.Type, value)
-			if err != nil {
-				slog.Fatalf("export binary target file[%v] RowCount[%v] filedName[%v] error:%v", dataModel.Meta.Target, rowIndex+rowDataOffset, tf.Source, err.Error())
-			}
 		}
+	} else {
+		b.byteBuff.WriteSize(0)
 	}
 
+	extraDataMap := dataModel.MemTable.GetExtraDataMap()
+	for _, extraField := range dataModel.Meta.ExtraFields {
+		extraValue, ok := extraDataMap[extraField.Target]
+		if !ok {
+			// 写入默认值
+			err := wrap.RunDataVisitorString(b, extraField.Type, "")
+			if err != nil {
+				slog.Fatalf("export binary Accept ExtraField failed: %v", err)
+			}
+		}
+		err := wrap.RunDataVisitorValue(b, extraField.Type, extraValue)
+		if err != nil {
+			slog.Fatalf("export binary Accept ExtraField failed: %v", err)
+		}
+	}
 }
 
 func (b *BinaryVisitor) AcceptInt(r int32) {

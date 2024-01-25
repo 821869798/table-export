@@ -12,7 +12,7 @@ func Run(dataMode *model.TableModel, global map[string]map[interface{}]interface
 	}
 	meta := dataMode.Meta
 	for _, tck := range meta.RecordChecks {
-		err := tck.CompileCode(dataMode.MemTable.RawDataMapping(), global)
+		err := tck.CompileCode(dataMode.MemTable.RawDataMapping(), global, dataMode.MemTable.GetExtraDataMap())
 		if err != nil {
 			slog.Fatalf("table[%s] check compile code[%s] error:%v", meta.Target, tck.Code, err)
 			os.Exit(1)
@@ -34,9 +34,9 @@ func Run(dataMode *model.TableModel, global map[string]map[interface{}]interface
 		}
 	}
 
-	// 检查全局数据
+	// 检查单表的全局
 	for _, tck := range meta.GlobalChecks {
-		err := tck.CompileCode(dataMode.MemTable.RawDataMapping(), global)
+		err := tck.CompileCode(dataMode.MemTable.RawDataMapping(), global, dataMode.MemTable.GetExtraDataMap())
 		if err != nil {
 			slog.Fatalf("table[%s] check compile global code[%s] error:%v", meta.Target, tck.Code, err)
 			os.Exit(1)

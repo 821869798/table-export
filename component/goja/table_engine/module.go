@@ -2,15 +2,21 @@ package table_engine
 
 import (
 	"github.com/821869798/table-export/config"
+	"github.com/821869798/table-export/data/env"
 	"github.com/821869798/table-export/field_type"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
 	_ "github.com/dop251/goja_nodejs/util"
+	"github.com/gookit/slog"
 )
 
 type TableEngine struct {
 	runtime *goja.Runtime
 	//util        *goja.Object
+}
+
+func (c *TableEngine) Fatal(msg string) {
+	slog.Fatal(msg)
 }
 
 func (c *TableEngine) NewTableFieldClass(name string) *field_type.TableFieldClass {
@@ -37,29 +43,28 @@ func (c *TableEngine) NewTableFieldClassType(class *field_type.TableFieldClass) 
 	return field_type.NewTableFieldClassType(class)
 }
 
-//func (c *TableEngine) log(p func(string)) func(goja.FunctionCall) goja.Value {
-//	return func(call goja.FunctionCall) goja.Value {
-//		if format, ok := goja.AssertFunction(c.util.Get("format")); ok {
-//			ret, err := format(c.util, call.Arguments...)
-//			if err != nil {
-//				panic(err)
-//			}
-//
-//			p(ret.String())
-//		} else {
-//			panic(c.runtime.NewTypeError("util.format is not a function"))
-//		}
-//
-//		return nil
-//	}
-//}
+func (c *TableEngine) GetExtFieldType(name string) *field_type.TableFieldType {
+	v, ok := env.GetExtFieldType(name)
+	if ok {
+		return v.TableFieldType()
+	}
+	return nil
+}
+
+func (c *TableEngine) ParseExtFieldValue(name string, origin string) interface{} {
+	v, ok := env.GetExtFieldType(name)
+	if !ok {
+		slog.Fatalf("parse ext field type error: name[%v],origin[%v]", name, origin)
+	}
+	result, err := v.ParseOriginData(origin)
+	if err != nil {
+		slog.Fatalf("parse ext field type error: name[%v],origin[%v],err[%v]", name, origin, err)
+	}
+	return result
+}
 
 func Require(runtime *goja.Runtime, module *goja.Object) {
 	requireWithPrinter()(runtime, module)
-}
-
-func RequireWithPrinter() require.ModuleLoader {
-	return requireWithPrinter()
 }
 
 func requireWithPrinter() require.ModuleLoader {
@@ -71,13 +76,17 @@ func requireWithPrinter() require.ModuleLoader {
 		//c.util = require.Require(runtime, "util").(*goja.Object)
 
 		o := module.Get("exports").(*goja.Object)
-		o.Set("NewTableFieldClass", c.NewTableFieldClass)
-		o.Set("NewTableFieldType", c.NewTableFieldType)
-		o.Set("NewTableFieldEnumType", c.NewTableFieldEnumType)
-		o.Set("NewTableFieldArrayType", c.NewTableFieldArrayType)
-		o.Set("NewTableFieldMapType", c.NewTableFieldMapType)
-		o.Set("NewTableFieldClassType", c.NewTableFieldClassType)
-		o.Set("TableConfig", config.GlobalConfig.Table)
+		_ = o.Set("NewTableFieldClass", c.NewTableFieldClass)
+		_ = o.Set("NewTableFieldType", c.NewTableFieldType)
+		_ = o.Set("NewTableFieldEnumType", c.NewTableFieldEnumType)
+		_ = o.Set("NewTableFieldArrayType", c.NewTableFieldArrayType)
+		_ = o.Set("NewTableFieldMapType", c.NewTableFieldMapType)
+		_ = o.Set("NewTableFieldClassType", c.NewTableFieldClassType)
+		_ = o.Set("TableConfig", config.GlobalConfig.Table)
+		_ = o.Set("Fatal", c.Fatal)
+		_ = o.Set("GetExtFieldType", c.GetExtFieldType)
+		_ = o.Set("ParseExtFieldValue", c.ParseExtFieldValue)
+
 	}
 }
 

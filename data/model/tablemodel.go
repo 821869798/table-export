@@ -13,7 +13,8 @@ type TableModel struct {
 	RawData          [][]string     //数据
 	Meta             *meta.TableMeta
 	Optimize         *TableOptimize
-	MemTable         apidata.IMemoryTable
+	MemTable         apidata.IMemoryTable // 内存中转换后的数据，主要是interface{}类型
+	ClearRecord      bool                 // 是否清除整个表的每行数据
 }
 
 func NewTableModel(meta *meta.TableMeta) *TableModel {
@@ -23,6 +24,7 @@ func NewTableModel(meta *meta.TableMeta) *TableModel {
 		DescRow:          nil,
 		RawData:          nil,
 		Meta:             meta,
+		ClearRecord:      false,
 	}
 	return d
 }

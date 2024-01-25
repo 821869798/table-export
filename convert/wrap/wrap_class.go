@@ -28,6 +28,20 @@ func (c *classWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *
 	}
 }
 
+func (c *classWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	if origin == nil {
+		return nil, nil
+	}
+	switch origin.(type) {
+	case map[string]interface{}:
+		return origin, nil
+	case map[string]string:
+		return origin, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("[FormatValueInterface|class] no support type[%T]", origin))
+	}
+}
+
 func (c *classWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	//TODO implement me
 	panic("implement me")

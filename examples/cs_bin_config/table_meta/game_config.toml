@@ -1,0 +1,18 @@
+target = "GameConfig"
+mode = ""
+source_type = "excel"
+post_script = "cs_bin_config/scripts/ext_table/game_config.js"
+
+sources = [
+	{ file_name = "game_config.xlsx",    sheet_name = "Sheet1" },
+]
+
+fields = [
+	{ active = true,   sname = "id" ,      tname = "id" ,      type = "int" ,  key = 1,    desc = "id" },
+	{ active = true,   sname = "data" ,      tname = "data" ,      type = "string" ,  key = 0,    desc = "内容值" },
+	{ active = true,   sname = "remark" ,      tname = "备注" ,      type = "string" ,  key = 0,    desc = "描述" },
+	{ active = false,   sname = "备注" ,      tname = "备注" ,      type = "" ,  key = 0,    desc = "" },
+]
+
+checks = [
+]

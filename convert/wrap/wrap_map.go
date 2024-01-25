@@ -148,6 +148,20 @@ func (b *mapWrap) OutputDefTypeValue(exportType config.ExportType, fieldType *fi
 	}
 }
 
+func (b *mapWrap) FormatValueInterface(fieldType *field_type.TableFieldType, origin interface{}) (interface{}, error) {
+	switch origin.(type) {
+	case map[string]interface{}:
+		return origin, nil
+	case map[interface{}]interface{}:
+		return origin, nil
+	case map[string]string:
+		return origin, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("[FormatValueInterface|map] no support type[%T]", origin))
+	}
+
+}
+
 func (b *mapWrap) DataVisitorString(visitor apiconvert.IDataVisitor, fieldType *field_type.TableFieldType, origin string) error {
 	origin = strings.TrimSpace(origin)
 	if origin == "" {

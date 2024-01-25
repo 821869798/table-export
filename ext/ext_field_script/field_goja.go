@@ -1,4 +1,4 @@
-package ext_scripts
+package ext_field_script
 
 import (
 	"errors"

@@ -4,19 +4,22 @@ import (
 	"errors"
 	"fmt"
 	"github.com/821869798/table-export/field_type"
+	"github.com/gookit/slog"
 )
 
 type TableMeta struct {
-	Target         string
-	Mode           string
-	SourceType     string
-	Sources        []*TableSource
-	Fields         []*TableField
-	Keys           []*TableField   //关键key
-	IsKeyTypeEqual bool            //key的类型是否相等
-	SourceMap      map[string]bool //需要的source字段名
-	RecordChecks   []*TableCheck   // 针对一行数据的检查
-	GlobalChecks   []*TableCheck   // 只调一次的Check
+	Target        string
+	Mode          string
+	SourceType    string
+	Sources       []*TableSource
+	Fields        []*TableField
+	Keys          []*TableField   //关键key
+	SourceMap     map[string]bool //需要的source字段名
+	RecordChecks  []*TableCheck   // 针对一行数据的检查
+	GlobalChecks  []*TableCheck   // 只调一次的Check
+	PostScript    string
+	ExtraFields   []*TableField // 额外字段
+	extraFieldMap map[string]bool
 }
 
 type TableSource struct {
@@ -26,11 +29,12 @@ type TableSource struct {
 
 func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	t := &TableMeta{
-		Target:         rtm.Target,
-		Mode:           rtm.Mode,
-		SourceType:     rtm.SourceType,
-		SourceMap:      make(map[string]bool),
-		IsKeyTypeEqual: true,
+		Target:        rtm.Target,
+		Mode:          rtm.Mode,
+		SourceType:    rtm.SourceType,
+		SourceMap:     make(map[string]bool),
+		PostScript:    rtm.PostScript,
+		extraFieldMap: make(map[string]bool),
 	}
 
 	//source
@@ -49,7 +53,6 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 	//校验
 	fields := make([]*TableField, 0)
 	keysMap := make(map[int]*TableField)
-	lastKeyType := field_type.EFieldType_None
 	for _, rtf := range rtm.Fields {
 		if !rtf.Active {
 			continue
@@ -73,11 +76,6 @@ func NewTableMeta(rtm *RawTableMeta) (*TableMeta, error) {
 			}
 			keysMap[tft.Key] = tft
 
-			if lastKeyType == field_type.EFieldType_None {
-				lastKeyType = tft.Type.Type
-			} else if lastKeyType != tft.Type.Type {
-				t.IsKeyTypeEqual = false
-			}
 		}
 	}
 
@@ -142,4 +140,22 @@ func (tm *TableMeta) GetKeyDefTypeOffset(finalType field_type.EFieldType, offset
 		value = field_type.NewTableFieldMapType(key.Type, value)
 	}
 	return value
+}
+
+func (tm *TableMeta) AddExtraField(name string, value *field_type.TableFieldType, desc string) {
+	if value == nil {
+		slog.Fatalf("table meta config[%v] extra field type is nil", tm.Target)
+	}
+	_, ok := tm.extraFieldMap[name]
+	if ok {
+		slog.Fatalf("table meta config[%v] extra field name repeated[%v]", tm.Target, name)
+		return
+	}
+
+	tm.extraFieldMap[name] = true
+	tm.ExtraFields = append(tm.ExtraFields, &TableField{
+		Target: name,
+		Type:   value,
+		Desc:   desc,
+	})
 }
