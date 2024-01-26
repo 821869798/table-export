@@ -67,7 +67,7 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 			fileExt := filepath.Ext(m)
 			switch fileExt {
 			case ".js":
-				extFieldType, err := ext_field_script.NewExtFieldJS(m)
+				extFieldType, err := ext_field_script.NewExtFieldJS(strings.ReplaceAll(m, "\\", "/"))
 				if err != nil {
 					slog.Fatalf("Ext Script Files laod error filePath:%s err:%v", m, err)
 					os.Exit(1)
@@ -91,7 +91,7 @@ func ExportPlusCommon(tableMetas []*meta.RawTableMeta, rulePlus config.MetaRuleU
 			fileExt := filepath.Ext(scriptPath)
 			switch fileExt {
 			case ".js":
-				extPostTable, err := ext_post.NewExtPostTableJS(tableModel.Meta.PostScript)
+				extPostTable, err := ext_post.NewExtPostTableJS(strings.ReplaceAll(scriptPath, "\\", "/"))
 				if err != nil {
 					slog.Fatalf("Ext Script Files laod error filePath:%s err:%v", tableModel.Meta.PostScript, err)
 					os.Exit(1)

@@ -3,7 +3,7 @@
 ## 介绍
 table-export 是一个高性能游戏导表工具，使用golang编写，目前支持源数据excel和csv，导出格式支持
 
-C# binary （推荐），lua （推荐），c# proto，json，可以根据自己的需求自己修改扩展。
+C# binary （推荐），lua （推荐），json，可以根据自己的需求自己修改扩展。
 
 ## [B站介绍视频](https://www.bilibili.com/video/BV1ru411871G/)
 
@@ -14,6 +14,10 @@ C# binary （推荐），lua （推荐），c# proto，json，可以根据自己
 - 使用toml配置来定义导出规则
 - 支持多字段索引id，例如多个字段才确定这行数据的唯一
 - 导出的C# binary，以及lua，都是支持内存和硬盘占用优化，这是对比其他导表工具的最大优势。table-export会在导出的时候把相同重复的引用数据只导出一份，并且在runtime读取的时候，只读取一份，然后其他和这份数据相同的都会持有这个引用，实际上游戏数据表越多数据量越大的时候，能够优化的存储和内存将近一半，这样也同时也加快了游戏启动的加载的时间
+- 方便的数据检测(cs_bin模式)
+- 自定义复合类型，使用go或者js脚本扩展(cs_bin模式)
+- 自定义枚举(cs_bin模式)
+- 单表后处理和全局后处理的js脚本支持(cs_bin模式)
 
 ## 使用方法
 
@@ -104,7 +108,6 @@ table_export -g csv_test,csv_test.csv
 然后打开这个toml配置，把fields中需要导出的字段的active设置为true，并且填入type，以及在这个表中至少定义一个索引key，可以多个但是必须是连续的，例如 key的字段有 1 ，2。这样就会生成一个双key的数据，之后就是双key的数据。例子complex_test就是双key的例子
 
 
-
 ## Benchmark
 
 使用cs_bin模式，用examples中的big_data作为benchmark的示例
@@ -121,12 +124,7 @@ table_export -g csv_test,csv_test.csv
 
 # TODO
 
-目前1.0版本中已经支持，后续会更新使用文档
- - 数据检测
- - 自定义复合类型(使用go或者js脚本扩展)
- - 自定义枚举
-
-TODO ：添加特殊后处理等功能。
+目前1.1以上版本中已经全部支持，后续会更新强大新特性的使用文档
 
 ## Credits
 
